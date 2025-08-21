@@ -26,10 +26,10 @@ class MembersConfig(AppConfig):
                     f"DEBUG mode: expected Firebase JSON at {local_path}, but file was not found."
                 )
             cred = credentials.Certificate(local_path)
-<<<<<<< HEAD
+
             firebase_admin.initialize_app(cred)
         else:
-        # pull from settings
+            # pull from settings
             cred_json = settings.FIREBASE_CREDENTIALS_JSON
             if not cred_json:
                 raise ImproperlyConfigured(
@@ -38,18 +38,3 @@ class MembersConfig(AppConfig):
             key_dict = json.loads(cred_json)
             cred = credentials.Certificate(key_dict)
             firebase_admin.initialize_app(cred)
-=======
-        else:
-            # Production: fetch the secret JSON from AWS Secrets Manager
-            if not firebase_admin._apps:
-                # 1. Fetch the secret JSON from Secrets Manager
-                sm = boto3.client('secretsmanager',
-                                  region_name='ap-southeast-1')
-                resp = sm.get_secret_value(
-                    SecretId='prod/firebase/passenger-service-account')
-                key_dict = json.loads(resp['SecretString'])
-
-                # 2. Initialize Firebase Admin with that dict
-                cred = credentials.Certificate(key_dict)
-                firebase_admin.initialize_app(cred)
->>>>>>> 535cef2fce557f71027a1d27c9e1ef99456316d3
