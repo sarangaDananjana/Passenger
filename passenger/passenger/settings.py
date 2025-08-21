@@ -49,7 +49,6 @@ utc_timezone = pytz.utc
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-<<<<<<< HEAD
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DATABASE = os.getenv("DATABASE")
@@ -57,21 +56,12 @@ GENIE_API_KEY = os.getenv("GENIE_API_KEY")
 FIREBASE_CREDENTIALS_JSON = os.getenv("FIREBASE_CREDENTIALS_JSON")
 NOTIFICATION_URL = os.getenv("NOTIFICATION_URL")
 
-=======
-GENIE_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjQwZDc2YzY2LTkyM2YtNDg3Ni1hZjQ2LTFiMzE4MTcyYzQwNyIsImNvbXBhbnlJZCI6IjY3ZjM4ZjhhMmFjODllMDAwOGE0NDI5ZSIsImlhdCI6MTc0NDAxNTM1MiwiZXhwIjo0ODk5Njg4OTUyfQ.r_C21RRJfq2c_mEaHNlWoitPvWIaD-FPYQzoW9qV7Ug'
->>>>>>> 535cef2fce557f71027a1d27c9e1ef99456316d3
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-<<<<<<< HEAD
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS",
                           "127.0.0.1,localhost").split(',')
-=======
-ALLOWED_HOSTS = ['localhost', '127.0.0.1',
-                 '18.136.198.120', '172.31.28.148', 'www.passenger.lk']
->>>>>>> 535cef2fce557f71027a1d27c9e1ef99456316d3
 
 
 # Application definition

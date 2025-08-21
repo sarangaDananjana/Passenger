@@ -8,7 +8,8 @@ services:
       - ./static:/app/staticfiles
     env_file:
       - .env.prod
-    # depends_on removed (we now use MongoDB Atlas)
+    depends_on:
+      - db
 
   mosquitto:
     build:
@@ -28,6 +29,17 @@ services:
     stdin_open: true
     tty: true
 
+  db:
+    image: mongo:8.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: passenger
+      MONGO_INITDB_ROOT_PASSWORD: Iwantm0ney$
+      MONGO_INITDB_DATABASE: PassengerDB
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodata:/data/db
+
   frontend-proxy:
     image: nginx:latest
     ports:
@@ -37,3 +49,7 @@ services:
       - ./static:/static:ro
     depends_on:
       - django-web
+
+volumes:
+  mongodata:
+    driver: local
