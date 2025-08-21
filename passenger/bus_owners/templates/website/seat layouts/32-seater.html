@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>32 Seater</title>
+
+  <style>
+    /* 1) Container for all seats */
+.bus-seat-map {
+  display: grid;
+  /* 
+    For a 32-seater (8 rows × 4 columns), 
+    but we insert an extra empty track in the middle for the aisle:
+    → total columns = left-side seats + aisle-gap + right-side seats
+  */
+  grid-template-rows: repeat(8, 1fr);
+  grid-template-columns: repeat(2, 1fr)  /* left side seats */
+                         40px            /* fixed-width aisle gap */
+                         repeat(2, 1fr); /* right side seats */
+  gap: 8px;  /* spacing between seats */
+  background: #f5f5f5;
+  padding: 16px;
+  max-width: 400px; /* or whatever fits your design */
+  margin: auto;
+}
+
+/* 2) Each seat looks like a small rectangle with rounded corners */
+.seat {
+  background: #ddd;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #333;
+  cursor: pointer;
+  position: relative;
+}
+
+/* 3) If it’s booked, we’ll override the background to red or gray-out */
+.seat.booked {
+  background: #e74c3c;  /* red */
+  color: #fff;
+  cursor: not-allowed;
+}
+
+/* 4) If it’s selected (e.g., user clicks to choose), you can highlight it differently */
+.seat.selected {
+  background: #4CAF50; /* green-ish */
+  color: #fff;
+}
+
+/* 5) Positioning helpers
+   We’ll rely on inline styles (or CSS variables) to place each seat 
+   in the correct grid row/column. 
+*/
+
+  </style>
+</head>
+<body>
+  <div class="bus-seat-map" data-bus-type="32">
+    <!-- We’ll inject a series of .seat elements here -->
+  </div>
+  
+</body>
+</html>

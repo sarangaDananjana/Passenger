@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Editor</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            /* bg-gray-900 */
+        }
+
+        /* Simple spinner animation */
+        .spinner {
+            border-top-color: #3b82f6;
+            /* blue-500 */
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="text-white antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-3xl">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-100">Route Editor</h1>
+            <p class="text-gray-400 mt-2">Search for a route to edit, or create a new one.</p>
+            <a href="/core/web/admin-dashboard/"
+                class="text-blue-400 hover:text-blue-300 transition mt-2 inline-block">&larr; Back to Dashboard</a>
+        </header>
+
+        <main id="app">
+            <!-- Search & Create Section -->
+            <div id="searchSection">
+                <div class="relative mb-2">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="Search by route name..."
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                </div>
+                <div class="text-center mb-4">
+                    <button id="createNewBtn"
+                        class="w-full md:w-auto px-4 py-2 bg-green-600 hover:bg-green-500 rounded-md font-semibold transition">
+                        + Create New Route
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner and Results Container -->
+            <div id="resultsContainer" class="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                <div id="loader" class="hidden justify-center items-center p-6">
+                    <div class="spinner h-8 w-8 rounded-full border-4 border-gray-600"></div>
+                </div>
+                <ul id="suggestionsList" class="divide-y divide-gray-700">
+                    <!-- Suggestions will be populated here by JavaScript -->
+                </ul>
+                <p id="noResults" class="text-center text-gray-500 p-6 hidden">No results found.</p>
+                <p id="apiError" class="text-center text-red-400 p-6 hidden">Could not fetch data. The API might be
+                    unavailable or you may be unauthorized.</p>
+            </div>
+
+            <!-- Edit Form Section (initially hidden) -->
+            <div id="editFormContainer" class="hidden mt-8">
+                <form id="editForm" class="bg-gray-800 p-6 rounded-lg shadow-lg space-y-4">
+                    <h2 id="formTitle" class="text-2xl font-semibold border-b border-gray-700 pb-3 mb-4">Edit Route</h2>
+
+                    <input type="hidden" id="route_id" name="_id">
+
+                    <!-- Form Fields -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="route_name" class="block text-sm font-medium text-gray-300 mb-1">Route
+                                Name</label>
+                            <input type="text" id="route_name" name="route_name" required
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="route_number" class="block text-sm font-medium text-gray-300 mb-1">Route
+                                Number</label>
+                            <input type="text" id="route_number" name="route_number" required
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="number_of_sections" class="block text-sm font-medium text-gray-300 mb-1">Number of
+                            Sections</label>
+                        <input type="number" id="number_of_sections" name="number_of_sections"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="image_1" class="block text-sm font-medium text-gray-300 mb-1">Image 1
+                                URL</label>
+                            <input type="url" id="image_1" name="image_1" placeholder="https://example.com/image1.png"
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="image_2" class="block text-sm font-medium text-gray-300 mb-1">Image 2
+                                URL</label>
+                            <input type="url" id="image_2" name="image_2" placeholder="https://example.com/image2.png"
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-700">
+                        <button type="button" id="cancelButton"
+                            class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-md transition">Cancel</button>
+
+                        <!-- "Edit Sections" button, initially hidden -->
+                        <a id="editSectionsBtn" href="#" target="_blank"
+                            class="hidden px-4 py-2 bg-green-600 hover:bg-green-500 rounded-md font-semibold transition">
+                            Edit Sections
+                        </a>
+
+                        <button type="submit" id="submitButton"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md font-semibold transition flex items-center">
+                            <span id="submitButtonText">Update Route</span>
+                            <div id="submitSpinner" class="spinner h-5 w-5 ml-2 hidden"></div>
+                        </button>
+                    </div>
+                </form>
+                <!-- Message area for update status -->
+                <div id="updateMessage" class="mt-4 text-center p-3 rounded-md hidden"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Element References ---
+            const searchInput = document.getElementById('searchInput');
+            const searchSection = document.getElementById('searchSection');
+            const suggestionsList = document.getElementById('suggestionsList');
+            const noResults = document.getElementById('noResults');
+            const apiError = document.getElementById('apiError');
+            const loader = document.getElementById('loader');
+            const editFormContainer = document.getElementById('editFormContainer');
+            const editForm = document.getElementById('editForm');
+            const formTitle = document.getElementById('formTitle');
+            const cancelButton = document.getElementById('cancelButton');
+            const submitButton = document.getElementById('submitButton');
+            const submitButtonText = document.getElementById('submitButtonText');
+            const submitSpinner = document.getElementById('submitSpinner');
+            const updateMessage = document.getElementById('updateMessage');
+            const createNewBtn = document.getElementById('createNewBtn');
+            const editSectionsBtn = document.getElementById('editSectionsBtn');
+
+            let debounceTimer;
+            let accessToken = null;
+
+            // --- API URLs ---
+            const SEARCH_API_URL = '/core/routes/?route_name=';
+            const EDIT_API_URL = '/core/edit-route/';
+            const VALIDATE_API_URL = 'https://www.passenger.lk/core/validate-admin/';
+            const LOGIN_URL = 'https://www.passenger.lk/core/web/admin-login/';
+
+            // --- Authentication ---
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            /**
+             * Clears the access and refresh token cookies and redirects to the login page.
+             */
+            function logout() {
+                console.log("Logging out, clearing cookies, and redirecting to login.");
+                document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                document.cookie = 'refresh_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                window.location.href = LOGIN_URL;
+            }
+
+            /**
+             * Checks for a token and validates it with the server on page load.
+             */
+            async function checkAuth() {
+                accessToken = getCookie('access_token');
+                if (!accessToken) {
+                    console.log("Route Editor: No access token found. Redirecting to login.");
+                    logout(); // Call logout to be safe, though no cookies should exist
+                    return;
+                }
+
+                try {
+                    const response = await fetch(VALIDATE_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+                    if (response.status === 401 || response.status === 403) {
+                        console.error("Route Editor: Token invalid (401/403). Logging out.");
+                        logout(); // **FIX**: Call logout to clear invalid tokens
+                    } else if (!response.ok) {
+                        throw new Error('Admin validation failed.');
+                    } else {
+                        console.log("Route Editor: Token is valid.");
+                    }
+                } catch (error) {
+                    console.error("Route Editor: Auth check failed, logging out.", error);
+                    logout(); // Also log out on network errors etc. for security
+                }
+            }
+
+            // --- Event Listeners ---
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim();
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    if (query.length > 1) fetchSuggestions(query);
+                    else clearSuggestions();
+                }, 300);
+            });
+
+            editForm.addEventListener('submit', e => {
+                e.preventDefault();
+                submitRoute();
+            });
+
+            cancelButton.addEventListener('click', resetToSearchView);
+            createNewBtn.addEventListener('click', showCreateRouteForm);
+
+            // --- Core Functions ---
+            async function fetchSuggestions(query) {
+                showLoader(true);
+                clearSuggestions();
+                hideMessages();
+                try {
+                    const response = await fetch(`${SEARCH_API_URL}${encodeURIComponent(query)}`);
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                    const data = await response.json();
+                    displaySuggestions(data);
+                } catch (error) {
+                    console.error('Error fetching suggestions:', error);
+                    apiError.classList.remove('hidden');
+                } finally {
+                    showLoader(false);
+                }
+            }
+
+            function displaySuggestions(suggestions) {
+                clearSuggestions();
+                if (suggestions.length === 0) {
+                    noResults.classList.remove('hidden');
+                    return;
+                }
+                suggestions.forEach(route => {
+                    const li = document.createElement('li');
+                    li.className = 'p-4 hover:bg-gray-700 cursor-pointer transition';
+                    li.innerHTML = `<div class="font-semibold text-gray-100">${route.route_name}</div><div class="text-sm text-gray-400">Route No: ${route.route_number || 'N/A'}</div>`;
+                    li.addEventListener('click', () => selectRouteToEdit(route));
+                    suggestionsList.appendChild(li);
+                });
+            }
+
+            function showCreateRouteForm() {
+                switchToFormView();
+                formTitle.textContent = 'Create New Route';
+                submitButtonText.textContent = 'Create Route';
+                editForm.reset();
+                document.getElementById('route_id').value = '';
+                editSectionsBtn.classList.add('hidden');
+            }
+
+            function selectRouteToEdit(route) {
+                switchToFormView();
+                formTitle.textContent = 'Edit Route';
+                submitButtonText.textContent = 'Update Route';
+
+                const currentRouteId = route.route_id || '';
+                document.getElementById('route_id').value = currentRouteId;
+                document.getElementById('route_name').value = route.route_name || '';
+                document.getElementById('route_number').value = route.route_number || '';
+                document.getElementById('number_of_sections').value = route.number_of_sections || '';
+
+                document.getElementById('image_1').value = '';
+                document.getElementById('image_2').value = '';
+
+                if (currentRouteId) {
+                    editSectionsBtn.href = `/core/web/edit-routes/${currentRouteId}/`;
+                    editSectionsBtn.classList.remove('hidden');
+                } else {
+                    editSectionsBtn.classList.add('hidden');
+                }
+            }
+
+            async function submitRoute() {
+                setSubmitButtonState(true);
+                hideMessages();
+
+                const formData = new FormData(editForm);
+                const data = {
+                    _id: formData.get('_id'),
+                    route_name: formData.get('route_name'),
+                    route_number: formData.get('route_number'),
+                    number_of_sections: formData.get('number_of_sections'),
+                    image_1: formData.get('image_1'),
+                    image_2: formData.get('image_2'),
+                };
+
+                const action = data._id ? 'updated' : 'created';
+                if (!data._id) delete data._id;
+
+                if (data.number_of_sections) {
+                    data.number_of_sections = parseInt(data.number_of_sections, 10);
+                } else {
+                    delete data.number_of_sections;
+                }
+
+                if (!data.image_1) delete data.image_1;
+                if (!data.image_2) delete data.image_2;
+
+                try {
+                    const response = await fetch(EDIT_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        },
+                        body: JSON.stringify(data),
+                    });
+
+                    if (response.status === 401) {
+                        logout();
+                        return;
+                    }
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.error || `Submit failed with status: ${response.status}`);
+                    }
+
+                    showUpdateMessage('success', `Successfully ${action} route: ${data.route_name}`);
+
+                    if (action === 'created') {
+                        setTimeout(resetToSearchView, 2000);
+                    }
+                } catch (error) {
+                    showUpdateMessage('error', `Error: ${error.message}`);
+                } finally {
+                    setSubmitButtonState(false);
+                }
+            }
+
+            // --- UI Helper Functions ---
+            function switchToFormView() {
+                searchSection.classList.add('hidden');
+                document.getElementById('resultsContainer').classList.add('hidden');
+                editFormContainer.classList.remove('hidden');
+                hideMessages();
+            }
+
+            function clearSuggestions() {
+                suggestionsList.innerHTML = '';
+                noResults.classList.add('hidden');
+                apiError.classList.add('hidden');
+            }
+
+            function showLoader(isLoading) {
+                loader.classList.toggle('hidden', !isLoading);
+                loader.classList.toggle('flex', isLoading);
+            }
+
+            function hideMessages() {
+                apiError.classList.add('hidden');
+                noResults.classList.add('hidden');
+                updateMessage.classList.add('hidden');
+            }
+
+            function setSubmitButtonState(isSubmitting) {
+                submitButton.disabled = isSubmitting;
+                submitButtonText.classList.toggle('hidden', isSubmitting);
+                submitSpinner.classList.toggle('hidden', !isSubmitting);
+            }
+
+            function showUpdateMessage(type, message) {
+                updateMessage.textContent = message;
+                updateMessage.className = 'mt-4 text-center p-3 rounded-md';
+                updateMessage.classList.add(type === 'success' ? 'bg-green-900' : 'bg-red-900', type === 'success' ? 'text-green-200' : 'text-red-200');
+                updateMessage.classList.remove('hidden');
+            }
+
+            function resetToSearchView() {
+                editFormContainer.classList.add('hidden');
+                searchSection.classList.remove('hidden');
+                document.getElementById('resultsContainer').classList.remove('hidden');
+                editForm.reset();
+                searchInput.value = '';
+                searchInput.focus();
+                clearSuggestions();
+                hideMessages();
+                editSectionsBtn.classList.add('hidden');
+            }
+
+            // --- Initializer ---
+            checkAuth();
+        });
+    </script>
+
+</body>
+
+</html>

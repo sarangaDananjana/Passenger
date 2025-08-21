@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signup/Login</title>
+
+  <!-- Dashboard font & colors -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue: #2fa8f8;
+      --dark-blue: #007bff;
+      --light-grey: #f5f5f5;
+      --bg-white: #ffffff;
+      --bg-dark: #22252D;
+      --page-bg: #343841;
+      --text-light: #A6A6A6;
+      --text-dark: #333333;
+      --red: #e74c3c;
+    }
+
+    /* reset & page bg */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--page-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      color: var(--text-light);
+    }
+
+    /* login card */
+    .login-container {
+      background: var(--bg-dark);
+      padding: 4rem 2rem;
+      border-radius: 12px;
+      width: 500px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .login-container h2 {
+      text-align: center;
+      font-size: 2.5rem;
+      color: var(--blue);
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-light);
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      border: 1px solid #555;
+      background: #2b2b2b;
+      color: #fff;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    .error {
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+      color: var(--red);
+      min-height: 1rem;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button[type="submit"]:hover {
+      background: var(--dark-blue);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="phone_number">Phone Number</label>
+        <input type="number" id="phone_number" name="phone_number" required />
+        <div class="error" id="phone_numberError"></div>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+  <script type="module" src="{% static 'js/login_or_register.js' %}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boarding Point Editor with Gemini AI</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            /* bg-gray-900 */
+        }
+
+        /* Simple spinner animation */
+        .spinner {
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Style for AI buttons */
+        .ai-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: #8b5cf6;
+            /* Violet */
+            color: white;
+            border-radius: 0.375rem;
+            /* rounded-md */
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .ai-button:hover {
+            background-color: #7c3aed;
+            /* Darker Violet */
+        }
+
+        .ai-button:disabled {
+            background-color: #a78bfa;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-2xl">
+        <header class="text-center mb-4">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-100">Boarding Point Editor</h1>
+            <p class="text-gray-400 mt-2">Search for a point to edit, or create a new one.</p>
+            <a href="/core/web/admin-dashboard/"
+                class="text-blue-400 hover:text-blue-300 transition mt-2 inline-block">&larr; Back to Dashboard</a>
+        </header>
+
+        <main id="app">
+            <!-- Search & Create Section -->
+            <div id="searchSection">
+                <div class="relative mb-2">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="E.g., 'Colombo', 'Kandy'..."
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                </div>
+                <div class="text-center mb-4">
+                    <button id="createNewBtn"
+                        class="w-full md:w-auto px-4 py-2 bg-green-600 hover:bg-green-500 rounded-md font-semibold transition">
+                        + Create New Point
+                    </button>
+                </div>
+            </div>
+
+
+            <!-- Loading Spinner and Results Container -->
+            <div id="resultsContainer" class="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                <div id="loader" class="hidden justify-center items-center p-6">
+                    <div class="spinner h-8 w-8 rounded-full border-4 border-gray-600"></div>
+                </div>
+                <ul id="suggestionsList" class="divide-y divide-gray-700">
+                    <!-- Suggestions will be populated here by JavaScript -->
+                </ul>
+                <p id="noResults" class="text-center text-gray-500 p-6 hidden">No results found.</p>
+                <p id="apiError" class="text-center text-red-400 p-6 hidden">Could not fetch data. The API might be
+                    unavailable or blocking requests (CORS issue).</p>
+            </div>
+
+            <!-- Edit Form Section (initially hidden) -->
+            <div id="editFormContainer" class="hidden mt-8">
+                <form id="editForm" class="bg-gray-800 p-6 rounded-lg shadow-lg space-y-4">
+                    <h2 id="formTitle" class="text-2xl font-semibold border-b border-gray-700 pb-3 mb-4">Edit Boarding
+                        Point</h2>
+
+                    <input type="hidden" id="bp_id" name="_id">
+
+                    <!-- Form Fields -->
+                    <div>
+                        <label for="bp_name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
+                        <input type="text" id="bp_name" name="name"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="bp_description"
+                                class="block text-sm font-medium text-gray-300">Description</label>
+                            <button type="button" id="generateDescriptionBtn" class="ai-button">
+                                <span id="descBtnText">✨ Suggest Description</span>
+                                <div id="descSpinner" class="spinner h-4 w-4 hidden"></div>
+                            </button>
+                        </div>
+                        <textarea id="bp_description" name="description" rows="3"
+                            placeholder="Click 'Suggest Description' to generate with AI..."
+                            class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label for="bp_city" class="block text-sm font-medium text-gray-300 mb-1">City</label>
+                        <!-- City input will be dynamically replaced -->
+                        <div id="cityContainer">
+                            <input type="text" id="bp_city_text"
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="bp_province" class="block text-sm font-medium text-gray-300 mb-1">Province</label>
+                        <input type="text" id="bp_province" name="province"
+                            class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="bp_latitude"
+                                class="block text-sm font-medium text-gray-300 mb-1">Latitude</label>
+                            <input type="number" step="any" id="bp_latitude" name="latitude"
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="bp_longitude"
+                                class="block text-sm font-medium text-gray-300 mb-1">Longitude</label>
+                            <input type="number" step="any" id="bp_longitude" name="longitude"
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-700 pt-4 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-medium text-gray-200">Translations</h3>
+                            <button type="button" id="translateNamesBtn" class="ai-button">
+                                <span id="translateBtnText">✨ Translate Names</span>
+                                <div id="translateSpinner" class="spinner h-4 w-4 hidden"></div>
+                            </button>
+                        </div>
+                        <div>
+                            <label for="bp_si_name" class="block text-sm font-medium text-gray-300 mb-1">Sinhala Name
+                                (si_name)</label>
+                            <input type="text" id="bp_si_name" name="si_name"
+                                placeholder="Click 'Translate Names' to generate"
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="bp_tm_name" class="block text-sm font-medium text-gray-300 mb-1">Tamil Name
+                                (tm_name)</label>
+                            <input type="text" id="bp_tm_name" name="tm_name"
+                                placeholder="Click 'Translate Names' to generate"
+                                class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center justify-end space-x-4 pt-4 border-t border-gray-700">
+                        <button type="button" id="cancelButton"
+                            class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-md transition">Cancel</button>
+                        <button type="submit" id="updateButton"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md font-semibold transition flex items-center">
+                            <span id="updateButtonText">Update Point</span>
+                            <div id="updateSpinner" class="spinner h-5 w-5 ml-2 hidden"></div>
+                        </button>
+                    </div>
+                </form>
+                <!-- Message area for update status -->
+                <div id="updateMessage" class="mt-4 text-center p-3 rounded-md hidden"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            const srilankanCities = {
+                "Ampara District": "Eastern Province", "Anuradhapura District": "North Central Province", "Badulla District": "Uva Province", "Batticaloa District": "Eastern Province",
+                "Colombo District": "Western Province", "Galle District": "Southern Province", "Gampaha District": "Western Province", "Hambantota District": "Southern Province",
+                "Jaffna District": "Northern Province", "Kalutara District": "Western Province", "Kandy District": "Central Province", "Kegalle District": "Sabaragamuwa Province",
+                "Kilinochchi District": "Northern Province", "Kurunegala District": "North Western Province", "Mannar District": "Northern Province", "Matale District": "Central Province",
+                "Matara District": "Southern Province", "Monaragala District": "Uva Province", "Mullaitivu District": "Northern Province", "Nuwara Eliya District": "Central Province",
+                "Polonnaruwa District": "North Central Province", "Puttalam District": "North Western Province", "Ratnapura District": "Sabaragamuwa Province",
+                "Trincomalee District": "Eastern Province", "Vavuniya District": "Northern Province"
+            };
+
+            // --- DOM Element References ---
+            const searchInput = document.getElementById('searchInput');
+            const searchSection = document.getElementById('searchSection');
+            const suggestionsList = document.getElementById('suggestionsList');
+            const noResults = document.getElementById('noResults');
+            const apiError = document.getElementById('apiError');
+            const loader = document.getElementById('loader');
+            const editFormContainer = document.getElementById('editFormContainer');
+            const editForm = document.getElementById('editForm');
+            const formTitle = document.getElementById('formTitle');
+            const cityContainer = document.getElementById('cityContainer');
+            const bpProvince = document.getElementById('bp_province');
+            const cancelButton = document.getElementById('cancelButton');
+            const updateButton = document.getElementById('updateButton');
+            const updateButtonText = document.getElementById('updateButtonText');
+            const updateSpinner = document.getElementById('updateSpinner');
+            const updateMessage = document.getElementById('updateMessage');
+            const createNewBtn = document.getElementById('createNewBtn');
+            const generateDescriptionBtn = document.getElementById('generateDescriptionBtn');
+            const descBtnText = document.getElementById('descBtnText');
+            const descSpinner = document.getElementById('descSpinner');
+            const bpDescription = document.getElementById('bp_description');
+            const translateNamesBtn = document.getElementById('translateNamesBtn');
+            const translateBtnText = document.getElementById('translateBtnText');
+            const translateSpinner = document.getElementById('translateSpinner');
+            const bpSiName = document.getElementById('bp_si_name');
+            const bpTmName = document.getElementById('bp_tm_name');
+
+            let debounceTimer;
+            let accessToken = null; // Variable to hold the token
+
+            // --- API URLs ---
+            const SUGGEST_API_URL = 'https://www.passenger.lk/members/suggest-boarding-points/?q=';
+            const EDIT_API_URL = 'https://www.passenger.lk/core/edit-boarding-point/';
+            const VALIDATE_API_URL = 'https://www.passenger.lk/core/validate-admin/';
+            const LOGIN_URL = 'https://www.passenger.lk/core/web/admin-login/';
+            const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+            const API_KEY = ""; // Handled by the environment
+
+            // --- Authentication Functions (NEW) ---
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            function logout() {
+                console.log("Logging out, clearing cookies, and redirecting to login.");
+                document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                document.cookie = 'refresh_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                window.location.href = LOGIN_URL;
+            }
+
+            async function checkAuth() {
+                accessToken = getCookie('access_token');
+                if (!accessToken) {
+                    console.log("Boarding Point Editor: No access token found. Redirecting to login.");
+                    logout();
+                    return;
+                }
+
+                try {
+                    const response = await fetch(VALIDATE_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+                    if (response.status === 401 || response.status === 403) {
+                        console.error("Boarding Point Editor: Token invalid (401/403). Logging out.");
+                        logout();
+                    } else if (!response.ok) {
+                        throw new Error('Admin validation failed.');
+                    } else {
+                        console.log("Boarding Point Editor: Token is valid.");
+                    }
+                } catch (error) {
+                    console.error("Boarding Point Editor: Auth check failed, logging out.", error);
+                    logout();
+                }
+            }
+
+
+            // --- Event Listeners ---
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim();
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    if (query.length > 1) fetchSuggestions(query);
+                    else clearSuggestions();
+                }, 300);
+            });
+
+            editForm.addEventListener('submit', e => {
+                e.preventDefault();
+                submitBoardingPoint();
+            });
+
+            cancelButton.addEventListener('click', resetToSearchView);
+            createNewBtn.addEventListener('click', showCreateForm);
+            generateDescriptionBtn.addEventListener('click', handleGenerateDescription);
+            translateNamesBtn.addEventListener('click', handleTranslateNames);
+
+            // --- Core Functions ---
+            async function fetchSuggestions(query) {
+                showLoader(true);
+                clearSuggestions();
+                hideMessages();
+                try {
+                    const response = await fetch(`${SUGGEST_API_URL}${query}`);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    displaySuggestions(data);
+                } catch (error) {
+                    console.error('Error fetching suggestions:', error);
+                    apiError.classList.remove('hidden');
+                } finally {
+                    showLoader(false);
+                }
+            }
+
+            function displaySuggestions(suggestions) {
+                clearSuggestions();
+                if (suggestions.length === 0) {
+                    noResults.classList.remove('hidden');
+                    return;
+                }
+                suggestions.forEach(point => {
+                    const li = document.createElement('li');
+                    li.className = 'p-4 hover:bg-gray-700 cursor-pointer transition';
+                    li.innerHTML = `<div class="font-semibold text-gray-100">${point.name}</div><div class="text-sm text-gray-400">${point.city}, ${point.province}</div>`;
+                    li.addEventListener('click', () => selectPointToEdit(point));
+                    suggestionsList.appendChild(li);
+                });
+            }
+
+            function showCreateForm() {
+                switchToFormView();
+                formTitle.textContent = 'Create New Boarding Point';
+                updateButtonText.textContent = 'Create Point';
+                editForm.reset();
+                document.getElementById('bp_id').value = '';
+                bpProvince.readOnly = true;
+                bpProvince.classList.add('bg-gray-800');
+
+                const select = document.createElement('select');
+                select.id = 'bp_city';
+                select.name = 'city';
+                select.className = 'w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500';
+                let options = '<option value="" disabled selected>Select a City</option>';
+                for (const city in srilankanCities) {
+                    options += `<option value="${city}">${city}</option>`;
+                }
+                select.innerHTML = options;
+                select.addEventListener('change', () => {
+                    const selectedCity = select.value;
+                    bpProvince.value = srilankanCities[selectedCity] || '';
+                });
+                cityContainer.innerHTML = '';
+                cityContainer.appendChild(select);
+            }
+
+            function selectPointToEdit(point) {
+                switchToFormView();
+                formTitle.textContent = 'Edit Boarding Point';
+                updateButtonText.textContent = 'Update Point';
+                bpProvince.readOnly = false;
+                bpProvince.classList.remove('bg-gray-800');
+
+                const cityInput = document.createElement('input');
+                cityInput.type = 'text';
+                cityInput.id = 'bp_city';
+                cityInput.name = 'city';
+                cityInput.className = 'w-full bg-gray-700 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500';
+                cityContainer.innerHTML = '';
+                cityContainer.appendChild(cityInput);
+
+                document.getElementById('bp_id').value = point._id || '';
+                document.getElementById('bp_name').value = point.name || '';
+                cityInput.value = point.city || '';
+                bpProvince.value = point.province || '';
+                document.getElementById('bp_latitude').value = point.latitude || 0;
+                document.getElementById('bp_longitude').value = point.longitude || 0;
+                bpDescription.value = point.description || '';
+                bpSiName.value = point.si_name || '';
+                bpTmName.value = point.tm_name || '';
+            }
+
+            async function submitBoardingPoint() {
+                setSubmitButtonState(true);
+                hideMessages();
+
+                const formData = new FormData(editForm);
+                const data = Object.fromEntries(formData.entries());
+
+                const action = data._id ? 'updated' : 'created';
+                if (!data._id) delete data._id;
+
+                data.latitude = parseFloat(data.latitude) || 0;
+                data.longitude = parseFloat(data.longitude) || 0;
+
+                if (action === 'created' && (!data.name || !data.city)) {
+                    showUpdateMessage('error', 'Name and City are required to create a new point.');
+                    setSubmitButtonState(false);
+                    return;
+                }
+
+                try {
+                    // **FIX**: Added Authorization header to the protected API call
+                    const response = await fetch(EDIT_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        },
+                        body: JSON.stringify(data),
+                    });
+
+                    if (response.status === 401) {
+                        logout();
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+                        throw new Error(`Submit failed: ${errorData.error || response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    showUpdateMessage('success', `Successfully ${action} point: ${data.name}`);
+
+                    if (action === 'created') {
+                        setTimeout(resetToSearchView, 2000);
+                    }
+                } catch (error) {
+                    showUpdateMessage('error', `Error: ${error.message}`);
+                } finally {
+                    setSubmitButtonState(false);
+                }
+            }
+
+            // --- Gemini AI Functions ---
+            async function handleGenerateDescription() {
+                const name = document.getElementById('bp_name').value;
+                const city = document.getElementById('bp_city')?.value || document.getElementById('bp_city_text')?.value;
+                if (!name || !city) {
+                    showUpdateMessage('error', 'Name and City are required to generate a description.');
+                    return;
+                }
+                setAiButtonState(generateDescriptionBtn, descBtnText, descSpinner, true);
+                bpDescription.value = "Generating with AI...";
+                const prompt = `Write a brief, one-paragraph description for a location named "${name}" in ${city}, Sri Lanka. Focus on what a traveler or commuter might want to know about the area, such as nearby landmarks, its general atmosphere, or its role as a transport hub.`;
+                try {
+                    const text = await callGemini(prompt);
+                    bpDescription.value = text;
+                } catch (error) {
+                    bpDescription.value = "Failed to generate description.";
+                    showUpdateMessage('error', error.message);
+                } finally {
+                    setAiButtonState(generateDescriptionBtn, descBtnText, descSpinner, false);
+                }
+            }
+
+            async function handleTranslateNames() {
+                const name = document.getElementById('bp_name').value;
+                if (!name) {
+                    showUpdateMessage('error', 'A name is required to generate translations.');
+                    return;
+                }
+                setAiButtonState(translateNamesBtn, translateBtnText, translateSpinner, true);
+                bpSiName.value = "Translating...";
+                bpTmName.value = "Translating...";
+                const prompt = `Translate the location name "${name}" into Sinhala and Tamil.`;
+                const schema = {
+                    type: "OBJECT",
+                    properties: { sinhala_translation: { type: "STRING" }, tamil_translation: { type: "STRING" } },
+                    required: ["sinhala_translation", "tamil_translation"]
+                };
+                try {
+                    const jsonString = await callGemini(prompt, schema);
+                    const translations = JSON.parse(jsonString);
+                    bpSiName.value = translations.sinhala_translation || 'Not found';
+                    bpTmName.value = translations.tamil_translation || 'Not found';
+                } catch (error) {
+                    bpSiName.value = "Failed to translate.";
+                    bpTmName.value = "Failed to translate.";
+                    showUpdateMessage('error', error.message);
+                } finally {
+                    setAiButtonState(translateNamesBtn, translateBtnText, translateSpinner, false);
+                }
+            }
+
+            async function callGemini(prompt, responseSchema = null) {
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }],
+                    generationConfig: {}
+                };
+                if (responseSchema) {
+                    payload.generationConfig.responseMimeType = "application/json";
+                    payload.generationConfig.responseSchema = responseSchema;
+                }
+                const response = await fetch(`${GEMINI_API_URL}${API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) {
+                    const errorBody = await response.json();
+                    console.error("Gemini API Error:", errorBody);
+                    throw new Error(errorBody.error?.message || 'Gemini API request failed.');
+                }
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Invalid response structure from Gemini API.");
+                }
+            }
+
+            // --- UI Helper Functions ---
+            function switchToFormView() {
+                searchSection.classList.add('hidden');
+                document.getElementById('resultsContainer').classList.add('hidden');
+                editFormContainer.classList.remove('hidden');
+                hideMessages();
+            }
+
+            function clearSuggestions() {
+                suggestionsList.innerHTML = '';
+                noResults.classList.add('hidden');
+                apiError.classList.add('hidden');
+            }
+
+            function showLoader(isLoading) {
+                loader.classList.toggle('hidden', !isLoading);
+                loader.classList.toggle('flex', isLoading);
+            }
+
+            function hideMessages() {
+                apiError.classList.add('hidden');
+                noResults.classList.add('hidden');
+                updateMessage.classList.add('hidden');
+            }
+
+            function setSubmitButtonState(isSubmitting) {
+                updateButton.disabled = isSubmitting;
+                updateButtonText.classList.toggle('hidden', isSubmitting);
+                updateSpinner.classList.toggle('hidden', !isSubmitting);
+            }
+
+            function setAiButtonState(button, textElem, spinnerElem, isLoading) {
+                button.disabled = isLoading;
+                textElem.classList.toggle('hidden', isLoading);
+                spinnerElem.classList.toggle('hidden', !isLoading);
+            }
+
+            function showUpdateMessage(type, message) {
+                updateMessage.textContent = message;
+                updateMessage.className = 'mt-4 text-center p-3 rounded-md';
+                updateMessage.classList.add(type === 'success' ? 'bg-green-900' : 'bg-red-900', type === 'success' ? 'text-green-200' : 'text-red-200');
+                updateMessage.classList.remove('hidden');
+            }
+
+            function resetToSearchView() {
+                editFormContainer.classList.add('hidden');
+                searchSection.classList.remove('hidden');
+                document.getElementById('resultsContainer').classList.remove('hidden');
+                editForm.reset();
+                searchInput.disabled = false;
+                searchInput.value = '';
+                searchInput.focus();
+                clearSuggestions();
+                hideMessages();
+            }
+
+            // --- Initializer ---
+            checkAuth();
+        });
+    </script>
+
+</body>
+
+</html>

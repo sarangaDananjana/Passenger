@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Management System - Admin Dashboard</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* Custom styles to extend Tailwind */
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-gray-800">Bus Management</a>
+            <button id="logout-button"
+                class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                Logout
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12">
+        <!-- Error Message Display -->
+        <div id="api-error-display"
+            class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6"
+            role="alert">
+            <strong class="font-bold">Error:</strong>
+            <span class="block sm:inline" id="api-error-message"></span>
+        </div>
+
+        <h1 id="welcome-message" class="text-4xl font-bold text-gray-800 mb-8 text-center">Admin Dashboard</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Boarding Points Card -->
+            <div
+                class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                <div class="p-8">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-500 p-3 rounded-full mr-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                </path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800">Boarding Points</h2>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        Add, edit, or remove bus boarding points from the system.
+                    </p>
+                    <a href="https://www.passenger.lk/core/web/edit-boarding-point/"
+                        class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                        Manage Boarding Points
+                    </a>
+                </div>
+            </div>
+
+            <!-- Routes Card -->
+            <div
+                class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                <div class="p-8">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-green-500 p-3 rounded-full mr-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800">Routes</h2>
+                    </div>
+                    <p class="text-gray-600 mb-6">
+                        Define and manage bus routes, including stops and schedules.
+                    </p>
+                    <a href="https://www.passenger.lk/core/web/create-route-page/"
+                        class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                        Manage Routes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        /**
+         * A helper function to retrieve a cookie by its name.
+         */
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        /**
+         * Validates the admin token and fetches the username from the API.
+         */
+        async function validateAdminAndSetWelcomeMessage(token) {
+            console.log("Dashboard: Validating token with API...");
+            try {
+                const response = await fetch('https://www.passenger.lk/core/validate-admin/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    console.error("Dashboard: Token is invalid or expired (401/403). Logging out.");
+                    logout();
+                    return;
+                }
+
+                if (!response.ok) {
+                    // Throw an error with the status text to be caught below
+                    throw new Error(`API request failed with status ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                if (data.username) {
+                    document.getElementById('welcome-message').textContent = `Welcome, ${data.username}!`;
+                    console.log(`Dashboard: Token is valid. Welcome ${data.username}.`);
+                } else {
+                    console.log("Dashboard: Token is valid, but no username was returned.");
+                }
+
+            } catch (error) {
+                // *** FIX: Show error on the page instead of logging out immediately ***
+                console.error("Dashboard: Error during token validation:", error);
+                const errorDisplay = document.getElementById('api-error-display');
+                const errorMessage = document.getElementById('api-error-message');
+                errorMessage.textContent = `${error.message}. Check the browser console's Network tab for more details.`;
+                errorDisplay.classList.remove('hidden');
+            }
+        }
+
+
+        /**
+         * Clears the access and refresh token cookies to log the user out.
+         */
+        function logout() {
+            console.log("Logging out and clearing cookies.");
+            document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            document.cookie = 'refresh_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            window.location.href = 'https://www.passenger.lk/core/web/admin-login/';
+        }
+
+        // Add event listener to the logout button
+        document.getElementById('logout-button').addEventListener('click', function (e) {
+            e.preventDefault();
+            logout();
+        });
+
+        // --- Main execution on page load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const accessToken = getCookie('access_token');
+
+            if (!accessToken) {
+                console.log("Dashboard: No access token found in cookies. Redirecting to login.");
+                window.location.href = 'https://www.passenger.lk/core/web/admin-login/';
+            } else {
+                console.log("Dashboard: Access token found. Validating with API.");
+                validateAdminAndSetWelcomeMessage(accessToken);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

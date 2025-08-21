@@ -1,0 +1,308 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard</title>
+  <style>
+    :root {
+      --blue: #2fa8f8;
+      --dark-blue: #007bff;
+      --light-grey: #f5f5f5;
+      --bg-white: #ffffff;
+      --text-dark: #333333;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--light-grey);
+      color: var(--text-dark);
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 200px 1fr 250px;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--blue);
+      color: #fff;
+      padding: 20px;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+    }
+
+    .side-nav .nav-item {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      margin: 1.2rem 0;
+      transition: opacity 0.3s;
+    }
+
+    .side-nav .nav-item:hover {
+      opacity: 0.8;
+    }
+
+    /* Main content */
+    .main-content {
+      padding: 25px;
+      overflow-y: auto;
+    }
+
+    .bus-selection,
+    .date-selection {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .bus-button,
+    .date-button {
+      padding: 10px 18px;
+      border: none;
+      background: #eee;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .bus-button:hover,
+    .date-button:hover {
+      opacity: 0.9;
+    }
+
+    .bus-button.active {
+      background: var(--dark-blue);
+      color: #fff;
+    }
+
+    .date-button.active {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    /* Toggle */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .toggle-label {
+      margin-left: 10px;
+      font-size: 0.95rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fff;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: var(--blue);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(26px);
+    }
+
+    /* Graph placeholder */
+    .graph-placeholder {
+      background: var(--bg-white);
+      border-radius: 12px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #aaa;
+      font-size: 1rem;
+      margin-bottom: 30px;
+    }
+
+    /* Flows */
+    .flows {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .flow-section {
+      background: var(--bg-white);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .flow-section.online .flow-header {
+      border-left: 4px solid var(--blue);
+    }
+
+    .flow-section.offline .flow-header {
+      border-left: 4px solid var(--dark-blue);
+    }
+
+    .flow-header {
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding-left: 10px;
+      margin-bottom: 15px;
+    }
+
+    .flow-content {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      text-align: center;
+      gap: 15px;
+    }
+
+    .box {
+      background: var(--light-grey);
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    .final-revenue {
+      text-align: right;
+      margin-top: 10px;
+    }
+
+    .box.final {
+      display: inline-block;
+      background: var(--dark-blue);
+      color: #fff;
+      padding: 18px 25px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    /* Details panel */
+    .details-panel {
+      background: var(--bg-white);
+      padding: 25px;
+      overflow-y: auto;
+    }
+
+    .detail-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 1.2rem;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.6rem 0;
+    }
+
+    .detail-item .label {
+      font-weight: 500;
+    }
+
+    .detail-item .value {
+      font-weight: 300;
+    }
+
+    .value.completed {
+      color: green;
+      font-weight: bold;
+    }
+
+    .value.pending {
+      color: #f00;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo" id="companyName">Loading...</div>
+      <nav class="side-nav">
+        <a href="{% url 'dashboard' %}" class="nav-item">Dashboard</a>
+        <a href="{% url 'bookedSeat' %}" class="nav-item sub-item">Seat Details</a>
+      </nav>
+    </aside>
+
+    <!-- Main content -->
+    <section class="main-content">
+      <!-- Bus selection (populated via API) -->
+      <div class="bus-selection" id="busSelection">
+        <!-- dynamic buttons go here -->
+      </div>
+
+      <!-- Date selection -->
+      <div id="tripSelection" class="date-selection">
+        <!-- will be populated dynamically -->
+      </div>
+
+      <!-- Seat detail tabs -->
+      <div class="seat-tabs">
+        <button class="seat-tab active">Online Bookings</button>
+        <button class="seat-tab">Physical Booking</button>
+      </div>
+
+      <!-- Seat layout placeholder -->
+      <div class="seat-layout" id="seatLayout">
+        <!-- seat map will go here -->
+      </div>
+
+      <!-- Summary -->
+      <div class="seat-summary">
+        <div class="box">Total Seats<br><span id="totalSeats">0</span></div>
+      </div>
+
+    </section>
+  </div>
+
+  <script type="module" src="{% static 'js/dashboard.js' %}"></script>
+</body>
+
+</html>

@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>My Buses</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="{% static 'css/manageBuses.css' %}" rel="stylesheet" />
+</head>
+
+<body>
+
+  <!-- <aside class="sidebar">
+    <div class="logo" id="companyName">Loading…</div>
+    <nav class="side-nav">
+      <a href="{% url 'dashboard' %}" class="nav-item">Dashboard</a>
+    
+    </nav>
+  </aside> -->
+  <section>
+    <div class="layout">
+      <div class="sidebar-palceholder">
+        {% include 'website/sidebar.html' %}
+      </div>
+
+      <main class="content">
+        <div class="topbar">
+          <h1>My Buses</h1>
+        </div>
+
+        <div class="bus-list">
+
+          <div class="bus-card" id="bus-card">
+            <div class="bus-header">
+              <div class="bus-title">bus_name</div>
+              <div class="bus-subtitle">
+                <div class="bus-number">bus_number</div>
+              </div>
+            </div>
+            <dl class="bus-body">
+              <div class="bus-field">
+                <dt>Bus Type</dt>
+                <dd>bus_type</dd>
+              </div>
+              <div class="bus-field">
+                <dt>Bus Status</dt>
+                <dd>is_machine_connected</dd>
+              </div>
+              <div class="bus-field">
+                <dt>Seat Type</dt>
+                <dd>seat_type</dd>
+              </div>
+              <div class="bus-field">
+                <dt>Bus Number</dt>
+                <dd>bus_number</dd>
+              </div>
+              <div class="bus-field status-approved">
+                <dt>Status</dt>
+                <dd>is_approved</dd>
+              </div>
+              <div class="bus-field">
+                <dt>Fare Type</dt>
+                <dd>fare_type_name</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- …repeat for each bus… -->
+
+        </div>
+
+      </main>
+    </div>
+
+
+    <div id="modalOverlay" class="modal-overlay hidden">
+      <div class="modal">
+        <button id="modalClose">&times;</button>
+        <h2>Edit Bus Details</h2>
+        <form id="busForm">
+          <input type="hidden" name="bus_id" id="bus_id" />
+          <input type="hidden" name="fare_type_id" id="fare_type_id" />
+          <input type="hidden" name="fare_type_name" id="fare_type_name_hidden" />
+
+          <label>
+            Bus Name
+            <input type="text" name="bus_name" id="bus_name" />
+          </label>
+
+          <label>
+            Bus Number
+            <input type="text" name="bus_number" id="bus_number" />
+          </label>
+
+          <label>
+            Bus Type
+            <select name="bus_type" id="bus_type"></select>
+          </label>
+
+          <label>
+            Seat Type
+            <select name="seat_type" id="seat_type"></select>
+          </label>
+
+          <label>
+            Route Permit #
+            <input type="text" name="route_permit_number" id="route_permit_number" />
+          </label>
+
+          <label>
+            Permit Image
+            <input type="file" name="route_permit_image" id="route_permit_image" accept="image/*" />
+            <span id="file_name_display" style="margin-top: 0.5rem; display: block; color: #333;"></span>
+          </label>
+
+
+          <label>
+            Fare Type
+            <select name="fare_type_name" id="fare_type_name_select"></select>
+          </label>
+
+          <button type="button" id="saveButton">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+
+    <!-- Create Bus Modal -->
+    <div id="createModal" class="modal-overlay hidden">
+      <div class="modal">
+        <button id="createClose">&times;</button>
+        <h2>Create New Bus</h2>
+        <form id="createForm">
+          <!-- NO bus_id here! -->
+
+          <label>
+            Bus Name
+            <input type="text" name="bus_name" id="create_bus_name" required />
+          </label>
+
+          <label>
+            Bus Number
+            <input type="text" name="bus_number" id="create_bus_number" required />
+          </label>
+
+          <label>
+            Bus Type
+            <select name="bus_type" id="create_bus_type" required></select>
+          </label>
+
+          <label>
+            Seat Type
+            <select name="seat_type" id="create_seat_type" required></select>
+          </label>
+
+          <label>
+            Route Permit #
+            <input type="text" name="route_permit_number" id="create_route_permit_number" required />
+          </label>
+
+          <label>
+            Permit Image
+            <input type="file" name="route_permit_image" id="create_route_permit_image" accept="image/*" required />
+            <img id="create_route_permit_image_preview" style="max-width:100%;margin-top:.5rem;display:none" />
+          </label>
+
+          <label>
+            Fare Type
+            <select name="fare_type_id" id="create_fare_type_id" required></select>
+          </label>
+          <input type="hidden" name="fare_type_name" id="create_fare_type_name_hidden" />
+
+          <button type="button" id="createButton">Create Bus</button>
+        </form>
+      </div>
+    </div>
+
+    <button id="addBusBtn" aria-label="Add new">+</button>
+  </section>
+</body>
+<script type="module" src="{% static 'js/manageBusses.js' %}"></script>
+
+<script>
+
+  const form = document.getElementById("createForm");
+  const inputs = form.querySelectorAll("input:not([type='hidden']), select");
+  const submitBtn = document.getElementById("createButton");
+
+  function checkFormCompletion() {
+    const allFilled = Array.from(inputs).every(input => input.value.trim() !== "");
+    submitBtn.disabled = !allFilled;
+    submitBtn.classList.toggle("disabled", !allFilled);
+  }
+
+  inputs.forEach(input => {
+    input.addEventListener("input", checkFormCompletion);
+    input.addEventListener("change", checkFormCompletion);
+  });
+
+  // Initial state check
+  checkFormCompletion();
+
+
+
+
+  document.getElementById('route_permit_image').addEventListener('change', function () {
+    const file = this.files[0];
+    const display = document.getElementById('file_name_display');
+    if (file) {
+      display.textContent = `Selected: ${file.name}`;
+      display.style.color = '#ffffff'; // Green color
+    } else {
+      display.textContent = '';
+      display.style.color = '';
+    }
+  });
+
+
+
+</script>
+
+
+</html>

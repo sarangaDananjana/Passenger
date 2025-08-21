@@ -1,0 +1,407 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet" />
+    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <!-- <aside class="sidebar">
+            <div class="logo" id="companyName">Loading...</div>
+            <nav class="side-nav">
+                <a href="{% url 'dashboard' %}" class="nav-item">Dashboard</a>
+            </nav>
+        </aside> -->
+
+
+
+        <div class="sidebar-palceholder">
+            {% include 'website/sidebar.html' %}
+        </div>
+
+
+
+        <!-- Main content -->
+        <section class="main-content">
+            <div id="busSelection">
+                <div id="bus-button" class="bus-button"></div>
+            </div>
+
+
+            <div class="content-wrapper" style="position:relative;">
+
+                <div id="loadingOverlay" class="loading-overlay hidden">
+
+                    <div id="loadingContent" class="loading-content">
+                        <div id="loadingText">Fetching Your Data</div>
+                        <div class="progress-bar-container">
+                            <div id="progressBar" class="progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Put this around your existing trip-selection → flows markup -->
+                <div id="tripDetailsSection">
+                    <dev id="Trips" class="Trips">
+                        <div id="tripSelection" class="date-button"></div>
+                        <button id="addTripButton" class="add-trip">Add a Trip</button>
+                    </dev>
+
+                    <div class="banner">
+
+                    </div>
+
+
+
+
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input id="machineToggle" type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">Ticket Machine</span>
+                    </div>
+
+                    <!-- Bus Details-->
+
+                    <div class="details-panel">
+                        <div class="bus-card">
+                            <div class="detail-title" id="ownerName">-</div>
+                            <div class="row">
+                                <div class="detail-item">
+                                    <span class="label">Bus Name</span>
+                                    <span class="value" id="detailBusName">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Route</span>
+                                    <span class="value" id="detailRoute">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Start Time</span>
+                                    <span class="value" id="detailStartTime">-</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="detail-item">
+                                    <span class="label">Booking Price</span>
+                                    <span class="value" id="detailBookingPrice">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Online</span>
+                                    <span class="value" id="detailOnline">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Offline</span>
+                                    <span class="value" id="detailOffline">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Revenue Status</span>
+                                    <span class="value" id="detailRevenueStatus">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
+
+
+                    <!-- Chart.js CDN -->
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+                    <!-- <div class="flows">
+       
+                        <div class="flow-section online" id="onlineSection">
+                            <div class="flow-header">Online Sale</div>
+                            <div class="flow-content">
+                                <div class="box" id="onlineCount">0</div>
+                                <div class="box" id="onlineEarning">LKR 0</div>
+                                <div class="box" id="onlineFee">LKR 0 <small>(-0%)</small></div>
+                                <div class="box" id="onlineRevenue">LKR 0</div>
+                            </div>
+                        </div>
+
+               
+                        <button id="offlineSection" class="flow-section offline">
+                            <div class="flow-header">Offline Sale</div>
+                            <div class="flow-content">
+                                <div class="box" id="offlineCount">0</div>
+                                <div class="box" id="offlineEarning">LKR 0</div>
+                                <div class="box" id="offlineFee">LKR 0 <small>(-×2)</small></div>
+                                <div class="box" id="offlineRevenue">LKR 0</div>
+                            </div>
+                        </button>
+
+        
+                        <div class="final-revenue">
+                            <div class="box final" id="finalRevenue">LKR 0</div>
+                        </div>
+                    </div> -->
+
+                    <div class="revenue-details-wrapper">
+                        <h1 class="revenue-title">Revenue Summary</h1>
+
+                        <div class="graph-placeholder">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+
+                        <div class="revenue-content">
+
+                            <div class="online-revenue" id="onlineSection">
+                                <h1 class="online-title">Online</h1>
+                                <div class="row">
+                                    <div class="revenue-item">
+                                        <span class="label">Bookings</span>
+                                        <span class="value" id="onlineCount">-</span>
+                                    </div>
+                                    <div class="revenue-item">
+                                        <span class="label">Earning</span>
+                                        <span class="value" id="onlineEarning">-</span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="revenue-item">
+                                        <span class="label">Developer Cut</span>
+                                        <span class="value" id="onlineFee">-</span>
+                                    </div>
+                                    <div class="revenue-item">
+                                        <span class="label">Clean Revenue</span>
+                                        <span class="value" id="onlineRevenue">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="offline-revenue" id="offlineSection">
+                                <h1 class="offline-title">Offline</h1>
+                                <div class="row">
+                                    <div class="revenue-item">
+                                        <span class="label">Tickets</span>
+                                        <span class="value" id="offlineCount">-</span>
+                                    </div>
+                                    <div class="revenue-item">
+                                        <span class="label">Earning</span>
+                                        <span class="value" id="offlineEarning">-</span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="revenue-item">
+                                        <span class="label">Developer Cut</span>
+                                        <span class="value" id="offlineFee">-</span>
+                                    </div>
+                                    <div class="revenue-item">
+                                        <span class="label">Clean Revenue</span>
+                                        <span class="value" id="offlineRevenue">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- NEW: placeholder shown only when no trips -->
+                <div id="noTripsPlaceholder" class="hidden">
+                    <img src={% static "images/7967793_3819552.jpg" %} class="oops-img" alt="No trips">
+                    <br>
+                    <h1>Oops! No trips</h1>
+                    <button id="placeholderAddTripButton" class="add-trip">Add a Trip</button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Details panel -->
+        <!-- <aside class="details-panel">
+            <div class="detail-title" id="ownerName">Bus Owner</div>
+            <div class="detail-item">
+                <span class="label">Bus Name</span>
+                <span class="value" id="detailBusName">Shandi Express</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Route</span>
+                <span class="value" id="detailRoute">Colombo-Kandy</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Start Time</span>
+                <span class="value" id="detailStartTime">00:00 am</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Booking Price</span>
+                <span class="value" id="detailBookingPrice">Rs. 0</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Online</span>
+                <span class="value" id="detailOnline">0</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Offline</span>
+                <span class="value" id="detailOffline">0</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">Revenue Status</span>
+                <span class="value" id="detailRevenueStatus">Pending</span>
+            </div>
+        </aside> -->
+
+        <div id="seatModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Seat Layout</h3>
+
+
+                <p>Booked seats: <span id="bookedCount">0</span></p>
+
+
+                <div id="seatLayout">
+                    Seat layout placeholder
+                </div>
+                <div class="seat-legend">
+                    <div class="col">
+                        <span class="legend-swatch booked"></span>
+                        <p style="color: rgb(255, 255, 255);">Booked</p>
+                    </div>
+                    <div class="col">
+                        <span class="legend-swatch available"></span>
+                        <p style="color: rgb(255, 255, 255);">Available</p>
+                    </div>
+                    <div class="col">
+                        <span class="legend-swatch jumper"></span>
+                        <p style="color: rgb(255, 255, 255);">Jumper Seat</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="offlineModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="offlineClose">&times;</span>
+                <h3>Offline Tickets</h3>
+                <div id="offlineTicketList"></div>
+            </div>
+        </div>
+
+        <div id="addTripModal" class="modal">
+            <div class="modal-content trip-modal">
+                <span class="close" id="closeAddTripModal">&times;</span>
+                <h3 class="modal-title">Add New Trip</h3>
+                <form id="addTripForm">
+                    <label for="routeSearchInput">Search Route:</label>
+                    <input type="text" id="routeSearchInput" placeholder="Type route name..." autocomplete="off"
+                        required>
+                    <div id="routeSuggestions" class="suggestions-list"></div>
+
+                    <label for="tripDateInput">Trip Date:</label>
+                    <input type="date" id="tripDateInput" required>
+
+                    <label for="tripTimeInput">Trip Time:</label>
+                    <input type="time" id="tripTimeInput" required>
+
+                    <label for="bookingPriceInput">Booking Price:</label>
+                    <input type="number" id="bookingPriceInput" required>
+
+                    <button type="submit" class="submit-btn">Submit</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="approvalModal" class="modal">
+            <div class="modal-content trip-modal" style="text-align: center;">
+                <span class="close" id="closeApprovalModal">&times;</span>
+                <h3 class="modal-title" style="color: #f3b137;">Bus Not Approved</h3>
+                <p style="color: #cccccc; font-size: 1.1rem; line-height: 1.6;">
+                    Your bus has not been approved yet.
+                    <br><br>
+                    Please contact your agent from <strong>passenger.lk</strong> to complete the verification process.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Your custom JS -->
+    <script type="module" src="{% static 'js/dashboard.js' %}"></script>
+    <script type="module">
+        import { seatLayouts } from "{% static 'js/seatLayout.js' %}";
+        import { getBookingsInfo } from "{% static 'js/dashboard.js'' %}";
+
+        // Modal & trigger
+        const modal = document.getElementById('seatModal');
+        const onlineBtn = document.getElementById('onlineSection');
+        const closeBtn = modal.querySelector('.close');
+
+        // Where the seats go
+        const container = document.getElementById('seatLayout');
+
+        onlineBtn.addEventListener('click', async () => {
+            modal.classList.add('show');
+
+            // 1) which trip is active?
+            const trip = window.currentTrip;
+            if (!trip) {
+                console.warn('No trip selected yet.');
+                return;
+            }
+
+            // 2) fetch seatType + bookings
+            const { seatType, bookings } = await getBookingsInfo(trip);
+            console.log('🔑 seatType:', seatType, '→ bookings:', bookings);
+
+            // 3) look up the right layout
+            const layout = seatLayouts[seatType];
+            if (!layout) {
+                console.error(`No layout found for "${seatType}"`);
+                return;
+            }
+
+            // 4) prep grid
+            container.innerHTML = '';
+            container.style.display = 'grid';
+            container.style.gridTemplateColumns = `repeat(${layout.columns}, 1fr)`;
+            container.style.gridTemplateRows = `repeat(${layout.rows},    1fr)`;
+            container.style.gap = '8px';
+
+            // 5) mark booked seats
+            const bookedIds = new Set(
+                bookings
+                    .filter(b => b.booked)
+                    .map(b => String(b.seat_number))
+            );
+
+            // 6) render every seat
+            layout.seats.forEach(seat => {
+                const el = document.createElement('div');
+                el.className = 'seat';
+                el.textContent = seat.id;
+                el.dataset.seatId = String(seat.id);
+                el.style.gridRowStart = seat.row;
+                el.style.gridColumnStart = seat.col;
+
+                if (bookedIds.has(String(seat.id))) {
+                    el.classList.add('booked');
+                }
+
+                container.appendChild(el);
+            });
+        });
+
+        closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+        window.addEventListener('click', e => {
+            if (e.target === modal) modal.classList.remove('show');
+        });
+    </script>
+
+</body>
+
+</html>

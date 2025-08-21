@@ -1,0 +1,6 @@
+.btn {
+  background: linear-gradient(to right, #0099ff); /* Use background instead of background-color */
+  /*border: 2px solid transparent; /* Optional: to apply border */
+  transition: all 0.3s ease; /* Optional: to add a smooth transition for effects */
+}
+

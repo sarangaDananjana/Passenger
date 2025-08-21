@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bus Owner Details</title>
+    <link href="{% static 'css/owner_details.css' %}" rel="stylesheet" />
+</head>
+
+<body>
+    <h1>Bus Owner Details</h1>
+    <div class="bus-details">
+
+
+        <div class="sidebar-palceholder">
+            {% include 'website/sidebar.html' %}
+        </div>
+        <div class="header">
+
+            <span id="verified-badge" class="verified-badge hidden">✔ Verified</span>
+        </div>
+
+
+        <!-- Editable Fields -->
+        <div class="editable-field">
+            <label>Company Name:</label>
+            <div class="edit-wrapper">
+                <input type="text" id="company_name" disabled />
+                <span class="edit-icon">🖉</span>
+            </div>
+        </div>
+
+
+
+        <div class="editable-field">
+            <label>Company Address:</label>
+            <div class="edit-wrapper">
+                <input type="text" id="company_address" disabled />
+                <span class="edit-icon">🖉</span>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="editable-field">
+                <label>Company Number:</label>
+                <div class="edit-wrapper">
+                    <input type="text" id="company_number" disabled />
+                    <span class="edit-icon">🖉</span>
+                </div>
+            </div>
+
+            <div class="editable-field">
+                <label>Registration Number:</label>
+                <div class="edit-wrapper">
+                    <input type="text" id="company_registration_number" disabled />
+                    <span class="edit-icon">🖉</span>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="editable-field">
+                <label>Owner Name:</label>
+                <div class="edit-wrapper">
+                    <input type="text" id="company_owner_name" disabled />
+                    <span class="edit-icon">🖉</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Phone Number:</label>
+                <input type="text" id="phone_number" disabled />
+            </div>
+
+        </div>
+        <button id="save-button" class="save-button hidden">Save Changes</button>
+
+        <!-- Bus Section (read-only) -->
+
+
+        <!-- Save Button -->
+
+    </div>
+
+    <div class="busses-card">
+        <h1>Buses</h1>
+        <div id="buses-container"></div>
+    </div>
+
+    <script type="module" src="{% static 'js/owner_details.js' %}"></script>
+</body>
+
+</html>

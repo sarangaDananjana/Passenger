@@ -1,0 +1,596 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;600;700&display=swap');
+
+/* -------------------- Vars & Reset -------------------- */
+:root {
+  --blue: #2fa8f8;
+  --green: #2ac769;
+  --orange: #ff9f1a;
+  --red: #e74c3c;
+  --text: #333333;
+  --text-light: #666666;
+  --bg-light: #343841;
+  --bg-white: #343841;
+  --shadow: rgba(0, 0, 0, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family:'Poppins', sans-serif;
+}
+
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-light);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  grid-template-columns: 200px 1fr;
+}
+
+/* -------------------- Sidebar (unchanged) -------------------- */
+
+
+
+
+.side-nav .nav-item {
+  color: #fff;
+  display: block;
+  margin: .75rem 0;
+  font-weight: 600;
+  transition: opacity .2s;
+}
+
+.side-nav .nav-item:hover {
+  opacity: .7;
+}
+
+/* -------------------- Content Wrapper -------------------- */
+main.content {
+  padding: 3rem 3rem;
+  overflow-y: auto;
+
+  width: 100%;
+  margin-left: 250px;
+  background-color: #343841;
+}
+
+.topbar h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #A6A6A6;
+  margin-bottom: 1.5rem;
+}
+
+/* -------------------- Bus-List Grid -------------------- */
+.bus-list {
+  display: flex;
+  flex-direction: column;
+  /* make as many 300px–wide cards as will fit; center them if there’s extra room */
+
+  justify-content: start;
+  gap: 1rem;
+}
+
+
+.layout{
+  display: flex;
+}
+
+.bus-card {
+  width: 100%;
+  /* fill that minmax(…) column */
+  
+  padding: 3rem 2rem;
+  /* optional cap so cards never get absurdly wide */
+  background: #22252D;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow);
+  overflow: hidden;
+  display: flexbox;
+  flex-direction: column;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.bus-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px var(--shadow);
+}
+
+/* -------------------- Header -------------------- */
+.bus-header {
+  padding: 2rem 3rem;
+  border-bottom: 1px solid #EEF0F3;
+}
+
+.bus-title {
+  font-size: 2rem;
+  color: #A6A6A6;
+  font-weight: 700;
+  margin-bottom: .25rem;
+}
+
+.bus-subtitle {
+  line-height: 1.2;
+  
+}
+
+.bus-subtitle .bus-number {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #A6A6A6;
+}
+
+.bus-subtitle .bus-type {
+  font-size: .85rem;
+}
+
+/* -------------------- Body -------------------- */
+.bus-body {
+  padding: 2rem 3rem;
+  /* top/bottom 2rem, left/right 3rem */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+/* wrap each dt+dd pair so they stack */
+.bus-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.bus-field dt {
+  font-size: .9rem;
+  color: #A6A6A6;
+  margin-bottom: .75rem;
+}
+
+.bus-field dd {
+  font-size: 1.2rem;
+  font-weight: 500;
+  position: relative;
+  margin: 0;
+  color: #A6A6A6;
+  padding-left: 1.5rem;
+}
+
+.bus-field dd::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 1rem;
+  background: var(--blue);
+  border-radius: 2px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Hide class */
+.hidden {
+  display: none;
+}
+
+/* Modal Box */
+.modal {
+  background: #fff;
+  padding: 2rem;
+  width: 400px;
+  max-width: 95%;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  position: relative;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.modal h2{
+  color: #A6A6A6;
+  padding: 2rem 0;
+}
+
+/* Close Button */
+#createClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #A6A6A6;
+}
+
+/* Form Layout */
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Labels */
+.modal label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #A6A6A6;
+  font-size: 0.9rem;
+}
+
+/* Inputs & Selects */
+.modal input[type="text"],
+.modal input[type="file"],
+.modal select {
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  background-color: #A5A5A5;
+  border-radius: 1rem;
+  margin-top: 0.25rem;
+}
+
+/* File Preview Image */
+#create_route_permit_image_preview {
+  max-height: 100px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Submit Button */
+#createButton {
+  background-color: #007BFF;
+  color: white;
+  margin-top: 1rem;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+#createButton:hover {
+  background-color: #0056b3;
+}
+
+
+/* -------------------- Status Overrides -------------------- */
+.status-approved dd::before {
+  background: var(--green);
+}
+
+.status-approved dd {
+  color: var(--green);
+}
+
+.status-pending dd::before {
+  background: var(--orange);
+}
+
+.status-pending dd {
+  color: var(--orange);
+}
+
+.status-rejected dd::before {
+  background: var(--red);
+}
+
+.status-rejected dd {
+  color: var(--red);
+}
+
+
+/* Modal backdrop + centering */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+/* Modal window */
+.modal {
+  background: #22252D;
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+/* Close button */
+#modalClose {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #A6A6A6;
+}
+
+
+#createButton.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+  transition: opacity 0.3s ease;
+}
+
+
+.create-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.create-overlay.hidden {
+  display: none;
+}
+
+/* Modal window */
+.create {
+  background: var(--bg-white);
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+/* Close button */
+#modalClose {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Form labels & inputs */
+#busForm label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+#busForm input[type="text"] {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#busForm #saveButton {
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+
+/* ── place these at the bottom of your existing <style> block ── */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+/* size variants for title / subtitle / fields */
+/* ── make the card shell exactly like your real .bus-card ── */
+.bus-card.skeleton {
+  background: var(--bg-white);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ── overlay a grey layer and animated shine ── */
+.bus-card.skeleton::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #e2e2e2;
+  z-index: 1;
+}
+
+.bus-card.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent);
+  animation: shimmer 1.5s infinite;
+  z-index: 2;
+}
+
+/* ── sizes for the grey bars inside ── */
+.skeleton-title {
+  height: 1.25rem;
+  width: 60%;
+  border-radius: 4px;
+}
+
+.skeleton-subtitle {
+  height: 1rem;
+  width: 40%;
+  border-radius: 4px;
+}
+
+.skeleton-field {
+  height: 0.9rem;
+  width: 80%;
+  border-radius: 4px;
+}
+
+/* ── positioning the grey bars above the dark overlay ── */
+.bus-card.skeleton .skeleton {
+  background: #fafafa;
+  position: relative;
+  z-index: 3;
+}
+
+/* ── shimmer keyframes ── */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ── shimmer keyframes ── */
+
+/* ── common skeleton bar ── */
+.skeleton {
+  background: #e2e2e2;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent);
+  animation: shimmer 1.2s infinite;
+}
+
+/* ── size variants to match your real text elements ── */
+.skel-title {
+  height: 1.25rem;
+  width: 60%;
+  border-radius: 4px;
+  margin-bottom: .25rem;
+}
+
+.skel-subnum {
+  height: 1.1rem;
+  width: 40%;
+  border-radius: 4px;
+}
+
+.skel-subtype {
+  height: .85rem;
+  width: 30%;
+  border-radius: 4px;
+  margin-left: .5rem;
+}
+
+.skel-field {
+  height: .9rem;
+  width: 80%;
+  border-radius: 4px;
+}
+
+#addBusBtn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--blue, #007bff);
+  color: white;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+#addBusBtn:hover {
+
+  transform: translateY(-4px);
+}

@@ -1,0 +1,167 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #343841;
+    padding: 0 3rem;
+    margin-left: 250px;
+}
+
+.bus-details {
+    background: #22252D;
+    padding: 20px;
+    border-radius: 2rem;
+    width: 100%;
+  
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.bus-name{
+    color: #fff;
+    font-weight: 400;
+}
+
+.bus-number{
+    color: #fff;
+    font-weight: 700;
+    font-size: 3rem;
+}
+
+.header {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.verified-badge {
+    color: white;
+    background-color: green;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.row{
+    display: flex;
+    justify-content: space-between;
+}
+
+.hidden {
+    display: none;
+}
+
+.form-group,
+.editable-field {
+    margin-bottom: 15px;
+    width: 100%;
+    padding: 0 2rem;
+}
+
+#buses-container{
+    padding: 2rem;
+    background-color: #22252D;
+    border-radius: 2rem;
+}
+
+h1{
+    color:#A6A6A6;
+    font-size: 2rem;
+    padding-top: 3rem ;
+    padding-bottom: 2rem ;
+}
+
+label {
+    display: block;
+    font-weight: normal;
+    margin-bottom: 5px;
+    color: #A6A6A6;
+    padding: 1rem 0;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    box-sizing: border-box;
+    font-size: 1rem;
+    border-radius: 2rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+input[type="text"]:focus {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border-radius: 2rem;
+    color: #000;
+    font-weight: 600;
+}
+
+.edit-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.edit-icon {
+    position: absolute;
+    right: 10px;
+   font-size: 1.5rem;
+    cursor: pointer;
+    color: #fff;
+}
+
+.bus-group {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #a6a6a600;
+    border: 1px solid #A6A6A6;
+    border-radius: 8px;
+}
+
+.save-button {
+    margin-top: 20px;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+
+/* Skeleton style base */
+.skeleton-bar {
+    background-color: #444;
+    border-radius: 8px;
+    margin: 10px 0;
+    animation: shimmer 1.2s infinite linear;
+}
+
+/* Variants */
+.skeleton-bar {
+    height: 20px;
+    width: 70%;
+}
+
+.skeleton-bar.short {
+    width: 40%;
+    height: 16px;
+}
+
+/* Optional shimmer animation */
+@keyframes shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: 200px 0;
+    }
+}
+
+.skeleton-bus {
+    border: 1px dashed #888;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #2a2e38;
+}

@@ -1,0 +1,451 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/btn.css' %}">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <title>Home</title>
+</head>
+
+<body>
+  <header class="header padding-global" id="header">
+    <nav class="navbar container" id="navbar">
+      <a class="logo" href="#"><img src="{% static 'images/icons/passenger.png' %}" alt="passenger.png"></a>
+      <div class="menu-container" id="menu-container">
+
+        <div class="right-navbar-content" id="right-navbar-content">
+          <ul class="list">
+            <li class="right-list-item">
+              <a href="index.html" class="list-link current menu-item-hover">Home</a>
+            </li>
+            <li class="right-list-item">
+              <a href="about.html" class="list-link menu-item-hover">About</a>
+            </li>
+            <li class="right-list-item">
+              <a href="update.html" class="list-link menu-item-hover">News</a>
+            </li>
+            <li class="right-list-item">
+              <a href="contact.html" class="list-link menu-item-hover">Contact</a>
+            </li>
+            <li class="right-list-item  ">
+              <div class="right-content-btn">
+                <div class="btn-container">
+                  <button class="get-started-btn btn-animation"><a href="{% url 'login_or_register_form' %}"> Go To
+                      Dashboard</a></button>
+
+                </div>
+              </div>
+
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="list-right-list lg:hidden">
+        <button class="menu-toggle-icon place-item-center lg:hidden menu-toggle-icon" id="menu-toggle-icon">
+          <i class="ri-menu-3-line open-menu-icon"></i>
+          <i class="ri-close-line close-menu-icon"></i>
+        </button>
+      </div>
+    </nav>
+
+  </header>
+
+  <section class="hero">
+    <div class="hero-image">
+      <img src="{% static 'images/hero_image.png' %}" alt="Hero Image">
+
+    </div>
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-heading">Book Your Bus Tickets Instantly – Anytime, Anywhere!</h1>
+        <h3 class="hero-subheading">The easiest way to reserve bus seats across the country</h3>
+        <a class="btn " href="#">Explore</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="Features bg-white h-auto px-10 pt-10">
+    <div class="flex flex-col justify-center items-center w-full md:flex-row">
+      <div class="feature-content flex flex-col justify-start items-start w-full  md:w-1/2">
+        <h1 class="text-2xl mb-6 font-bold text-left lg:text-5xl"
+          style="background: linear-gradient(to right, #0099ff, #0099ff,#0099ff); -webkit-background-clip: text; color: transparent;">
+          Features
+        </h1>
+        <h3 class="text-gray-400 text-3xl text-left lg:text-4xl md:w-full">Discover how our app makes booking bus
+          tickets easier,
+          faster, and more convenient with these key features.</h3>
+        <div class="content-container flex flex-col w-full text-black text-2xl  lg:flex-row">
+          <div class="col-1 px-10 pt-10 ">
+            <ul class="list-disc ">
+              <li class="py-3">Real-time seat availability</li>
+              <li class="py-3">Easy cancellations</li>
+              <li class="py-3">Bus tracking</li>
+            </ul>
+          </div>
+          <div class="col-2 px-10 pb-10 lg:pt-10">
+            <ul class="list-disc">
+              <li class="py-3">User-friendly interface</li>
+              <li class="py-3">24/7 support</li>
+              <li class="py-3">Secure payments</li>
+            </ul>
+          </div>
+
+        </div>
+        <a class="btn px-10 py-5 text-2xl mt-10 rounded-2xl text-white" href="">
+          More About Us
+        </a>
+      </div>
+      <div class="flex w-full px-0 py-10 pl-10 justify-center items-center md:w-1/2 lg:w-1/3">
+        <!-- Large Background Image Container -->
+        <div class="img-container relative w-full h-150 rounded-xl lg:w-full lg:h-250">
+          <img src={% static "images/medium-shot-smiley-woman-bus.jpg" %} alt="medium-shot-smiley-woman-bus.jpg"
+            class="w-full h-full object-cover rounded-2xl">
+
+          <!-- Small Image with Rounded Effect -->
+          <div class="small-img-container border-white rounded-xl overflow-hidden hidden lg:block">
+            <img src={% static "images/passenger-travelling-city-by-tram.jpg" %}
+              alt="passenger-travelling-city-by-tram.jpg" class="w-full h-full object-cover">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== START OF MODIFIED SECTION: ICONS ===== -->
+  <section class="w-full py-20 bg-gray-50">
+    <div class="container mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 text-center">
+        <div
+          class="p-6 bg-white rounded-2xl shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+          <i class="fas fa-couch text-4xl text-blue-500 mb-4"></i>
+          <p class="font-semibold text-gray-700 text-lg">Seat availability</p>
+        </div>
+        <div
+          class="p-6 bg-white rounded-2xl shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+          <i class="fas fa-calendar-times text-4xl text-blue-500 mb-4"></i>
+          <p class="font-semibold text-gray-700 text-lg">Easy cancellations</p>
+        </div>
+        <div
+          class="p-6 bg-white rounded-2xl shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+          <i class="fas fa-map-marked-alt text-4xl text-blue-500 mb-4"></i>
+          <p class="font-semibold text-gray-700 text-lg">Bus tracking</p>
+        </div>
+        <div
+          class="p-6 bg-white rounded-2xl shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+          <i class="fas fa-mobile-alt text-4xl text-blue-500 mb-4"></i>
+          <p class="font-semibold text-gray-700 text-lg">User-friendly</p>
+        </div>
+        <div
+          class="p-6 bg-white rounded-2xl shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+          <i class="fas fa-headset text-4xl text-blue-500 mb-4"></i>
+          <p class="font-semibold text-gray-700 text-lg">24/7 support</p>
+        </div>
+        <div
+          class="p-6 bg-white rounded-2xl shadow-lg transform hover:-translate-y-2 transition-transform duration-300">
+          <i class="fas fa-shield-alt text-4xl text-blue-500 mb-4"></i>
+          <p class="font-semibold text-gray-700 text-lg">Secure payments</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ===== END OF MODIFIED SECTION: ICONS ===== -->
+
+  <section class="how-it-works bg-white h-auto pt-10 lg:p-20" id="how-it-works">
+    <div class="how-it-works-content flex flex-col justify-start items-start w-auto p-10">
+
+      <h1 class="text-2xl mb-6 font-bold text-left lg:text-5xl"
+        style="background: linear-gradient(to right, #0099ff, #0099ff, #0099ff); -webkit-background-clip: text; color: transparent;">
+        How It Works
+      </h1>
+      <h3 class="text-gray-400 text-3xl text-left lg:text-4xl md:w-250">Follow these quick steps to reserve your seat
+        and get ready to
+        travel!</h3>
+    </div>
+
+    <!-- Mobile View -->
+
+    <div class="mobile-view px-10 lg:hidden">
+      <div class="slide glass flex flex-col px-5 py-5 rounded-4xl my-3 md:flex-row">
+        <div class="img-container relative w-auto h-100 rounded-xl md:w-full">
+          <img src={% static "images/2978422.jpg" %} alt="2978422.jpg" class="w-full h-full object-cover rounded-2xl">
+        </div>
+        <div class="content flex text-3xl text-left">
+          <div class=" px-10 py-10">
+            <h1 class="font-bold text-3xl  text-blue-400 py-5">01. Choose your route</h1>
+            <h3 class="text-gray-600 py-5 text-2xl">Easily search for your departure and destination locations. Select
+              the
+              date and time that fits your schedule.</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide glass flex flex-col px-5 py-5 rounded-4xl my-3 md:flex-row">
+        <div class="img-container relative w-auto h-100 rounded-xl md:w-full">
+          <img src={% static "images/7732653_5280.jpg" %} alt="7732653_5280.jpg"
+            class="w-500 h-full object-cover rounded-2xl">
+        </div>
+        <div class="content flex text-3xl text-left">
+          <div class=" px-10 py-10">
+            <h1 class="font-bold text-3xl  text-blue-400 py-5">02. Select Your Seat</h1>
+            <h3 class="text-gray-600 py-5 text-2xl">Browse available seats on the bus and choose the one that best suits
+              you.
+              Enjoy the freedom to pick your preferred spot!</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide glass flex flex-col px-5 py-5 rounded-4xl my-3 md:flex-row">
+        <div class="img-container relative w-auto h-100 rounded-xl md:w-full">
+          <img src={% static "images/81409630_Credit_Card_Security_Flat.jpg" %}
+            alt="81409630_Credit_Card_Security_Flat.jpg" class="w-500 h-full object-cover rounded-2xl">
+        </div>
+        <div class="content flex text-3xl text-left">
+          <div class=" px-10 py-10">
+            <h1 class="font-bold text-3xl  text-blue-400 py-5">03. Pay & Get Ticket</h1>
+            <h3 class="text-gray-600 py-5 text-2xl">Securely pay for your seat using multiple payment options. Once
+              confirmed, receive your e-ticket instantly on your phone or email.</h3>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Scrollable horizontal section starts here -->
+    <div class="sticky_parent hidden lg:block">
+      <div class="sticky">
+        <div class="scroll_section">
+          <!-- Slide 1 -->
+          <div class="slide glass flex px-10 py-10 rounded-4xl mr-16">
+            <div class="img-container relative w-200 h-170 rounded-xl">
+              <img src={% static "images/2978422.jpg" %} alt="2978422.jpg"
+                class="w-500 h-full object-cover rounded-2xl">
+            </div>
+            <div class="content flex w-200 text-3xl">
+              <div class=" px-10 py-10">
+                <h1 class="font-bold text-6xl  text-blue-400 py-5">01. Choose your route</h1>
+                <h3 class="text-gray-600 py-5">Easily search for your departure and destination locations. Select the
+                  date and time that fits your schedule.</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 2 -->
+          <div class="slide glass flex p-10 rounded-4xl mr-16">
+            <div class="img-container relative w-200 h-180 rounded-xl">
+              <img src={% static "images/7732653_5280.jpg" %} alt="7732653_5280.jpg"
+                class="w-500 h-full object-cover rounded-2xl">
+            </div>
+            <div class="content flex w-200 text-3xl">
+              <div class=" px-10 py-10">
+                <h1 class="font-bold text-6xl  text-blue-400 py-5">02. Select Your Seat</h1>
+                <h3 class="text-gray-600 py-5">Browse available seats on the bus and choose the one that best suits you.
+                  Enjoy the freedom to pick your preferred spot!</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3 -->
+          <div class="slide glass flex  p-10 rounded-4xl mr-16">
+            <div class="img-container relative w-200 h-170 rounded-xl">
+              <img src={% static "images/81409630_Credit_Card_Security_Flat.jpg" %}
+                alt="81409630_Credit_Card_Security_Flat.jpg" class="w-500 h-full object-cover rounded-2xl">
+            </div>
+            <div class="content flex w-200 text-3xl">
+              <div class=" px-10 py-10">
+                <h1 class="font-bold text-6xl  text-blue-400 py-5">03. Pay & Get Ticket</h1>
+                <h3 class="text-gray-600 py-5">Securely pay for your seat using multiple payment options. Once
+                  confirmed, receive your e-ticket instantly on your phone or email.</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="Call-to-Action bg-w h-auto py-20 px-10 lg:px-40">
+    <div
+      class="flex flex-col justify-center items-center w-auto border-2 border-blue-100 rounded-3xl py-20 md:flex-row">
+      <div class="Call-to-Action-content flex flex-col justify-center items-center w-full p-10">
+        <h1 class="text-4xl mb-10 font-bold text-left lg:text-5xl"
+          style="background: linear-gradient(to right, #68c3ff, #68c3ff, #68c3ff); -webkit-background-clip: text; color: transparent;">
+          Download Our App
+        </h1>
+        <h3 class="text-gray-400 text-2xl text-left mb-5 w-full md:text-center lg:text-4xl">Join thousands of satisfied
+          travelers who’ve made
+          their journey hassle-free. Download the app now and start booking your seats today!</h3>
+
+        <div class="flex items-center">
+          <li class="w-35 mr-5 lg:w-50">
+            <a href="#"><img src={% static "images/appstore.png" %} class="wow fadeInUp rounded-3xl"
+                data-wow-delay="0.4s" /></a>
+          </li>
+          <li class="w-35 lg:w-50">
+            <a href="#"><img src={% static "images/playstore.png" %} class="wow fadeInUp rounded-3xl"
+                data-wow-delay="0.7s" /></a>
+          </li>
+        </div>
+      </div>
+      <div class="img w-full px-20 ">
+        <img src={% static "images/Untitled-1-Recovered-Recovered.png" %} alt="">
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== START OF MODIFIED SECTION: FEEDBACKS ===== -->
+  <section class="feedbacks bg-white h-auto py-10 lg:p-20" id="feedbacks">
+    <div class="feedbacks-content flex flex-col justify-start items-start w-auto p-10 ">
+      <h1 class="text-2xl mb-6 font-bold text-left lg:text-5xl"
+        style="background: linear-gradient(to right, #0099ff, #0099ff, #0099ff); -webkit-background-clip: text; color: transparent;">
+        Feedbacks
+      </h1>
+      <h3 class="text-gray-400 text-3xl text-left lg:text-4xl md:w-250">Hear from our amazing users and discover how
+        Passenger has eased up
+        their travels.</h3>
+    </div>
+
+    <div class="container mx-auto px-10">
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Feedback 1 -->
+        <div class="glass-card p-8 flex items-center">
+          <img class="w-20 h-20 rounded-full mr-6 object-cover"
+            src="https://i.pravatar.cc/3000?u=f5hjzBkeND4sfPfXCef3ZrM9Oj9ZJ4" alt="User avatar">
+          <div class="info flex flex-col justify-center items-start">
+            <h1 class="text-2xl font-bold">Kavinda Perera</h1>
+            <p class="text-lg italic text-gray-600 mt-2">"Booking a seat to Kandy used to be a nightmare. Passenger made
+              it a two-minute job on my phone. The live tracking is a game-changer!"</p>
+          </div>
+        </div>
+        <!-- Feedback 2 -->
+        <div class="glass-card p-8 flex items-center">
+          <img class="w-20 h-20 rounded-full mr-6 object-cover" src="https://i.pravatar.cc/150?u=a042581f4rohrtyrf6704f"
+            alt="User avatar">
+          <div class="info flex flex-col justify-center items-start">
+            <h1 class="text-2xl font-bold">Anusha de Silva</h1>
+            <p class="text-lg italic text-gray-600 mt-2">"I travel to Galle every weekend. This app is so reliable and
+              the interface is clean and simple. Secure payments mean I don't have to worry."</p>
+          </div>
+        </div>
+        <!-- Feedback 3 -->
+        <div class="glass-card p-8 flex items-center">
+          <img class="w-20 h-20 rounded-full mr-6 object-cover"
+            src="https://i.pravatar.cc/150?u=a0425845y6jfefftbhdgtnhgt6rtfbgdth" alt="User avatar">
+          <div class="info flex flex-col justify-center items-start">
+            <h1 class="text-2xl font-bold">Nimal Jayasuriya</h1>
+            <p class="text-lg italic text-gray-600 mt-2">"The 24/7 support is actually helpful. I had an issue with a
+              cancellation and they sorted it out quickly. Highly recommended for any bus traveler."</p>
+          </div>
+        </div>
+        <!-- Feedback 4 -->
+        <div class="glass-card p-8 flex items-center">
+          <img class="w-20 h-20 rounded-full mr-6 object-cover"
+            src="https://i.pravatar.cc/3000?u=K4gZ2Ry8Lp3WnM1qS5CvU7hXf6Be9D" alt="User avatar">
+          <div class="info flex flex-col justify-center items-start">
+            <h1 class="text-2xl font-bold">Mohomad Rizan</h1>
+            <p class="text-lg italic text-gray-600 mt-2">"As a student, finding the cheapest and best seat is important.
+              This app shows everything clearly. No hidden fees, no hassle. Excellent!"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ===== END OF MODIFIED SECTION: FEEDBACKS ===== -->
+
+  <footer class="bg-black text-white py-20">
+    <div class="container mx-auto px-6">
+      <div class="logo flex items-center py-10">
+        <a href=""><img class="w-20 h-20 bg-cover" src={% static "images/icons/passenger.png" %} alt=""></a>
+        <h1 class="text-4xl font-bold text-left text-white px-10">
+          Passenger
+        </h1>
+      </div>
+      <div class="flex justify-between">
+        <!-- Left Column - Navigation Links -->
+        <div class="w-1/2">
+          <ul class="flex flex-col space-y-5 text-xl">
+            <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">Home</li>
+            <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">About Us</li>
+            <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">News</li>
+            <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">Contact Us</li>
+            <!-- ===== START OF MODIFIED SECTION: PRIVACY LINK ===== -->
+            <li class="nav-link px-5 hover:text-blue-400 cursor-pointer"><a
+                href="https://www.passenger.lk/bus-owners/web/privacy-policy" target="_blank"
+                rel="noopener noreferrer">Privacy Policy</a></li>
+            <!-- ===== END OF MODIFIED SECTION: PRIVACY LINK ===== -->
+          </ul>
+        </div>
+
+        <!-- Right Column - Newsletter Signup -->
+        <div class="w-1/2">
+          <h3 class="text-3xl text-blue-400 font-bold mb-5">Subscribe to Our Newsletter</h3>
+          <form action="#" method="POST" class="flex flex-col space-y-3">
+            <input type="email" placeholder="Enter your email" class="px-4 text-2xl py-3 rounded-md text-white"
+              required />
+            <button type="submit"
+              class="bg-blue-400 text-white px-5 py-3 rounded-md hover:bg-white hover:text-black duration-500 ease-in-out">
+              Subscribe
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Footer Bottom (Copyright) -->
+      <div class="mt-10 text-center text-lg text-gray-400">
+        <p>&copy; 2025 Fission Software Solution. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Grab elements
+    const menuToggleIcon = document.getElementById("menu-toggle-icon");
+    const mobileMenu = document.getElementById('menu-container');
+
+    const toggleMenu = () => {
+      mobileMenu.classList.toggle('activated');
+      menuToggleIcon.classList.toggle('activated');
+    };
+
+    menuToggleIcon.addEventListener('click', toggleMenu);
+  });
+
+  // once on init:
+  const scrollSection = document.querySelector('.scroll_section');
+  const slideCount = scrollSection.children.length;
+  scrollSection.style.setProperty('--slide-count', slideCount);
+
+  // then your clamp uses:
+  const maxPerc = (slideCount - 1) * 100;
+
+  // Adding the hybrid scrolling behavior
+  window.addEventListener('scroll', () => {
+    const section = document.querySelector('.sticky');
+    const scrollSection = section.querySelector('.scroll_section');
+    const root = document.getElementById('how-it-works');
+    let startOffset = root.getBoundingClientRect().top + window.scrollY;
+
+    const y = window.scrollY;
+    let perc = ((y - startOffset) / window.innerHeight) * 100;
+
+    // 2) clamp 0 → maxPerc
+    perc = Math.max(0, Math.min(perc, maxPerc));
+
+    // 3) translate
+    scrollSection.style.transform = `translate3d(-${perc}vw, 0, 0)`;
+  });
+</script>
+
+</html>

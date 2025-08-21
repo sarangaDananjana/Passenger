@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;600;700&display=swap');
+/* -------------------- Vars & Reset -------------------- */
+:root {
+  --blue: #2fa8f8;
+  --green: #2ac769;
+  --orange: #ff9f1a;
+  --red: #e74c3c;
+  --text: #333333;
+  --text-light: #666666;
+  --bg-light: #f5f7fa;
+  --bg-white: #ffffff;
+  --shadow: rgba(0, 0, 0, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family:'Poppins', sans-serif;
+}
+
+
+
+/* -------------------- Sidebar (unchanged) -------------------- */
+
+.body {
+  margin: 0;
+  
+ 
+}
+.sidebar-container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+ 
+  height: 90%;
+}
+
+.sidebar-content{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  height: 90%;
+  padding-top: 5rem;
+}
+
+i{
+  padding-right: 20px;
+}
+
+.fa-caret-down{
+  padding-left: 20px;
+}
+.sidebar {
+  height: 100vh;
+  width: auto;
+  background-color: #22252D;
+  position: fixed;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+  top: 0;
+  left: 0;
+
+  color: #fff;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  font-style: italic;
+text-align: center;
+  width: 250px;
+  padding: 1rem;
+
+}
+nav{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+nav ul li {
+  margin: 20px 0;
+}
+
+.manage-btns a{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #ffffff;
+  background-color: #00D0FF;
+  text-decoration: none;
+  font-size: 18px;
+  padding: 0px 20px;
+  border-radius: 1.5rem;
+  transition: background-color 0.3s;
+  margin: 1rem;
+}
+.manage-user-btn{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+
+}
+
+.manage-user-btn:hover{
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+
+}
+
+.user:hover{
+  color: #00D0FF;
+  background-color: #ffffff;
+
+}
+
+.bus:hover{
+  color: #00D0FF;
+  background-color: #ffffff;
+
+}
+
+.user h1:hover{
+  color: #00D0FF;
+
+}
+
+.bus h1:hover{
+  color: #00D0FF;
+
+}
+
+.manage-user-btn h1{
+  display: flex;
+  align-items: center;
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+  padding: 10px 0;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+  font-weight: 400;
+
+}
+nav ul li a {
+  display: flex;
+  align-items: center;
+  color: #b0b0b0;
+  text-decoration: none;
+  font-size: 18px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.select-bus-btn{
+  display: flex;
+  align-items: center;
+  color: #b0b0b0;
+  text-decoration: none;
+  font-size: 18px;
+  padding: 10px 2rem;
+  border: 1px solid #b0b0b0;
+  border-radius: 2rem;
+  transition: background-color 0.3s;
+}
+
+nav ul li a:hover {
+  background-color: #4c4f59;
+}
+
+nav ul li a.active {
+  background-color: #4c4f59;
+  color: #fff;
+}
+
+/* change these colors to whatever “highlight” you chose */
+.nav-links a.active {
+  background-color: #A5A5A5;  /* highlight background */
+  color: #fff;               /* text/icon color */
+}
+
+.nav-links a.active i {
+  color: #fff;               /* make sure your icon flips too */
+}
+
+
+nav ul li a img {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.bus-dropdown {
+  display: none;
+  position: absolute;
+  top: 370px; /* Adjust to position below the "Select Bus" tab */
+  left: 32px;
+  width: 80%;
+  background-color: #343841;
+  padding: 10px 0;
+  border-radius: 5px;
+  z-index: 1;
+}
+
+.bus-item {
+  padding: 10px 20px;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.bus-name{
+  font-size: 15px;
+}
+
+.bus-number{
+  font-size: 25px;
+}
+.bus-item:hover {
+  background-color: #4c4f59;
+}
+
+.logout {
+ 
+ 
+  text-align: center;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  color: #e63946;
+  font-size: 18px;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.logout a:hover {
+  background-color: #4c4f59;
+}
+
+.logout a img {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
