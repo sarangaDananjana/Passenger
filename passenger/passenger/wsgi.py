@@ -4,15 +4,12 @@ import os
 from django.core.wsgi import get_wsgi_application
 from prometheus_client import make_wsgi_app
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
-<<<<<<< HEAD
+
 from base64 import b64decode
-=======
->>>>>>> 535cef2fce557f71027a1d27c9e1ef99456316d3
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'passenger.settings')
 django_app = get_wsgi_application()
 
-<<<<<<< HEAD
 # 1. Define Basic-Auth middleware
 
 
@@ -46,15 +43,4 @@ metrics_app = BasicAuthMiddleware(metrics_app, 'metrics_user', 's3cr3t')
 application = DispatcherMiddleware(
     django_app,
     {'/metrics': metrics_app}
-=======
-application = get_wsgi_application()
-
-
-# Dispatch to either Django or the Prometheus metrics exporter
-application = DispatcherMiddleware(
-    application,
-    {
-        '/metrics': make_wsgi_app()
-    }
->>>>>>> 535cef2fce557f71027a1d27c9e1ef99456316d3
 )
