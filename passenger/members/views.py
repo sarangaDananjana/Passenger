@@ -291,6 +291,126 @@ def user_details(request):
         return Response({"message": "User details updated successfully!"}, status=status.HTTP_200_OK)
 
 
+ALLOWED_PATCH_FIELDS = {
+    "first_name", "last_name", "gender", "birthday", "customer_id",
+    "lane_1", "lane_2", "city", "postal_code", "phone_number", "email"
+}
+BLOCKED_FIELDS = {
+    "_id", "password", "is_admin", "roles", "permissions",
+    "is_email_verified", "email_otp_code", "email_otp_expires_at"
+}
+
+
+@api_view(["PATCH"])
+def user_partial_update(request):
+    """
+    Partially update user profile fields.
+
+    Request JSON (any subset):
+    {
+      "email": "new@mail.com",
+      "first_name": "Alice",
+      "last_name": "Doe",
+      "gender": "female",
+      "birthday": "1992-05-17",
+      "customer_id": "cus_123",
+      "lane_1": "123 Main",
+      "lane_2": "Apt 4",
+      "city": "Colombo",
+      "postal_code": "10000",
+      "phone_number": "+94123456789"
+    }
+
+    Response: 200 + updated fields snapshot
+    """
+    # — Auth —
+    access_token = get_access_token_from_request(request)
+    if not access_token:
+        return Response({"error": "Access token required"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    validation_result = validate_token(access_token)
+    if validation_result is None:
+        return Response({"error": "Invalid or expired access token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    user_id = validation_result
+    user = user_collection.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    data = request.data or {}
+    if not isinstance(data, dict) or not data:
+        return Response({"detail": "Provide at least one field to update"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # — Guard against forbidden fields —
+    forbidden = [k for k in data.keys() if k in BLOCKED_FIELDS]
+    if forbidden:
+        return Response(
+            {"detail": f"These fields cannot be modified: {', '.join(forbidden)}"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # — Keep only allowed fields —
+    unknown = [k for k in data.keys() if k not in ALLOWED_PATCH_FIELDS]
+    if unknown:
+        return Response(
+            {"detail": f"Unknown/unsupported fields: {', '.join(unknown)}"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # — Build update payload —
+    update_fields = {}
+    tz_local = pytz.timezone("Asia/Colombo")
+    now_utc = datetime.datetime.now(tz_local).astimezone(pytz.UTC)
+
+    # Email flow (OTP + reset verification) if changed
+    if "email" in data:
+        new_email = data["email"]
+        if new_email != user.get("email"):
+            otp_code = str(random.randint(100000, 999999))
+            otp_expiry = now_utc + datetime.timedelta(minutes=10)
+            update_fields.update({
+                "email": new_email,
+                "email_otp_code": otp_code,
+                "email_otp_expires_at": otp_expiry,
+                "is_email_verified": False
+            })
+        # if same email as current, ignore silently
+
+    # Other fields (partial)
+    for field in ALLOWED_PATCH_FIELDS - {"email"}:
+        if field in data:
+            update_fields[field] = data[field]
+
+    if not update_fields:
+        return Response({"detail": "No changes detected"}, status=status.HTTP_200_OK)
+
+    # — Persist —
+    user_collection.update_one({"_id": ObjectId(user_id)}, {
+                               "$set": update_fields}, upsert=False)
+
+    # — Return fresh snapshot (omit sensitive/OTP fields) —
+    updated = user_collection.find_one({"_id": ObjectId(user_id)})
+    resp = {
+        "email": updated.get("email"),
+        "is_email_verified": updated.get("is_email_verified", False),
+        "phone_number": updated.get("phone_number"),
+        "gender": updated.get("gender"),
+        "first_name": updated.get("first_name"),
+        "last_name": updated.get("last_name"),
+        "birthday": updated.get("birthday"),
+        "customer_id": updated.get("customer_id"),
+        "lane_1": updated.get("lane_1"),
+        "lane_2": updated.get("lane_2"),
+        "city": updated.get("city"),
+        "postal_code": updated.get("postal_code"),
+        # Optionally include a hint if an email OTP was issued
+        "email_verification_pending": (
+            ("email" in data) and (data.get("email") != user.get("email"))
+        )
+    }
+    return Response(resp, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 def verify_email_otp(request):
     """
@@ -359,6 +479,85 @@ def verify_email_otp(request):
 
         except PyMongoError as e:
             print(f"Transaction aborted due to error: {e}")
+
+
+def _is_empty(v):
+    """True if value is None or an empty/whitespace-only string."""
+    return v is None or (isinstance(v, str) and v.strip() == "")
+
+
+@api_view(["POST"])
+def validate_seats_empty_points(request):
+    """
+    Input JSON:
+    {
+      "trip_id": "<mongo_id>",
+      "seat_numbers": [1,2,3]  # REQUIRED: JSON array of integers
+    }
+
+    Rule:
+      - Respond "ok" only if, for ALL requested seats, BOTH start_point and end_point are empty/null.
+      - If ANY requested seat has a value in start_point or end_point, respond "seats are booked".
+    """
+    data = request.data or {}
+    trip_id = data.get("trip_id")
+    seat_numbers = data.get("seat_numbers")
+
+    if not trip_id:
+        return Response({"detail": "trip_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Strictly require a JSON array like [1,2,3]
+    if not isinstance(seat_numbers, list) or not seat_numbers:
+        return Response(
+            {"detail": "seat_numbers must be a non-empty JSON array, e.g. [1,2,3]"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    try:
+        seat_numbers = [int(x) for x in seat_numbers]
+    except (TypeError, ValueError):
+        return Response(
+            {"detail": "seat_numbers must contain only integers"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Fetch trip with bookings
+    try:
+        trip = bustrips_collection.find_one(
+            {"_id": ObjectId(trip_id)}, {"bookings": 1, "_id": 0})
+    except Exception as e:
+        return Response({"detail": f"Invalid trip_id format: {e}"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not trip:
+        return Response({"detail": "Trip not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    bookings = trip.get("bookings") or []
+    seat_map = {b.get("seat_number")                : b for b in bookings if "seat_number" in b}
+
+    # Ensure all seats exist for the trip
+    missing = [s for s in seat_numbers if s not in seat_map]
+    if missing:
+        return Response(
+            {"detail": "One or more seats not found on this trip",
+                "missing_seats": missing},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Any seat with a value in start_point OR end_point counts as "booked"
+    booked_seats = []
+    for s in seat_numbers:
+        seat_doc = seat_map[s]
+        sp = seat_doc.get("start_point")
+        ep = seat_doc.get("end_point")
+        if not (_is_empty(sp) and _is_empty(ep)):
+            booked_seats.append(s)
+
+    if booked_seats:
+        return Response(
+            {"detail": "seats are booked", "booked_seats": booked_seats},
+            status=status.HTTP_409_CONFLICT
+        )
+
+    return Response({"detail": "ok"}, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
