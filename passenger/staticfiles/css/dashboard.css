@@ -1317,3 +1317,9 @@ you can wrap them in a <small> or add pseudo-elements here if needed. */
   font-size: 1.2rem;
   margin: 0;
 }
+
+
+.view-graph-btn.disabled {
+  pointer-events: none;
+  opacity: .6;
+}

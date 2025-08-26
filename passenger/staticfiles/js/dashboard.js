@@ -1,4 +1,4 @@
-import { authFetch } from './auth.js';
+import { authFetch, baseUrl } from './auth.js';
 
 // Grab cookies
 const panel = document.querySelector('.details-panel');
@@ -85,7 +85,7 @@ async function loadOwnerDetails() {
   const noBusesPlaceholder = document.getElementById('noBusesPlaceholder');
 
   try {
-    const res = await authFetch(' https://www.passenger.lk/bus-owners/owner-details/');
+    const res = await authFetch(`${baseUrl}/bus-owners/owner-details/`);
     // Add this check: If authFetch redirected, 'res' will be undefined. Stop execution.
     if (!res) return;
 
@@ -188,7 +188,7 @@ async function switchBus(busId) {
   panel.classList.remove('open');
 
   const fetchPromise = authFetch(
-    ` https://www.passenger.lk/bus-owners/bus-trip-details/?bus_id=${busId}`
+    `${baseUrl}/bus-owners/bus-trip-details/?bus_id=${busId}`
   ).then(res => {
     // Add this check: If authFetch redirected, stop the promise chain.
     if (!res) return;
@@ -407,6 +407,23 @@ async function selectTrip(trip) {
   // 1) Track the currentTripId (or null)
   currentTripId = trip && trip._id ? trip._id : null;
   window.currentTrip = trip;
+  const graphBtn = document.getElementById('ticketGraphBtn');
+
+  if (graphBtn) {
+    const tpl =
+      graphBtn.dataset.urlTemplate ||
+      graphBtn.getAttribute('href') ||
+      '/web/ticket-graph/__ID__/';
+
+    // If we have a selected trip, fill in the href; otherwise make it inert
+    const url = currentTripId
+      ? tpl.replace('__ID__', encodeURIComponent(currentTripId))
+      : '#';
+
+    graphBtn.setAttribute('href', url);
+    graphBtn.classList.toggle('disabled', !currentTripId);
+  }
+
 
   // 2) Remove any “active” class from date‐buttons
   document.querySelectorAll('#tripSelection .date-button')
@@ -431,6 +448,13 @@ async function selectTrip(trip) {
       'onlineRevenue', 'offlineCount', 'offlineEarning', 'offlineFee',
       'offlineRevenue', 'finalRevenue'
     ].forEach(clearText);
+
+    const graphBtn = document.getElementById('ticketGraphBtn');
+    if (graphBtn) {
+      graphBtn.setAttribute('href', '#');
+      graphBtn.classList.add('disabled');
+    }
+
 
     const statusEl = document.getElementById('detailRevenueStatus');
     if (statusEl) {
@@ -617,7 +641,7 @@ async function getBookingsInfo(trip) {
 // POST to toggle-machine-button
 async function toggleMachine(busId, isOn) {
   try {
-    const res = await authFetch(' https://www.passenger.lk/bus-owners/toggle-machine-button/', {
+    const res = await authFetch(`${baseUrl}/bus-owners/toggle-machine-button/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -753,7 +777,7 @@ if (routeInput) {
 
     try {
       const res = await fetch(
-        ` https://www.passenger.lk/core/routes/?route_name=${encodeURIComponent(query)}`
+        `${baseUrl}/core/routes/?route_name=${encodeURIComponent(query)}`
       );
       const routes = await res.json();
 
@@ -827,7 +851,7 @@ if (addTripForm) {
         fare_type_name: bus.fare_type_name || null
       };
 
-      const res = await authFetch(' https://www.passenger.lk/core/bus-trip/', {
+      const res = await authFetch(`${baseUrl}/core/bus-trip/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(postData)

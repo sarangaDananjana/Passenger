@@ -410,15 +410,20 @@ async function selectTrip(trip) {
   const graphBtn = document.getElementById('ticketGraphBtn');
 
   if (graphBtn) {
-    // enable + (re)bind for the current trip
-    graphBtn.disabled = !currentTripId;
-    graphBtn.onclick = () => {
-      if (!currentTripId) return;
-      const tpl = graphBtn.dataset.urlTemplate || '/web/ticket-graph/__ID__/';
-      const url = tpl.replace('__ID__', encodeURIComponent(currentTripId));
-      window.location.assign(url);
-    };
+    const tpl =
+      graphBtn.dataset.urlTemplate ||
+      graphBtn.getAttribute('href') ||
+      '/web/ticket-graph/__ID__/';
+
+    // If we have a selected trip, fill in the href; otherwise make it inert
+    const url = currentTripId
+      ? tpl.replace('__ID__', encodeURIComponent(currentTripId))
+      : '#';
+
+    graphBtn.setAttribute('href', url);
+    graphBtn.classList.toggle('disabled', !currentTripId);
   }
+
 
   // 2) Remove any “active” class from date‐buttons
   document.querySelectorAll('#tripSelection .date-button')
@@ -446,9 +451,10 @@ async function selectTrip(trip) {
 
     const graphBtn = document.getElementById('ticketGraphBtn');
     if (graphBtn) {
-      graphBtn.disabled = true;
-      graphBtn.onclick = null;
+      graphBtn.setAttribute('href', '#');
+      graphBtn.classList.add('disabled');
     }
+
 
     const statusEl = document.getElementById('detailRevenueStatus');
     if (statusEl) {

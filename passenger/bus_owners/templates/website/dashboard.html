@@ -208,10 +208,10 @@
                         </div>
                     </div>
                     <div class="row">
-                        <button id="ticketGraphBtn" type="button" class="view-graph-btn"
+                        <a id="ticketGraphBtn" class="view-graph-btn" href="{% url 'ticket_graph' trip_id='__ID__' %}"
                             data-url-template="{% url 'ticket_graph' trip_id='__ID__' %}">
                             View ticket graph →
-                        </button>
+                        </a>
                     </div>
                 </div>
 
@@ -341,7 +341,7 @@
     <script type="module" src="{% static 'js/dashboard.js' %}"></script>
     <script type="module">
         import { seatLayouts } from "{% static 'js/seatLayout.js' %}";
-        import { getBookingsInfo } from "{% static 'js/dashboard.js'' %}";
+        import { getBookingsInfo } from "{% static 'js/dashboard.js' %}";
 
         // Modal & trigger
         const modal = document.getElementById('seatModal');
