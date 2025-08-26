@@ -32,16 +32,18 @@
 
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
 
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+    <!-- Changed container to max-w-screen-xl for a wider layout on large screens -->
+    <div class="max-w-screen-xl mx-auto p-4 sm:p-6 lg:p-8">
         <header class="text-center mb-8">
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Bus Trip Analysis</h1>
             <p class="text-md text-gray-600 dark:text-gray-400 mt-2">Boarding Point Ticket Distribution</p>
         </header>
 
         <main>
-            <!-- Chart container with a modern card style -->
+            <!-- Chart container with a modern card style and a larger height -->
+            <!-- Added h-[75vh] to make the chart container much taller -->
             <div id="chart-container"
-                class="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+                class="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 h-[75vh]">
                 <canvas id="ticketChart"></canvas>
             </div>
 
@@ -74,6 +76,7 @@
 
     <script>
         // --- API Configuration ---
+        // URLs are now relative to your domain, as per your updated file.
         const BASE_TICKETS_URL = "/bus-owners/trips/view-tickets/";
         const BASE_ROUTE_URL = "/bus-owners/routes/";
 
@@ -155,7 +158,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: false, // This is crucial for the chart to fill the container's height
                     plugins: {
                         legend: {
                             display: false // Hide legend as it's self-explanatory
@@ -164,7 +167,7 @@
                             display: true,
                             text: 'Ticket Sales per Boarding Point',
                             font: {
-                                size: 18,
+                                size: 22, // Increased font size for better visibility
                                 weight: '600'
                             },
                             color: document.body.classList.contains('dark') ? '#E5E7EB' : '#1F2937',
@@ -176,13 +179,13 @@
                             enabled: true,
                             backgroundColor: 'rgba(0, 0, 0, 0.8)',
                             titleFont: {
-                                size: 14,
+                                size: 16,
                                 weight: 'bold'
                             },
                             bodyFont: {
-                                size: 12
+                                size: 14
                             },
-                            padding: 10,
+                            padding: 12,
                             cornerRadius: 6,
                             callbacks: {
                                 label: function (context) {
@@ -213,7 +216,7 @@
                                 text: 'Number of Tickets Sold',
                                 color: document.body.classList.contains('dark') ? '#D1D5DB' : '#374151',
                                 font: {
-                                    size: 14,
+                                    size: 16,
                                     weight: '500'
                                 }
                             }
@@ -232,7 +235,7 @@
                                 text: 'Boarding Points',
                                 color: document.body.classList.contains('dark') ? '#D1D5DB' : '#374151',
                                 font: {
-                                    size: 14,
+                                    size: 16,
                                     weight: '500'
                                 }
                             }
@@ -247,54 +250,49 @@
          */
         async function initialize() {
             try {
-                // 1. Get trip_id from the Django template context.
-                // The {{ trip_id }} is a Django template tag that will be replaced
-                // by the actual trip_id string from the view.
+                // Get trip_id from the Django template context or URL
                 const ctxTripId = "{{ trip_id|escapejs }}";
-                const urlTripIdMatch = window.location.pathname.match(/\/web\/ticket-graph\/([^/]+)\//);
-                const tripId = ctxTripId || (urlTripIdMatch ? decodeURIComponent(urlTripIdMatch[1]) : "");
+                const urlTripIdMatch = window.location.pathname.match(/\/ticket-graph\/([^/]+)/);
+                const tripId = ctxTripId && ctxTripId !== "None" ? ctxTripId : (urlTripIdMatch ? decodeURIComponent(urlTripIdMatch[1]) : "");
 
                 if (!tripId) {
-                    throw new Error("Trip ID is missing.");
+                    throw new Error("Trip ID is missing from the URL or context.");
                 }
 
-                // Always URL-encode when putting IDs into query strings
                 const ticketsApiUrl = `${BASE_TICKETS_URL}?trip_id=${encodeURIComponent(tripId)}`;
                 const tickets = await fetchData(ticketsApiUrl);
 
-                // 3. Check if we got any tickets and extract the route_id.
                 if (!tickets || tickets.length === 0) {
-                    throw new Error("No ticket data found for this trip.");
+                    // Display a friendly message instead of an error for no tickets
+                    loader.style.display = 'none';
+                    chartContainer.style.display = 'flex';
+                    chartContainer.classList.add('items-center', 'justify-center');
+                    chartContainer.innerHTML = `<p class="text-xl text-gray-500">No ticket data found for this trip.</p>`;
+                    return; // Stop execution
                 }
                 const routeId = tickets[0].route_id;
                 if (!routeId) {
                     throw new Error("Route ID is missing from ticket data.");
                 }
 
-                // 4. Fetch the route information using the extracted route_id.
                 const routeApiUrl = `${BASE_ROUTE_URL}?route_id=${routeId}`;
                 const routeInfo = await fetchData(routeApiUrl);
 
-                // 5. Process the data to get labels and values for the chart.
                 const { labels, data } = processChartData(tickets, routeInfo);
 
-                // Hide loader and show the chart container.
                 loader.style.display = 'none';
                 chartContainer.style.display = 'block';
 
-                // 6. Create the chart with the processed data.
                 createChart(labels, data);
 
             } catch (error) {
                 console.error("Failed to initialize chart:", error);
-                // Hide loader and show the error message.
                 loader.style.display = 'none';
                 errorMessage.classList.remove('hidden');
                 errorMessage.querySelector('p').textContent = `Error: ${error.message}. Please check the console for more details.`;
             }
         }
 
-        // Run the main function when the page loads.
         document.addEventListener('DOMContentLoaded', initialize);
     </script>
 </body>
