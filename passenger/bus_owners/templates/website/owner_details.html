@@ -5,92 +5,241 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bus Owner Details</title>
-    <link href="{% static 'css/owner_details.css' %}" rel="stylesheet" />
+    <title>Manage User</title>
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <!-- Shared stylesheet for consistency -->
+    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" />
+
+    <!-- Page-specific styles -->
+    <style>
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .details-card,
+        .buses-card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .verified-badge {
+            color: white;
+            background-color: var(--offline-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .editable-field,
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .editable-field label,
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .edit-wrapper {
+            position: relative;
+        }
+
+        .edit-wrapper input,
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-content);
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .edit-wrapper input:disabled,
+        .form-group input:disabled {
+            background-color: var(--bg-card);
+            cursor: not-allowed;
+        }
+
+        .edit-wrapper input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .edit-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .save-button {
+            background-color: var(--primary-color);
+            color: var(--bg-main);
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 1rem;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .save-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #buses-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .bus-group {
+            padding: 1rem;
+            background-color: var(--bg-content);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .bus-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        .bus-number {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>Bus Owner Details</h1>
-    <div class="bus-details">
-
-
-        <div class="sidebar-palceholder">
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
             {% include 'website/sidebar.html' %}
-        </div>
-        <div class="header">
+        </aside>
 
-            <span id="verified-badge" class="verified-badge hidden">✔ Verified</span>
-        </div>
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <header class="main-header">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="ph-bold ph-list"></i>
+                </button>
+                <h1 class="main-title">Manage User</h1>
+            </header>
 
+            <!-- Details Card -->
+            <div class="details-card">
+                <div class="card-header">
+                    <h2 class="card-title">Owner Details</h2>
+                    <span id="verified-badge" class="verified-badge hidden">Verified</span>
+                </div>
 
-        <!-- Editable Fields -->
-        <div class="editable-field">
-            <label>Company Name:</label>
-            <div class="edit-wrapper">
-                <input type="text" id="company_name" disabled />
-                <span class="edit-icon">🖉</span>
+                <div class="details-grid">
+                    <!-- Column 1 -->
+                    <div>
+                        <div class="editable-field">
+                            <label for="company_name">Company Name</label>
+                            <div class="edit-wrapper">
+                                <input type="text" id="company_name" disabled />
+                                <i class="fas fa-pencil-alt edit-icon hidden"></i>
+                            </div>
+                        </div>
+
+                        <div class="editable-field">
+                            <label for="company_address">Company Address</label>
+                            <div class="edit-wrapper">
+                                <input type="text" id="company_address" disabled />
+                                <i class="fas fa-pencil-alt edit-icon hidden"></i>
+                            </div>
+                        </div>
+
+                        <div class="editable-field">
+                            <label for="company_number">Company Number</label>
+                            <div class="edit-wrapper">
+                                <input type="text" id="company_number" disabled />
+                                <i class="fas fa-pencil-alt edit-icon hidden"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column 2 -->
+                    <div>
+                        <div class="editable-field">
+                            <label for="company_registration_number">Registration Number</label>
+                            <div class="edit-wrapper">
+                                <input type="text" id="company_registration_number" disabled />
+                                <i class="fas fa-pencil-alt edit-icon hidden"></i>
+                            </div>
+                        </div>
+
+                        <div class="editable-field">
+                            <label for="company_owner_name">Owner Name</label>
+                            <div class="edit-wrapper">
+                                <input type="text" id="company_owner_name" disabled />
+                                <i class="fas fa-pencil-alt edit-icon hidden"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone_number">Phone Number</label>
+                            <input type="text" id="phone_number" disabled />
+                        </div>
+                    </div>
+                </div>
+                <button id="save-button" class="save-button hidden">Save Changes</button>
             </div>
-        </div>
 
-
-
-        <div class="editable-field">
-            <label>Company Address:</label>
-            <div class="edit-wrapper">
-                <input type="text" id="company_address" disabled />
-                <span class="edit-icon">🖉</span>
-            </div>
-        </div>
-
-        <div class="row">
-
-            <div class="editable-field">
-                <label>Company Number:</label>
-                <div class="edit-wrapper">
-                    <input type="text" id="company_number" disabled />
-                    <span class="edit-icon">🖉</span>
+            <!-- Buses Card -->
+            <div class="buses-card" style="margin-top: 2rem;">
+                <div class="card-header">
+                    <h2 class="card-title">My Buses</h2>
+                </div>
+                <div id="buses-container">
+                    <!-- Bus groups will be injected here by JS -->
                 </div>
             </div>
 
-            <div class="editable-field">
-                <label>Registration Number:</label>
-                <div class="edit-wrapper">
-                    <input type="text" id="company_registration_number" disabled />
-                    <span class="edit-icon">🖉</span>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="row">
-            <div class="editable-field">
-                <label>Owner Name:</label>
-                <div class="edit-wrapper">
-                    <input type="text" id="company_owner_name" disabled />
-                    <span class="edit-icon">🖉</span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Phone Number:</label>
-                <input type="text" id="phone_number" disabled />
-            </div>
-
-        </div>
-        <button id="save-button" class="save-button hidden">Save Changes</button>
-
-        <!-- Bus Section (read-only) -->
-
-
-        <!-- Save Button -->
-
+        </main>
     </div>
 
-    <div class="busses-card">
-        <h1>Buses</h1>
-        <div id="buses-container"></div>
-    </div>
-
+    <!-- Scripts -->
+    <script type="module" src="{% static 'js/dashboard.js' %}"></script>
     <script type="module" src="{% static 'js/owner_details.js' %}"></script>
 </body>
 
