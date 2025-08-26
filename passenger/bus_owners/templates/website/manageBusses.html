@@ -4,22 +4,166 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Buses</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- The new, unified stylesheet -->
-  <link href="{% static 'css/manageBuses.css' %}" rel="stylesheet" />
+  <!-- Phosphor Icons for the hamburger menu -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Use the dashboard stylesheet for a consistent layout -->
+  <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" />
+
+  <!-- Page-specific styles for bus management -->
+  <style>
+    :root {
+      --fab-size: 60px;
+    }
+
+    .bus-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .bus-card {
+      background-color: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .bus-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .bus-header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .bus-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .bus-number {
+      font-size: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .bus-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .bus-field dt {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
+
+    .bus-field dd {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .status-approved dd {
+      color: var(--offline-color);
+    }
+
+    .status-pending dd {
+      color: var(--orange);
+    }
+
+    .fab {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: var(--fab-size);
+      height: var(--fab-size);
+      border-radius: 50%;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 208, 255, 0.3);
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+      z-index: 1000;
+    }
+
+    .fab:hover {
+      transform: scale(1.1);
+      background-color: var(--primary-hover);
+    }
+
+    /* Styles for form elements inside modals */
+    .modal-content form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .modal-content label {
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .modal-content input,
+    .modal-content select {
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-content);
+      color: var(--text-primary);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .modal-content input:focus,
+    .modal-content select:focus {
+      border-color: var(--primary-color);
+    }
+
+    .image-preview {
+      max-width: 100px;
+      margin-top: 10px;
+      border-radius: 8px;
+      display: none;
+      /* Hidden by default */
+    }
+
+    .file-name-display {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-top: -0.5rem;
+    }
+  </style>
 </head>
 
 <body>
   <div class="dashboard">
     <!-- Sidebar is included here for consistency -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       {% include 'website/sidebar.html' %}
     </aside>
 
     <!-- Main content area -->
-    <main class="main-content">
+    <main class="main-content" id="mainContent">
       <header class="main-header">
+        <button class="sidebar-toggle" id="sidebarToggle">
+          <i class="ph-bold ph-list"></i>
+        </button>
         <h1 class="main-title">My Buses</h1>
       </header>
 
@@ -104,10 +248,15 @@
     </div>
   </div>
 
+  <!-- JS for sidebar functionality (must come before page-specific scripts if they interact) -->
+  <script type="module" src="{% static 'js/dashboard.js' %}"></script>
+  <!-- JS for this page's specific logic -->
   <script type="module" src="{% static 'js/manageBusses.js' %}"></script>
+
   <script>
-    const form = document.getElementById("createForm");
-    const inputs = form.querySelectorAll("input:not([type='hidden']), select");
+    // This inline script from the original file is for form validation and file name display. It's fine to keep.
+    const createForm = document.getElementById("createForm");
+    const inputs = createForm.querySelectorAll("input:not([type='hidden']), select");
     const submitBtn = document.getElementById("createButton");
 
     function checkFormCompletion() {
@@ -120,8 +269,10 @@
       input.addEventListener("change", checkFormCompletion);
     });
 
+    // Initial check
     checkFormCompletion();
 
+    // Listener for the edit form's file input
     document.getElementById('route_permit_image').addEventListener('change', function () {
       const file = this.files[0];
       const display = document.getElementById('file_name_display');
