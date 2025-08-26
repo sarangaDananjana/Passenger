@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Ticket Visualization</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts for a clean look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom styles for the chart tooltip */
+        .chartjs-tooltip {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Bus Trip Analysis</h1>
+            <p class="text-md text-gray-600 dark:text-gray-400 mt-2">Boarding Point Ticket Distribution</p>
+        </header>
+
+        <main>
+            <!-- Chart container with a modern card style -->
+            <div id="chart-container"
+                class="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+                <canvas id="ticketChart"></canvas>
+            </div>
+
+            <!-- Loading indicator -->
+            <div id="loader" class="text-center py-16">
+                <div role="status">
+                    <svg aria-hidden="true"
+                        class="inline w-10 h-10 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                        viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                            fill="currentColor" />
+                        <path
+                            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0492C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                            fill="currentFill" />
+                    </svg>
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <p class="mt-4 text-lg font-medium">Fetching and analyzing trip data...</p>
+            </div>
+            <!-- Error message container -->
+            <div id="error-message"
+                class="hidden text-center py-16 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg">
+                <h3 class="text-xl font-semibold">Oops! Something went wrong.</h3>
+                <p class="mt-2">Could not fetch the trip data. This might be due to a network issue or a CORS policy
+                    error. Please check the browser console for more details.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- API Configuration ---
+        const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
+        const BASE_TICKETS_URL = `${CORS_PROXY}https://www.passenger.lk/bus-owners/trips/view-tickets/`;
+        const BASE_ROUTE_URL = `${CORS_PROXY}https://www.passenger.lk/bus-owners/routes/`;
+
+        // --- DOM Element References ---
+        const loader = document.getElementById('loader');
+        const chartContainer = document.getElementById('chart-container');
+        const errorMessage = document.getElementById('error-message');
+        const ctx = document.getElementById('ticketChart').getContext('2d');
+
+        // Hide chart initially
+        chartContainer.style.display = 'none';
+
+        /**
+         * Fetches data from a given URL.
+         * @param {string} url - The URL to fetch data from.
+         * @returns {Promise<any>} - A promise that resolves with the JSON data.
+         */
+        async function fetchData(url) {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        }
+
+        /**
+         * Processes the raw API data to prepare it for the chart.
+         * @param {Array} tickets - The array of ticket objects.
+         * @param {Object} routeInfo - The route information object.
+         * @returns {Object} - An object containing labels and data for the chart.
+         */
+        function processChartData(tickets, routeInfo) {
+            // 1. Get the ordered list of all boarding points from the route info.
+            const orderedBoardingPoints = routeInfo.sections.flatMap(section =>
+                section.boarding_points.map(point => point.point_name)
+            );
+
+            // 2. Count the number of tickets for each starting point.
+            const ticketCounts = tickets.reduce((acc, ticket) => {
+                const startPoint = ticket.start_point;
+                acc[startPoint] = (acc[startPoint] || 0) + 1;
+                return acc;
+            }, {});
+
+            // 3. Map the counts to the ordered list of boarding points.
+            // If a boarding point has no tickets, its count will be 0.
+            const chartDataValues = orderedBoardingPoints.map(point => ticketCounts[point] || 0);
+
+            return {
+                labels: orderedBoardingPoints,
+                data: chartDataValues
+            };
+        }
+
+        /**
+         * Creates and renders the bar chart using Chart.js.
+         * @param {Array<string>} labels - The labels for the x-axis.
+         * @param {Array<number>} data - The data points for the y-axis.
+         */
+        function createChart(labels, data) {
+            // Create a gradient for the bar colors
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
+            gradient.addColorStop(1, 'rgba(147, 51, 234, 0.8)');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Tickets',
+                        data: data,
+                        backgroundColor: gradient,
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        hoverBackgroundColor: 'rgba(59, 130, 246, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false // Hide legend as it's self-explanatory
+                        },
+                        title: {
+                            display: true,
+                            text: 'Ticket Sales per Boarding Point',
+                            font: {
+                                size: 18,
+                                weight: '600'
+                            },
+                            color: document.body.classList.contains('dark') ? '#E5E7EB' : '#1F2937',
+                            padding: {
+                                bottom: 20
+                            }
+                        },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 12
+                            },
+                            padding: 10,
+                            cornerRadius: 6,
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += `${context.parsed.y} ticket(s)`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: document.body.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                            },
+                            ticks: {
+                                color: document.body.classList.contains('dark') ? '#9CA3AF' : '#4B5563',
+                                precision: 0 // Ensure y-axis shows whole numbers
+                            },
+                            title: {
+                                display: true,
+                                text: 'Number of Tickets Sold',
+                                color: document.body.classList.contains('dark') ? '#D1D5DB' : '#374151',
+                                font: {
+                                    size: 14,
+                                    weight: '500'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: document.body.classList.contains('dark') ? '#9CA3AF' : '#4B5563',
+                                maxRotation: 45,
+                                minRotation: 45
+                            },
+                            title: {
+                                display: true,
+                                text: 'Boarding Points',
+                                color: document.body.classList.contains('dark') ? '#D1D5DB' : '#374151',
+                                font: {
+                                    size: 14,
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        /**
+         * Main function to orchestrate the fetching, processing, and rendering.
+         */
+        async function initialize() {
+            try {
+                // 1. Get trip_id from the Django template context.
+                // The {{ trip_id }} is a Django template tag that will be replaced
+                // by the actual trip_id string from the view.
+                const ctxTripId = "{{ trip_id|escapejs }}";
+                const urlTripIdMatch = window.location.pathname.match(/\/web\/ticket-graph\/([^/]+)\//);
+                const tripId = ctxTripId || (urlTripIdMatch ? decodeURIComponent(urlTripIdMatch[1]) : "");
+
+                if (!tripId) {
+                    throw new Error("Trip ID is missing.");
+                }
+
+                // Always URL-encode when putting IDs into query strings
+                const ticketsApiUrl = `${BASE_TICKETS_URL}?trip_id=${encodeURIComponent(tripId)}`;
+                const tickets = await fetchData(ticketsApiUrl);
+
+                // 3. Check if we got any tickets and extract the route_id.
+                if (!tickets || tickets.length === 0) {
+                    throw new Error("No ticket data found for this trip.");
+                }
+                const routeId = tickets[0].route_id;
+                if (!routeId) {
+                    throw new Error("Route ID is missing from ticket data.");
+                }
+
+                // 4. Fetch the route information using the extracted route_id.
+                const routeApiUrl = `${BASE_ROUTE_URL}?route_id=${routeId}`;
+                const routeInfo = await fetchData(routeApiUrl);
+
+                // 5. Process the data to get labels and values for the chart.
+                const { labels, data } = processChartData(tickets, routeInfo);
+
+                // Hide loader and show the chart container.
+                loader.style.display = 'none';
+                chartContainer.style.display = 'block';
+
+                // 6. Create the chart with the processed data.
+                createChart(labels, data);
+
+            } catch (error) {
+                console.error("Failed to initialize chart:", error);
+                // Hide loader and show the error message.
+                loader.style.display = 'none';
+                errorMessage.classList.remove('hidden');
+                errorMessage.querySelector('p').textContent = `Error: ${error.message}. Please check the console for more details.`;
+            }
+        }
+
+        // Run the main function when the page loads.
+        document.addEventListener('DOMContentLoaded', initialize);
+    </script>
+</body>
+
+</html>

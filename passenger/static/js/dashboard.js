@@ -407,6 +407,18 @@ async function selectTrip(trip) {
   // 1) Track the currentTripId (or null)
   currentTripId = trip && trip._id ? trip._id : null;
   window.currentTrip = trip;
+  const graphBtn = document.getElementById('ticketGraphBtn');
+
+  if (graphBtn) {
+    // enable + (re)bind for the current trip
+    graphBtn.disabled = !currentTripId;
+    graphBtn.onclick = () => {
+      if (!currentTripId) return;
+      const tpl = graphBtn.dataset.urlTemplate || '/web/ticket-graph/__ID__/';
+      const url = tpl.replace('__ID__', encodeURIComponent(currentTripId));
+      window.location.assign(url);
+    };
+  }
 
   // 2) Remove any “active” class from date‐buttons
   document.querySelectorAll('#tripSelection .date-button')
@@ -431,6 +443,12 @@ async function selectTrip(trip) {
       'onlineRevenue', 'offlineCount', 'offlineEarning', 'offlineFee',
       'offlineRevenue', 'finalRevenue'
     ].forEach(clearText);
+
+    const graphBtn = document.getElementById('ticketGraphBtn');
+    if (graphBtn) {
+      graphBtn.disabled = true;
+      graphBtn.onclick = null;
+    }
 
     const statusEl = document.getElementById('detailRevenueStatus');
     if (statusEl) {

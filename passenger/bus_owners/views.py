@@ -935,22 +935,70 @@ def list_fare_types(request):
 @api_view(['GET'])
 def trip_tickets(request):
     """
-    GET /bus-owners/tickets/?trip_id=683ec3f3db5a803c5d6d5305
-    returns: [ { ticket_date_time, start_point, end_point, ticket_price }, … ]
+    GET /bus-owners/tickets/?trip_id=<ObjectId or hex string>
+    returns: [
+      {
+        start_point, end_point, ticket_price, ticket_date_time,
+        booking_price, route_id
+      }, ...
+    ]
     """
     trip_id = request.GET.get('trip_id')
+    if not trip_id:
+        return Response({'detail': 'Missing trip_id.'}, status=status.HTTP_400_BAD_REQUEST)
+
     # Validate ObjectId
     try:
         _id = ObjectId(trip_id)
     except Exception:
         return Response({'detail': 'Invalid trip ID.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Project only the tickets field
-    trip = bus_trip_collection.find_one({'_id': _id}, {'_id': 0, 'tickets': 1})
+    # Fetch tickets + trip-level route_id and booking_price
+    trip = bus_trip_collection.find_one(
+        {'_id': _id},
+        {'_id': 0, 'tickets': 1, 'route_id': 1, 'booking_price': 1}
+    )
     if not trip:
         return Response({'detail': 'Trip not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-    return Response(trip['tickets'])
+    # Trip-level values (used as defaults for each ticket)
+    trip_route_id = trip.get('route_id')
+    if isinstance(trip_route_id, ObjectId):
+        trip_route_id = str(trip_route_id)
+    trip_booking_price = trip.get('booking_price')
+
+    # Build response with new attributes appended at the end
+    out = []
+    for t in trip.get('tickets', []):
+        item = {
+            'start_point': t.get('start_point'),
+            'end_point': t.get('end_point'),
+            'ticket_price': t.get('ticket_price'),
+            'ticket_date_time': t.get('ticket_date_time'),
+            'booking_price': t.get('booking_price', trip_booking_price),
+            'route_id': t.get('route_id', trip_route_id),
+        }
+        # If any ticket stores route_id as an ObjectId, stringify it
+        if isinstance(item['route_id'], ObjectId):
+            item['route_id'] = str(item['route_id'])
+        out.append(item)
+
+    return Response(out)
+
+
+def ticket_graph_view(request, trip_id):
+    """
+    This view renders the bus ticket visualization page.
+    It passes the trip_id from the URL to the template's context.
+    """
+    # The context dictionary is used to pass data to the template.
+    # The key 'trip_id' will be available as a variable in the HTML.
+    context = {
+        'trip_id': trip_id
+    }
+    # Renders the 'ticket_visualization.html' template.
+    # Make sure you have a template with this name in your templates directory.
+    return render(request, 'ticketsDetails.html', context)
 
 
 @api_view(['GET'])

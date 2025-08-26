@@ -37,6 +37,8 @@ urlpatterns = [
     path('web/privacy-policy/', views.privacy_policy_page,
          name='privacy_policy_page'),
     path('web/dashboard/', views.dashboard_page_form, name='dashboard'),
+    path('web/ticket-graph/<str:trip_id>/',
+         views.ticket_graph_view, name='ticket_graph'),
     path('web/owner-details/', views.owner_details_page_form, name='ownerDetails'),
     path('web/bookedSeat/', views.seatBook_page_form, name='bookedSeat'),
     path('web/manageBusTrip/', views.manage_bus_trip_form, name='manageBusTrip'),
