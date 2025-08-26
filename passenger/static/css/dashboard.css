@@ -13,6 +13,7 @@
   --yellow: #f1c40f;
   --teal: #1abc9c;
   --pink: #fd79a8;
+  --sidebar-width: 250px;
 }
 
 * {
@@ -28,21 +29,78 @@ body {
   font-family: Arial, sans-serif;
   background: var(--light-grey);
   color: var(--text-dark);
+  overflow-x: hidden;
+  /* Prevent horizontal scroll */
 }
 
 .dashboard {
   display: flex;
   height: 100vh;
+  position: relative;
 }
+
+/* Sidebar Styles */
+.sidebar {
+  width: var(--sidebar-width);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: #22252D;
+  /* Example color */
+  z-index: 1002;
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(0);
+}
+
+.sidebar.collapsed {
+  transform: translateX(calc(-1 * var(--sidebar-width)));
+}
+
+.sidebar-toggle {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 1003;
+  background: #22252D;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: left 0.3s ease-in-out;
+}
+
+.sidebar.collapsed+.main-content .sidebar-toggle {
+  left: 1.5rem;
+}
+
+.main-content .sidebar-toggle {
+  left: calc(var(--sidebar-width) + 1.5rem);
+}
+
 
 /* Main content */
 .main-content {
   padding: 2rem;
+  padding-top: 6rem;
+  /* Add padding to top to avoid overlap with toggle */
   overflow-y: auto;
-  margin-left: 250px;
   width: 100%;
   background-color: #343841;
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.3s ease-in-out;
 }
+
+.main-content.sidebar-collapsed {
+  margin-left: 0;
+}
+
 
 /* Toggle */
 .toggle-container {
@@ -206,9 +264,10 @@ input:checked+.slider:before {
 
 .revenue-content {
   display: flex;
+  flex-wrap: wrap;
+  /* Allow wrapping on smaller screens */
   justify-content: center;
   align-items: stretch;
-  /* Changed to stretch */
   gap: 2rem;
 }
 
@@ -216,10 +275,15 @@ input:checked+.slider:before {
 .offline-revenue {
   background-color: #22252D;
   width: 100%;
+  max-width: 500px;
+  /* Max width for each card */
+  min-width: 300px;
+  /* Min width for each card */
   padding: .8rem;
   border-radius: 2rem;
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .revenue-item {
@@ -267,7 +331,6 @@ input:checked+.slider:before {
 /* Action Buttons */
 .action-buttons {
   margin-top: auto;
-  /* Pushes buttons to the bottom */
   padding: 1rem 2rem;
   display: flex;
   flex-direction: column;
@@ -313,15 +376,15 @@ input:checked+.slider:before {
   overflow: auto;
   background-color: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(5px);
-}
-
-.modal.show {
-  display: flex;
   align-items: center;
   justify-content: center;
 }
 
-#seatModal .modal-content {
+.modal.show {
+  display: flex;
+}
+
+.modal-content {
   position: relative;
   background: #343841;
   border-radius: 12px;
@@ -335,12 +398,12 @@ input:checked+.slider:before {
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-20px) scale(0.95);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -408,6 +471,7 @@ input:checked+.slider:before {
   font-size: 0.9rem;
   align-items: center;
   justify-content: center;
+  color: #A6A6A6;
 }
 
 .seat-legend .legend-swatch {
@@ -444,7 +508,8 @@ input:checked+.slider:before {
   padding: 1.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   width: 90%;
-  max-width: 600px;
+  max-width: 1200px;
+  /* Increased width */
 }
 
 #offlineTicketList {
@@ -452,7 +517,8 @@ input:checked+.slider:before {
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: 1rem;
-  justify-content: flex-start;
+  justify-content: center;
+  /* Centered the items */
 }
 
 .ticket-card {
@@ -460,10 +526,15 @@ input:checked+.slider:before {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 1rem;
-  width: calc(50% - 0.5rem);
+  width: 100%;
+  max-width: 280px;
+  /* Max width per card */
+  min-width: 220px;
+  /* Min width per card */
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex-grow: 1;
 }
 
 .ticket-header {
@@ -620,11 +691,31 @@ input:checked+.slider:before {
   color: #fff;
 }
 
-#Trips {
-  position: relative;
+.trips-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  /* Increased margin */
 }
 
-#tripSelection {
+.trips-header h2 {
+  color: #A6A6A6;
+  font-size: 1.5rem;
+}
+
+.add-trip {
+  padding: 8px 16px;
+  font-size: 16px;
+  border-radius: 20px;
+  background-color: #f3b137;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.trip-selection-container {
   display: flex;
   gap: 8px;
   margin-bottom: 24px;
@@ -632,7 +723,7 @@ input:checked+.slider:before {
   padding-bottom: 10px;
 }
 
-#tripSelection .date-button {
+.trip-selection-container .date-button {
   padding: 8px 16px;
   font-size: 16px;
   border: none;
@@ -644,25 +735,11 @@ input:checked+.slider:before {
   white-space: nowrap;
 }
 
-#tripSelection .date-button.active {
+.trip-selection-container .date-button.active {
   background-color: #fff;
   color: #000000;
 }
 
-.add-trip {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 8px 16px;
-  font-size: 16px;
-  border-radius: 20px;
-  background-color: #f3b137;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  z-index: 5;
-  transition: all 0.3s;
-}
 
 /* Loading & Placeholders */
 .loading-overlay {

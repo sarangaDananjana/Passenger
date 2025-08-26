@@ -7,18 +7,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet" />
+    <!-- Phosphor Icons for the hamburger menu -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" />
 </head>
 
 <body>
     <div class="dashboard">
-        <!-- Sidebar Placeholder -->
-        <div class="sidebar-palceholder">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <!-- The original sidebar content is included here -->
             {% include 'website/sidebar.html' %}
-        </div>
+        </aside>
 
         <!-- Main content -->
-        <section class="main-content">
+        <section class="main-content" id="mainContent">
+            <!-- Sidebar Toggle Button -->
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="ph-bold ph-list"></i>
+            </button>
+
             <div id="busSelection">
                 <!-- Bus buttons will be dynamically inserted here -->
             </div>
@@ -170,15 +178,15 @@
                 <div class="seat-legend">
                     <div class="col">
                         <span class="legend-swatch booked"></span>
-                        <p style="color: rgb(255, 255, 255);">Booked</p>
+                        <p>Booked</p>
                     </div>
                     <div class="col">
                         <span class="legend-swatch available"></span>
-                        <p style="color: rgb(255, 255, 255);">Available</p>
+                        <p>Available</p>
                     </div>
                     <div class="col">
                         <span class="legend-swatch jumper"></span>
-                        <p style="color: rgb(255, 255, 255);">Jumper Seat</p>
+                        <p>Jumper Seat</p>
                     </div>
                 </div>
             </div>

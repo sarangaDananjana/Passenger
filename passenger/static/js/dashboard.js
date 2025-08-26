@@ -2,14 +2,30 @@ import { authFetch, baseUrl } from './auth.js';
 
 // Grab cookies
 const panel = document.querySelector('.details-panel');
-// Once on DOM load, fetch owner→render bus buttons
-document.addEventListener('DOMContentLoaded', () => {
-  loadOwnerDetails();
-});
 // Track currently selected bus for toggle API calls
 let currentBusId = null;
 let currentTripId = null;
 
+// Once on DOM load, fetch owner→render bus buttons and set up sidebar
+document.addEventListener('DOMContentLoaded', () => {
+  loadOwnerDetails();
+  setupSidebar();
+});
+
+
+// Sidebar Functionality
+function setupSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('mainContent');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+
+  if (sidebar && mainContent && sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('sidebar-collapsed');
+    });
+  }
+}
 
 
 // Database Functions *********************************************************************************************************************************************************
@@ -34,7 +50,6 @@ function saveTripsToDB(trips, cb) {
 function clearIndexedDB() {
   const req = indexedDB.open('busApp', 1);
 
-  // Make sure the 'trips' store exists
   req.onupgradeneeded = e => {
     const db = e.target.result;
     if (!db.objectStoreNames.contains('trips')) {
@@ -371,7 +386,7 @@ async function selectTrip(trip) {
     }
   }
 
-  document.querySelectorAll('#tripSelection .date-button')
+  document.querySelectorAll('.trip-selection-container .date-button')
     .forEach(b => b.classList.remove('active'));
 
   const clearText = id => {
@@ -396,7 +411,7 @@ async function selectTrip(trip) {
   }
 
   const btn = document.querySelector(
-    `#tripSelection .date-button[data-trip-id="${trip._id}"]`
+    `.trip-selection-container .date-button[data-trip-id="${trip._id}"]`
   );
   btn?.classList.add('active');
 
@@ -617,20 +632,14 @@ const closeBtn = document.getElementById('closeAddTripModal');
 if (closeBtn) {
   closeBtn.addEventListener('click', () => {
     const modal = document.getElementById('addTripModal');
-    const suggestions = document.getElementById('routeSuggestions');
     if (modal) modal.classList.remove('show');
-    if (suggestions) suggestions.innerHTML = '';
-    selectedRoute = null;
   });
 }
 
 window.addEventListener('click', (e) => {
   const modal = document.getElementById('addTripModal');
-  const suggestions = document.getElementById('routeSuggestions');
   if (modal && e.target === modal) {
     modal.classList.remove('show');
-    if (suggestions) suggestions.innerHTML = '';
-    selectedRoute = null;
   }
 });
 
@@ -640,15 +649,22 @@ if (routeInput) {
     const query = e.target.value.trim();
     const suggestionsBox = document.getElementById('routeSuggestions');
     if (!suggestionsBox) return;
+
+    // This line is crucial to prevent duplicates.
     suggestionsBox.innerHTML = '';
 
-    if (query.length < 2) return;
+    if (query.length < 2) {
+      selectedRoute = null; // Clear selection if query is too short
+      return;
+    }
 
     try {
       const res = await fetch(
         `${baseUrl}/core/routes/?route_name=${encodeURIComponent(query)}`
       );
       const routes = await res.json();
+
+      // This ensures that even if the API returns duplicates, we only show unique route names.
       const uniqueRoutes = [...new Map(routes.map(route => [route.route_name, route])).values()];
 
       uniqueRoutes.forEach(route => {
