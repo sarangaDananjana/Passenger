@@ -274,7 +274,6 @@ function renderTripButtons(trips) {
 }
 
 function getTicketsInfo(trip) {
-  // **MODIFIED**: Changed ID to match new button
   const offlineBtn = document.getElementById('offlineSectionBtn');
   const offlineModal = document.getElementById('offlineModal');
   const offlineCloseBtn = document.getElementById('offlineClose');
@@ -288,8 +287,6 @@ function getTicketsInfo(trip) {
   const currentTripId = trip._id;
   const dbReady = openBusAppDB();
 
-  // **NOTE**: This function now sets up the button for the currently selected trip.
-  // We create a new click handler each time to capture the correct `currentTripId`.
   offlineBtn.onclick = async () => {
     if (!currentTripId) return;
 
@@ -306,13 +303,13 @@ function getTicketsInfo(trip) {
 
       if (!tripRecord) {
         listContainer.innerHTML = `<div>No offline data for this trip.</div>`;
-        offlineModal.style.display = 'block';
+        offlineModal.classList.add('show');
         return;
       }
 
       if (!Array.isArray(tripRecord.tickets) || tripRecord.tickets.length === 0) {
         listContainer.innerHTML = `<div>No tickets have been saved offline for this trip.</div>`;
-        offlineModal.style.display = 'block';
+        offlineModal.classList.add('show');
         return;
       }
 
@@ -336,22 +333,22 @@ function getTicketsInfo(trip) {
       }).join('');
 
       listContainer.innerHTML = listHtml;
-      offlineModal.style.display = 'block';
+      offlineModal.classList.add('show');
     }
     catch (err) {
       console.error('Error loading tickets from IndexedDB', err);
       listContainer.innerHTML = `<div>Error loading offline tickets.</div>`;
-      offlineModal.style.display = 'block';
+      offlineModal.classList.add('show');
     }
   };
 
   offlineCloseBtn.addEventListener('click', () => {
-    offlineModal.style.display = 'none';
+    offlineModal.classList.remove('show');
   });
 
   window.addEventListener('click', e => {
     if (e.target === offlineModal) {
-      offlineModal.style.display = 'none';
+      offlineModal.classList.remove('show');
     }
   });
 }
@@ -478,12 +475,10 @@ async function selectTrip(trip) {
   document.getElementById('onlineFee').textContent = asMoney(onlineFee);
   document.getElementById('onlineRevenue').textContent = asMoney(onlineNet);
 
-  // **MODIFIED**: Removed population of offlineFee and offlineRevenue as they are no longer in the HTML
   const offlineEarn = r.tickets_revenue;
   document.getElementById('offlineCount').textContent = asText(r.number_of_tickets);
   document.getElementById('offlineEarning').textContent = asMoney(offlineEarn);
 
-  // **MODIFIED**: Setup the offline tickets button for the current trip
   getTicketsInfo(r);
 }
 
@@ -610,10 +605,10 @@ if (addTripBtn) {
     const bus = window.currentBusData;
     if (bus && bus.is_approved === false) {
       const approvalModal = document.getElementById('approvalModal');
-      if (approvalModal) approvalModal.style.display = 'block';
+      if (approvalModal) approvalModal.classList.add('show');
     } else {
       const modal = document.getElementById('addTripModal');
-      if (modal) modal.style.display = 'block';
+      if (modal) modal.classList.add('show');
     }
   });
 }
@@ -623,7 +618,7 @@ if (closeBtn) {
   closeBtn.addEventListener('click', () => {
     const modal = document.getElementById('addTripModal');
     const suggestions = document.getElementById('routeSuggestions');
-    if (modal) modal.style.display = 'none';
+    if (modal) modal.classList.remove('show');
     if (suggestions) suggestions.innerHTML = '';
     selectedRoute = null;
   });
@@ -633,7 +628,7 @@ window.addEventListener('click', (e) => {
   const modal = document.getElementById('addTripModal');
   const suggestions = document.getElementById('routeSuggestions');
   if (modal && e.target === modal) {
-    modal.style.display = 'none';
+    modal.classList.remove('show');
     if (suggestions) suggestions.innerHTML = '';
     selectedRoute = null;
   }
@@ -724,7 +719,7 @@ if (addTripForm) {
 
       if (res.ok) {
         alert('Trip added successfully!');
-        document.getElementById('addTripModal').style.display = 'none';
+        document.getElementById('addTripModal').classList.remove('show');
         addTripForm.reset();
         await switchBus(currentBusId);
       } else {
@@ -744,10 +739,10 @@ if (placeholderAddTripBtn) {
     const bus = window.currentBusData;
     if (bus && bus.is_approved === false) {
       const approvalModal = document.getElementById('approvalModal');
-      if (approvalModal) approvalModal.style.display = 'block';
+      if (approvalModal) approvalModal.classList.add('show');
     } else {
       const modal = document.getElementById('addTripModal');
-      if (modal) modal.style.display = 'block';
+      if (modal) modal.classList.add('show');
     }
   });
 }
@@ -756,7 +751,7 @@ const closeApprovalBtn = document.getElementById('closeApprovalModal');
 if (closeApprovalBtn) {
   closeApprovalBtn.addEventListener('click', () => {
     const modal = document.getElementById('approvalModal');
-    if (modal) modal.style.display = 'none';
+    if (modal) modal.classList.remove('show');
   });
 }
 
