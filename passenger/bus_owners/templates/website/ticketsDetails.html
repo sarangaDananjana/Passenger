@@ -30,11 +30,27 @@
         </header>
 
         <main>
-            <!-- Chart container with a modern card style and a larger height -->
-            <div id="chart-container"
-                class="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 h-[75vh]">
-                <canvas id="ticketChart"></canvas>
+            <!-- New flex container to hold the chart and the legend side-by-side -->
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Chart container, set to grow and fill available space -->
+                <div id="chart-container"
+                    class="flex-grow bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 h-[75vh]">
+                    <canvas id="ticketChart"></canvas>
+                </div>
+
+                <!-- Custom Legend Container -->
+                <div id="custom-legend-container" class="lg:w-64 flex-shrink-0">
+                    <div
+                        class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">Price Tiers
+                        </h3>
+                        <div id="custom-legend" class="space-y-2">
+                            <!-- Legend items will be dynamically inserted here -->
+                        </div>
+                    </div>
+                </div>
             </div>
+
 
             <!-- Loading indicator -->
             <div id="loader" class="text-center py-16">
@@ -70,11 +86,18 @@
         // --- DOM Element References ---
         const loader = document.getElementById('loader');
         const chartContainer = document.getElementById('chart-container');
+        const legendContainer = document.getElementById('custom-legend');
         const errorMessage = document.getElementById('error-message');
         const ctx = document.getElementById('ticketChart').getContext('2d');
 
         // --- Chart Instance ---
         let ticketChartInstance = null;
+
+        // --- Color Spectrum ---
+        const colorSpectrum = [
+            '#d73027', '#fc8d59', '#fee090', '#e0f3f8',
+            '#91bfdb', '#4575b4', '#313695', '#542788'
+        ];
 
         /**
          * Fetches data from a given URL.
@@ -88,42 +111,22 @@
         }
 
         /**
-         * Processes data to create a dataset for each ticket, allowing individual coloring.
+         * Processes data to create a dataset for each ticket.
          */
         function processChartData(tickets, routeInfo) {
-            // 1. Define the new, more distinguishable color spectrum.
-            // This spectrum goes from Red -> Orange -> Yellow -> Green -> Blue
-            const colorSpectrum = [
-                '#d73027', // Strong Red
-                '#fc8d59', // Orange
-                '#fee090', // Light Yellow
-                '#e0f3f8', // Very Light Blue/Green
-                '#91bfdb', // Light Blue
-                '#4575b4', // Blue
-                '#313695', // Dark Blue
-                '#542788'  // Purple for the highest tier
-            ];
-
-
-            // 2. Get booking_price and calculate the size of each price group.
             const bookingPrice = tickets[0]?.booking_price || 0;
             const priceGroupSize = bookingPrice > 0 ? bookingPrice / 8 : 1;
 
-            // 3. Get the ordered list of all boarding points.
             const orderedBoardingPoints = routeInfo.sections.flatMap(section =>
                 section.boarding_points.map(point => point.point_name)
             );
             const pointIndexMap = new Map(orderedBoardingPoints.map((point, i) => [point, i]));
 
-            // 4. Create a dataset for each individual ticket.
             const datasets = tickets.map(ticket => {
-                // Determine the color for this specific ticket based on its price.
                 let groupIndex = Math.floor((ticket.ticket_price - 1) / priceGroupSize);
-                groupIndex = Math.max(0, Math.min(7, groupIndex)); // Clamp between 0 and 7
+                groupIndex = Math.max(0, Math.min(7, groupIndex));
                 const ticketColor = colorSpectrum[groupIndex];
 
-                // Create the data array for this ticket. It's all zeros except for a '1'
-                // at the position of its starting point. This creates a stack of 1.
                 const data = new Array(orderedBoardingPoints.length).fill(0);
                 const pointIndex = pointIndexMap.get(ticket.start_point);
                 if (pointIndex !== undefined) {
@@ -134,7 +137,7 @@
                     label: `Ticket Price: ${ticket.ticket_price}`,
                     data: data,
                     backgroundColor: ticketColor,
-                    borderColor: 'rgba(0,0,0,0.1)', // Add a subtle border to distinguish pieces
+                    borderColor: 'rgba(0,0,0,0.1)',
                     borderWidth: 1
                 };
             });
@@ -143,6 +146,35 @@
                 labels: orderedBoardingPoints,
                 datasets: datasets,
             };
+        }
+
+        /**
+         * Generates the custom HTML legend for the price tiers.
+         */
+        function generateLegend(bookingPrice) {
+            legendContainer.innerHTML = ''; // Clear previous legend
+            const priceGroupSize = bookingPrice > 0 ? bookingPrice / 8 : 1;
+
+            for (let i = 0; i < colorSpectrum.length; i++) {
+                const color = colorSpectrum[i];
+                const lowerBound = Math.floor(i * priceGroupSize);
+                const upperBound = Math.floor((i + 1) * priceGroupSize);
+
+                const legendItem = document.createElement('div');
+                legendItem.className = 'flex items-center text-sm';
+
+                const colorBox = document.createElement('div');
+                colorBox.className = 'w-4 h-4 rounded-sm mr-2 flex-shrink-0';
+                colorBox.style.backgroundColor = color;
+
+                const text = document.createElement('span');
+                text.className = 'text-gray-700 dark:text-gray-300';
+                text.textContent = `${lowerBound} - ${upperBound}`;
+
+                legendItem.appendChild(colorBox);
+                legendItem.appendChild(text);
+                legendContainer.appendChild(legendItem);
+            }
         }
 
         /**
@@ -170,12 +202,10 @@
                             color: document.body.classList.contains('dark') ? '#E5E7EB' : '#1F2937',
                             padding: { bottom: 20 }
                         },
-                        // The legend is disabled because showing one entry per ticket is not useful.
                         legend: {
                             display: false
                         },
                         tooltip: {
-                            // Tooltip will only show info for the single ticket segment being hovered.
                             mode: 'point',
                             intersect: true,
                             backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -184,21 +214,14 @@
                             padding: 12,
                             cornerRadius: 6,
                             callbacks: {
-                                // Customizing the tooltip to be more informative
-                                title: function (tooltipItems) {
-                                    // The title will be the boarding point name
-                                    return tooltipItems[0].label;
-                                },
-                                label: function (context) {
-                                    // The label will be the ticket price from the dataset's label
-                                    return context.dataset.label;
-                                }
+                                title: (tooltipItems) => tooltipItems[0].label,
+                                label: (context) => context.dataset.label
                             }
                         },
                     },
                     scales: {
                         x: {
-                            stacked: true, // This is key for making the pieces stack
+                            stacked: true,
                             grid: { display: false },
                             ticks: {
                                 color: document.body.classList.contains('dark') ? '#9CA3AF' : '#4B5563',
@@ -213,12 +236,12 @@
                             }
                         },
                         y: {
-                            stacked: true, // This is key for making the pieces stack
+                            stacked: true,
                             beginAtZero: true,
                             grid: { color: document.body.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)' },
                             ticks: {
                                 color: document.body.classList.contains('dark') ? '#9CA3AF' : '#4B5563',
-                                precision: 0 // Ensure y-axis shows whole numbers for ticket counts
+                                precision: 0
                             },
                             title: {
                                 display: true,
@@ -253,6 +276,7 @@
 
                 if (!tickets || tickets.length === 0) {
                     loader.style.display = 'none';
+                    document.getElementById('custom-legend-container').style.display = 'none';
                     chartContainer.style.display = 'flex';
                     chartContainer.classList.add('items-center', 'justify-center');
                     chartContainer.innerHTML = `<p class="text-xl text-gray-500">No ticket data found for this trip.</p>`;
@@ -267,6 +291,9 @@
                 const routeInfo = await fetchData(routeApiUrl);
 
                 const { labels, datasets } = processChartData(tickets, routeInfo);
+
+                // Generate the legend using the booking price
+                generateLegend(tickets[0].booking_price);
 
                 loader.style.display = 'none';
                 chartContainer.style.display = 'block';
