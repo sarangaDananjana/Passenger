@@ -6,17 +6,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard</title>
+    <!-- Phosphor Icons for the hamburger menu -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Single, unified stylesheet -->
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" />
 </head>
 
 <body>
     <div class="dashboard">
+        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
+            <!-- Sidebar content is included here -->
             {% include 'website/sidebar.html' %}
         </aside>
 
+        <!-- Main content -->
         <main class="main-content" id="mainContent">
+            <!-- Sidebar Toggle Button -->
             <header class="main-header">
                 <button class="sidebar-toggle" id="sidebarToggle">
                     <i class="ph-bold ph-list"></i>
@@ -25,6 +31,7 @@
             </header>
 
             <div id="busSelection">
+                <!-- Bus buttons will be dynamically inserted here -->
             </div>
 
             <div class="content-wrapper">
@@ -53,6 +60,7 @@
                         <span class="toggle-label">Ticket Machine</span>
                     </div>
 
+                    <!-- Bus Details-->
                     <div class="details-panel card">
                         <div class="card-header">
                             <h3 class="detail-title" id="ownerName">-</h3>
@@ -93,6 +101,7 @@
                         </div>
                     </div>
 
+                    <!-- Chart.js CDN -->
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
                     <div class="revenue-details-wrapper">
@@ -102,6 +111,7 @@
                         </div>
 
                         <div class="revenue-content">
+                            <!-- Online Section -->
                             <div class="card online-revenue">
                                 <h3 class="card-title">Online</h3>
                                 <div class="card-body">
@@ -130,6 +140,7 @@
                                     <button id="viewSeatLayoutBtn" class="action-btn">View Seat Layout</button>
                                 </div>
                             </div>
+                            <!-- Offline Section -->
                             <div class="card offline-revenue">
                                 <h3 class="card-title">Offline</h3>
                                 <div class="card-body">
@@ -156,6 +167,7 @@
                     </div>
                 </div>
 
+                <!-- Placeholder shown only when no trips -->
                 <div id="noTripsPlaceholder" class="placeholder-container hidden">
                     <img src="{% static 'images/7967793_3819552.jpg' %}" class="placeholder-img" alt="No trips">
                     <h2 class="placeholder-title">Oops! No Trips Found</h2>
@@ -165,6 +177,7 @@
             </div>
         </main>
 
+        <!-- Modals -->
         <div id="seatModal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
@@ -229,6 +242,7 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script type="module" src="{% static 'js/dashboard.js' %}"></script>
     <script type="module">
         import { seatLayouts } from "{% static 'js/seatLayout.js' %}";

@@ -4,7 +4,8 @@
 :root {
   --primary-color: #00D0FF;
   --primary-hover: #38afff;
-  --green: #2ac769;
+  --offline-color: #2ac769;
+  /* Distinct green for offline revenue */
   --red: #e74c3c;
   --orange: #f3b137;
 
@@ -186,12 +187,18 @@ body {
   align-items: center;
   gap: 1.5rem;
   margin-bottom: 2rem;
+  /* CHANGE: Added relative positioning */
+  position: relative;
+  height: 48px;
+  /* Match button height */
 }
 
 .main-title {
   font-size: 2rem;
   font-weight: 700;
   color: var(--text-primary);
+  /* CHANGE: Added margin to shift title */
+  margin-left: 64px;
 }
 
 .sidebar-toggle {
@@ -207,14 +214,16 @@ body {
   cursor: pointer;
   font-size: 1.75rem;
   transition: all 0.3s ease-in-out;
-  position: fixed;
-  top: 1.5rem;
-  left: calc(var(--sidebar-width) + 1.5rem);
+  /* CHANGE: Positioning is now absolute within the relative header */
+  position: absolute;
+  top: 0;
+  left: 0;
   z-index: 1000;
 }
 
 .main-content.sidebar-collapsed .sidebar-toggle {
-  left: 1.5rem;
+  /* This rule is now less critical but kept for transition smoothness */
+  left: 0;
 }
 
 /* -------------------- Bus & Trip Selection -------------------- */
@@ -354,7 +363,7 @@ body {
 }
 
 .value#detailRevenueStatus.completed {
-  color: var(--green);
+  color: var(--offline-color);
 }
 
 .value#detailRevenueStatus.pending {
@@ -387,6 +396,15 @@ body {
   flex-direction: column;
 }
 
+/* CHANGE: Added distinct border color for offline card */
+.offline-revenue {
+  border-top: 4px solid var(--offline-color);
+}
+
+.online-revenue {
+  border-top: 4px solid var(--primary-color);
+}
+
 .online-revenue .card-body,
 .offline-revenue .card-body {
   flex-grow: 1;
@@ -417,10 +435,14 @@ body {
   transition: all 0.2s ease;
 }
 
+/* CHANGE: Distinct button color for offline actions */
+.offline-revenue .action-btn {
+  background-color: var(--offline-color);
+}
+
 .action-btn:hover {
-  background-color: var(--primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 208, 255, 0.2);
+  filter: brightness(1.1);
 }
 
 .action-btn.disabled {
@@ -629,10 +651,16 @@ input:checked+.slider:before {
   background: var(--orange);
 }
 
-/* Offline Ticket Modal */
+/* CHANGE: Offline Ticket Modal - Larger and centered */
+#offlineModal .modal-content {
+  max-width: 90%;
+  width: 1200px;
+}
+
 #offlineTicketList {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  /* Responsive grid for tickets */
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -642,8 +670,6 @@ input:checked+.slider:before {
   border-radius: 12px;
   padding: 1rem;
   width: 100%;
-  max-width: 280px;
-  flex-grow: 1;
 }
 
 .ticket-header {
@@ -678,7 +704,7 @@ input:checked+.slider:before {
 
 .ticket-price {
   font-weight: 700;
-  color: var(--green);
+  color: var(--offline-color);
 }
 
 /* Add Trip Modal */

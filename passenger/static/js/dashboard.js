@@ -569,10 +569,11 @@ function renderRevenueChart(trips) {
 
   const ctx = document.getElementById('revenueChart').getContext('2d');
 
-  // UI improvement: Get colors from CSS variables for consistency
+  // Get colors from CSS variables for consistency
   const style = getComputedStyle(document.documentElement);
   const primaryColor = style.getPropertyValue('--primary-color').trim();
-  const secondaryColor = '#2ac769'; // Green for offline tickets
+  // CHANGE: Use the new --offline-color variable
+  const offlineColor = style.getPropertyValue('--offline-color').trim();
   const textColor = style.getPropertyValue('--text-secondary').trim();
   const gridColor = style.getPropertyValue('--border-color').trim();
 
@@ -594,7 +595,8 @@ function renderRevenueChart(trips) {
         {
           label: 'Offline Revenue',
           data: ticketsData,
-          backgroundColor: secondaryColor,
+          // CHANGE: Apply the new offline color
+          backgroundColor: offlineColor,
           borderRadius: 4,
         }
       ]
