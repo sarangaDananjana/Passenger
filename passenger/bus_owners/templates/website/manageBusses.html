@@ -5,220 +5,133 @@
 <head>
   <meta charset="UTF-8">
   <title>My Buses</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- The new, unified stylesheet -->
   <link href="{% static 'css/manageBuses.css' %}" rel="stylesheet" />
 </head>
 
 <body>
+  <div class="dashboard">
+    <!-- Sidebar is included here for consistency -->
+    <aside class="sidebar">
+      {% include 'website/sidebar.html' %}
+    </aside>
 
-  <!-- <aside class="sidebar">
-    <div class="logo" id="companyName">Loading…</div>
-    <nav class="side-nav">
-      <a href="{% url 'dashboard' %}" class="nav-item">Dashboard</a>
-    
-    </nav>
-  </aside> -->
-  <section>
-    <div class="layout">
-      <div class="sidebar-palceholder">
-        {% include 'website/sidebar.html' %}
+    <!-- Main content area -->
+    <main class="main-content">
+      <header class="main-header">
+        <h1 class="main-title">My Buses</h1>
+      </header>
+
+      <!-- Bus cards will be dynamically inserted here -->
+      <div class="bus-list">
+        <!-- Skeletons or bus cards will be rendered by JS -->
       </div>
+    </main>
 
-      <main class="content">
-        <div class="topbar">
-          <h1>My Buses</h1>
-        </div>
+    <!-- Floating Action Button to Add a New Bus -->
+    <button id="addBusBtn" class="fab" aria-label="Add new bus">+</button>
+  </div>
 
-        <div class="bus-list">
+  <!-- Edit Bus Modal -->
+  <div id="modalOverlay" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" id="modalClose">&times;</span>
+      <h3 class="modal-title">Edit Bus Details</h3>
+      <form id="busForm">
+        <input type="hidden" name="bus_id" id="bus_id" />
+        <input type="hidden" name="fare_type_id" id="fare_type_id" />
+        <input type="hidden" name="fare_type_name" id="fare_type_name_hidden" />
 
-          <div class="bus-card" id="bus-card">
-            <div class="bus-header">
-              <div class="bus-title">bus_name</div>
-              <div class="bus-subtitle">
-                <div class="bus-number">bus_number</div>
-              </div>
-            </div>
-            <dl class="bus-body">
-              <div class="bus-field">
-                <dt>Bus Type</dt>
-                <dd>bus_type</dd>
-              </div>
-              <div class="bus-field">
-                <dt>Bus Status</dt>
-                <dd>is_machine_connected</dd>
-              </div>
-              <div class="bus-field">
-                <dt>Seat Type</dt>
-                <dd>seat_type</dd>
-              </div>
-              <div class="bus-field">
-                <dt>Bus Number</dt>
-                <dd>bus_number</dd>
-              </div>
-              <div class="bus-field status-approved">
-                <dt>Status</dt>
-                <dd>is_approved</dd>
-              </div>
-              <div class="bus-field">
-                <dt>Fare Type</dt>
-                <dd>fare_type_name</dd>
-              </div>
-            </dl>
-          </div>
+        <label for="bus_name">Bus Name</label>
+        <input type="text" name="bus_name" id="bus_name" />
 
-          <!-- …repeat for each bus… -->
+        <label for="bus_number">Bus Number</label>
+        <input type="text" name="bus_number" id="bus_number" />
 
-        </div>
+        <label for="bus_type">Bus Type</label>
+        <select name="bus_type" id="bus_type"></select>
 
-      </main>
+        <label for="seat_type">Seat Type</label>
+        <select name="seat_type" id="seat_type"></select>
+
+        <label for="route_permit_number">Route Permit #</label>
+        <input type="text" name="route_permit_number" id="route_permit_number" />
+
+        <label for="route_permit_image">Permit Image</label>
+        <input type="file" name="route_permit_image" id="route_permit_image" accept="image/*" />
+        <span id="file_name_display" class="file-name-display"></span>
+
+        <label for="fare_type_name_select">Fare Type</label>
+        <select name="fare_type_name" id="fare_type_name_select"></select>
+
+        <button type="button" id="saveButton" class="submit-btn">Save Changes</button>
+      </form>
     </div>
+  </div>
 
+  <!-- Create Bus Modal -->
+  <div id="createModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" id="createClose">&times;</span>
+      <h3 class="modal-title">Create New Bus</h3>
+      <form id="createForm">
+        <label for="create_bus_name">Bus Name</label>
+        <input type="text" name="bus_name" id="create_bus_name" required />
 
-    <div id="modalOverlay" class="modal-overlay hidden">
-      <div class="modal">
-        <button id="modalClose">&times;</button>
-        <h2>Edit Bus Details</h2>
-        <form id="busForm">
-          <input type="hidden" name="bus_id" id="bus_id" />
-          <input type="hidden" name="fare_type_id" id="fare_type_id" />
-          <input type="hidden" name="fare_type_name" id="fare_type_name_hidden" />
+        <label for="create_bus_number">Bus Number</label>
+        <input type="text" name="bus_number" id="create_bus_number" required />
 
-          <label>
-            Bus Name
-            <input type="text" name="bus_name" id="bus_name" />
-          </label>
+        <label for="create_bus_type">Bus Type</label>
+        <select name="bus_type" id="create_bus_type" required></select>
 
-          <label>
-            Bus Number
-            <input type="text" name="bus_number" id="bus_number" />
-          </label>
+        <label for="create_seat_type">Seat Type</label>
+        <select name="seat_type" id="create_seat_type" required></select>
 
-          <label>
-            Bus Type
-            <select name="bus_type" id="bus_type"></select>
-          </label>
+        <label for="create_route_permit_number">Route Permit #</label>
+        <input type="text" name="route_permit_number" id="create_route_permit_number" required />
 
-          <label>
-            Seat Type
-            <select name="seat_type" id="seat_type"></select>
-          </label>
+        <label for="create_route_permit_image">Permit Image</label>
+        <input type="file" name="route_permit_image" id="create_route_permit_image" accept="image/*" required />
+        <img id="create_route_permit_image_preview" class="image-preview" />
 
-          <label>
-            Route Permit #
-            <input type="text" name="route_permit_number" id="route_permit_number" />
-          </label>
+        <label for="create_fare_type_id">Fare Type</label>
+        <select name="fare_type_id" id="create_fare_type_id" required></select>
+        <input type="hidden" name="fare_type_name" id="create_fare_type_name_hidden" />
 
-          <label>
-            Permit Image
-            <input type="file" name="route_permit_image" id="route_permit_image" accept="image/*" />
-            <span id="file_name_display" style="margin-top: 0.5rem; display: block; color: #333;"></span>
-          </label>
-
-
-          <label>
-            Fare Type
-            <select name="fare_type_name" id="fare_type_name_select"></select>
-          </label>
-
-          <button type="button" id="saveButton">Save Changes</button>
-        </form>
-      </div>
+        <button type="button" id="createButton" class="submit-btn">Create Bus</button>
+      </form>
     </div>
+  </div>
 
+  <script type="module" src="{% static 'js/manageBusses.js' %}"></script>
+  <script>
+    const form = document.getElementById("createForm");
+    const inputs = form.querySelectorAll("input:not([type='hidden']), select");
+    const submitBtn = document.getElementById("createButton");
 
-    <!-- Create Bus Modal -->
-    <div id="createModal" class="modal-overlay hidden">
-      <div class="modal">
-        <button id="createClose">&times;</button>
-        <h2>Create New Bus</h2>
-        <form id="createForm">
-          <!-- NO bus_id here! -->
-
-          <label>
-            Bus Name
-            <input type="text" name="bus_name" id="create_bus_name" required />
-          </label>
-
-          <label>
-            Bus Number
-            <input type="text" name="bus_number" id="create_bus_number" required />
-          </label>
-
-          <label>
-            Bus Type
-            <select name="bus_type" id="create_bus_type" required></select>
-          </label>
-
-          <label>
-            Seat Type
-            <select name="seat_type" id="create_seat_type" required></select>
-          </label>
-
-          <label>
-            Route Permit #
-            <input type="text" name="route_permit_number" id="create_route_permit_number" required />
-          </label>
-
-          <label>
-            Permit Image
-            <input type="file" name="route_permit_image" id="create_route_permit_image" accept="image/*" required />
-            <img id="create_route_permit_image_preview" style="max-width:100%;margin-top:.5rem;display:none" />
-          </label>
-
-          <label>
-            Fare Type
-            <select name="fare_type_id" id="create_fare_type_id" required></select>
-          </label>
-          <input type="hidden" name="fare_type_name" id="create_fare_type_name_hidden" />
-
-          <button type="button" id="createButton">Create Bus</button>
-        </form>
-      </div>
-    </div>
-
-    <button id="addBusBtn" aria-label="Add new">+</button>
-  </section>
-</body>
-<script type="module" src="{% static 'js/manageBusses.js' %}"></script>
-
-<script>
-
-  const form = document.getElementById("createForm");
-  const inputs = form.querySelectorAll("input:not([type='hidden']), select");
-  const submitBtn = document.getElementById("createButton");
-
-  function checkFormCompletion() {
-    const allFilled = Array.from(inputs).every(input => input.value.trim() !== "");
-    submitBtn.disabled = !allFilled;
-    submitBtn.classList.toggle("disabled", !allFilled);
-  }
-
-  inputs.forEach(input => {
-    input.addEventListener("input", checkFormCompletion);
-    input.addEventListener("change", checkFormCompletion);
-  });
-
-  // Initial state check
-  checkFormCompletion();
-
-
-
-
-  document.getElementById('route_permit_image').addEventListener('change', function () {
-    const file = this.files[0];
-    const display = document.getElementById('file_name_display');
-    if (file) {
-      display.textContent = `Selected: ${file.name}`;
-      display.style.color = '#ffffff'; // Green color
-    } else {
-      display.textContent = '';
-      display.style.color = '';
+    function checkFormCompletion() {
+      const allFilled = Array.from(inputs).every(input => input.value.trim() !== "");
+      submitBtn.disabled = !allFilled;
     }
-  });
 
+    inputs.forEach(input => {
+      input.addEventListener("input", checkFormCompletion);
+      input.addEventListener("change", checkFormCompletion);
+    });
 
+    checkFormCompletion();
 
-</script>
-
+    document.getElementById('route_permit_image').addEventListener('change', function () {
+      const file = this.files[0];
+      const display = document.getElementById('file_name_display');
+      if (file) {
+        display.textContent = `Selected: ${file.name}`;
+      } else {
+        display.textContent = '';
+      }
+    });
+  </script>
+</body>
 
 </html>

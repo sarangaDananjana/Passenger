@@ -3,140 +3,111 @@ import { authFetch, baseUrl } from './auth.js';
 document.addEventListener('DOMContentLoaded', () => {
   populateStaticDropdowns();
   showSkeletons(3);
-  setTimeout(initBusUI, 2000);
+  // Using a shorter timeout for a faster perceived load
+  setTimeout(initBusUI, 1000);
   fetchFareTypes();
 });
 
-
-
 function showSkeletons(count = 3) {
   const container = document.querySelector('.bus-list');
+  if (!container) return;
   container.innerHTML = Array.from({ length: count }).map(() => `
     <div class="bus-card">
       <div class="bus-header">
-        <!-- title placeholder -->
-        <div class="bus-title"><div class="skeleton skel-title"></div></div>
-        <div class="bus-subtitle">
-          <!-- number + type placeholders -->
-          <div class="bus-number"><div class="skeleton skel-subnum"></div></div>
-        </div>
+        <div class="skeleton skel-title"></div>
+        <div class="skeleton skel-subtitle"></div>
       </div>
-      <dl class="bus-body">
-        <!-- 6 fields, all using the same skeleton bar -->
-        ${['Bus Type', 'Bus Status', 'Seat Type', 'Bus Number', 'Overall Status', 'Fare Type']
-      .map(_ => `
-            <div class="bus-field">
-              <dt>${_}</dt>
-              <dd><div class="skeleton skel-field"></div></dd>
-            </div>
-          `).join('')}
-      </dl>
+      <div class="bus-body">
+        <div class="bus-field"><dt><div class="skeleton skel-field" style="width: 50%;"></div></dt><dd><div class="skeleton skel-field"></div></dd></div>
+        <div class="bus-field"><dt><div class="skeleton skel-field" style="width: 50%;"></div></dt><dd><div class="skeleton skel-field"></div></dd></div>
+        <div class="bus-field"><dt><div class="skeleton skel-field" style="width: 50%;"></div></dt><dd><div class="skeleton skel-field"></div></dd></div>
+        <div class="bus-field"><dt><div class="skeleton skel-field" style="width: 50%;"></div></dt><dd><div class="skeleton skel-field"></div></dd></div>
+        <div class="bus-field"><dt><div class="skeleton skel-field" style="width: 50%;"></div></dt><dd><div class="skeleton skel-field"></div></dd></div>
+        <div class="bus-field"><dt><div class="skeleton skel-field" style="width: 50%;"></div></dt><dd><div class="skeleton skel-field"></div></dd></div>
+      </div>
     </div>
   `).join('');
 }
 
-
-// Bind the trip-button container clicks (delegated below)
 async function loadBusDetails() {
   try {
-    // 1) GET the owner details
     const getRes = await authFetch(`${baseUrl}/bus-owners/owner-details/`);
-    if (!getRes.ok) {
-      throw new Error(`GET failed: ${getRes.status} ${getRes.statusText}`);
-    }
+    if (!getRes.ok) throw new Error(`GET failed: ${getRes.status}`);
     const data = await getRes.json();
-    document.getElementById('companyName').textContent = data.company_name;
 
-    // 2) build payload
+    const companyNameEl = document.getElementById('companyName');
+    if (companyNameEl) companyNameEl.textContent = data.company_name;
+
+    if (!data.buses || data.buses.length === 0) return [];
+
     const payload = { ids: data.buses.map(b => b.bus_id) };
 
-    // 3) POST the payload***********************************************************************************************************************************************************
     const postRes = await authFetch(`${baseUrl}/bus-owners/owner-buses/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (!postRes.ok) {
-      throw new Error(`POST failed: ${postRes.status} ${postRes.statusText}`);
-    }
+    if (!postRes.ok) throw new Error(`POST failed: ${postRes.status}`);
 
-    // 4) parse & return the POST response*******************************************************************************************************************************************
     return await postRes.json();
-
   } catch (err) {
     console.error('Error loading bus details:', err);
-    throw err;
+    return []; // Return an empty array on error to prevent crashes
   }
 }
 
-// static/js/manageBusses.js
-// ————————————————————————————————————————————————————————————————
-// Assumes you already have `loadBusDetails()` defined as in our last step,
-// which returns the array of bus‐detail objects.
-// ————————————————————————————————————————————————————————————————
-
-
-
 async function initBusUI() {
   try {
-    // 1) fetch & POST your IDs, then get the bus‐detail array:
     const buses = await loadBusDetails();
-
-    // 2) populate the sidebar company name if you like:
-    //    document.getElementById('companyName').textContent = data.company_name;
-
-    // 3) render a card for each bus:
     renderBusCards(buses);
   } catch (err) {
-    console.error('Could not load buses:', err);
+    console.error('Could not initialize bus UI:', err);
+    const container = document.querySelector('.bus-list');
+    if (container) container.innerHTML = '<p>Could not load bus information. Please try again later.</p>';
   }
 }
 
 function renderBusCards(buses) {
   const container = document.querySelector('.bus-list');
+  if (!container) return;
+
+  if (buses.length === 0) {
+    container.innerHTML = '<p>No buses found. Click the "+" button to add your first bus.</p>';
+    return;
+  }
+
   container.innerHTML = buses.map(bus => {
-    // determine CSS class & text for approval status
     const approved = bus.is_approved;
     const statusClass = approved ? 'status-approved' : 'status-pending';
-    const statusText = approved ? 'Approved' : 'Pending';
-
-    // determine machine‐connection text
-    const machineText = bus.is_machine_connected
-      ? 'On a Turn'
-      : 'Stopped';
+    const statusText = approved ? 'Approved' : 'Pending Review';
+    const machineText = bus.is_machine_connected ? 'On a Trip' : 'Idle';
 
     return `
       <div class="bus-card" data-bus-id="${bus._id}">
         <div class="bus-header">
-          <div class="bus-title">${bus.bus_name}</div>
-          <div class="bus-subtitle">
-            <div class="bus-number">${bus.bus_number}</div>
-          </div>
+          <div class="bus-title">${bus.bus_name || 'N/A'}</div>
+          <div class="bus-number">${bus.bus_number || 'N/A'}</div>
         </div>
         <dl class="bus-body">
           <div class="bus-field">
             <dt>Bus Type</dt>
-            <dd>${bus.bus_type}</dd>
+            <dd>${bus.bus_type || 'N/A'}</dd>
           </div>
           <div class="bus-field">
-            <dt>Bus Status</dt>
+            <dt>Current Status</dt>
             <dd>${machineText}</dd>
           </div>
           <div class="bus-field">
             <dt>Seat Type</dt>
-            <dd>${bus.seat_type}</dd>
-          </div>
-          <div class="bus-field">
-            <dt>Bus Number</dt>
-            <dd>${bus.bus_number}</dd>
-          </div>
-          <div class="bus-field ${statusClass}">
-            <dt>Status</dt>
-            <dd>${statusText}</dd>
+            <dd>${bus.seat_type || 'N/A'}</dd>
           </div>
           <div class="bus-field">
             <dt>Fare Type</dt>
-            <dd>${bus.fare_type_name}</dd>
+            <dd>${bus.fare_type_name || 'N/A'}</dd>
+          </div>
+          <div class="bus-field ${statusClass}">
+            <dt>Approval Status</dt>
+            <dd>${statusText}</dd>
           </div>
         </dl>
       </div>
@@ -145,114 +116,75 @@ function renderBusCards(buses) {
   attachBusCardListeners();
 }
 
-// ——— Static lists for bus & seat types ———
-const BUS_TYPES = [
-  "Luxury",
-
-
-];
-const SEAT_TYPES = [
-  "22 - Seater",
-];
-
-// ——— Fetch & render all the fare types ———
+// Static lists for dropdowns
+const BUS_TYPES = ["Luxury", "Semi-Luxury", "Normal"];
+const SEAT_TYPES = ["22 - Seater", "32 - Seater", "49 - Seater", "54 - Seater"];
 
 async function fetchFareTypes() {
   try {
-    const res = await authFetch(
-      `${baseUrl}/bus-owners/list-fare-types/`
-    );
+    const res = await authFetch(`${baseUrl}/bus-owners/list-fare-types/`);
     if (!res.ok) throw new Error('Failed to load fare types');
-    const fares = await res.json(); // array of { id, name }
+    const fares = await res.json();
 
+    const createSelect = document.getElementById('create_fare_type_id');
+    const editSelect = document.getElementById('fare_type_name_select');
 
-    const select = document.getElementById('fare_type_name_select');
-    const hiddenId = document.getElementById('fare_type_id');
-    const hiddenName = document.getElementById('fare_type_name_hidden');
+    const optionsHtml = fares.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
 
-    // 1) Populate the <select>
-    select.innerHTML = fares
-      .map(f => `<option value="${f.id}">${f.name}</option>`)
-      .join('');
-    console.log('All fare‐type options:', Array.from(select.options)
-      .map((o, i) => ({ index: i, id: o.value, name: o.text }))
-    );
+    if (createSelect) createSelect.innerHTML = optionsHtml;
+    if (editSelect) editSelect.innerHTML = fares.map(f => `<option value="${f.name}">${f.name}</option>`).join(''); // Edit modal uses name
 
-    // 2) Helper to sync hidden inputs
-    function syncFareFields() {
-      const idx = select.selectedIndex;
-      const opt = select.options[idx];
-      hiddenId.value = opt.value;   // the fare_type_id
-      hiddenName.value = opt.text;    // the fare_type_name
-    }
+    // Add change listeners
+    if (createSelect) createSelect.addEventListener('change', syncCreateFareFields);
+    if (editSelect) editSelect.addEventListener('change', () => {
+      const selectedOption = editSelect.options[editSelect.selectedIndex];
+      const correspondingFare = fares.find(f => f.name === selectedOption.value);
+      if (correspondingFare) {
+        document.getElementById('fare_type_id').value = correspondingFare.id;
+        document.getElementById('fare_type_name_hidden').value = correspondingFare.name;
+      }
+    });
 
-    // 3) Wire up on change
-    select.addEventListener('change', syncFareFields);
-
-    // 4) Initialize them right away so they're never blank
-    syncFareFields();
-
+    syncCreateFareFields(); // Initial sync
   } catch (err) {
     console.error(err);
   }
 }
 
-// ——— Fill bus-type & seat-type selects ———
 function populateStaticDropdowns() {
-  const bt = document.getElementById('bus_type');
-  bt.innerHTML = BUS_TYPES
-    .map(v => `<option value="${v}">${v}</option>`)
-    .join('');
-  const st = document.getElementById('seat_type');
-  st.innerHTML = SEAT_TYPES
-    .map(v => `<option value="${v}">${v}</option>`)
-    .join('');
+  const createBusType = document.getElementById('create_bus_type');
+  const editBusType = document.getElementById('bus_type');
+  if (createBusType) createBusType.innerHTML = BUS_TYPES.map(v => `<option>${v}</option>`).join('');
+  if (editBusType) editBusType.innerHTML = BUS_TYPES.map(v => `<option>${v}</option>`).join('');
+
+  const createSeatType = document.getElementById('create_seat_type');
+  const editSeatType = document.getElementById('seat_type');
+  if (createSeatType) createSeatType.innerHTML = SEAT_TYPES.map(v => `<option>${v}</option>`).join('');
+  if (editSeatType) editSeatType.innerHTML = SEAT_TYPES.map(v => `<option>${v}</option>`).join('');
 }
 
-// ——— Wire up file-input preview ———
-document
-  .getElementById('route_permit_image')
-  .addEventListener('change', e => {
-    const file = e.target.files[0];
-    const img = document.getElementById('route_permit_image_preview');
-    if (file) {
-      img.src = URL.createObjectURL(file);
-      img.style.display = 'block';
-    } else {
-      img.src = '';
-      img.style.display = 'none';
-    }
-  });
+function syncCreateFareFields() {
+  const sel = document.getElementById('create_fare_type_id');
+  if (!sel || sel.selectedIndex < 0) return;
+  const opt = sel.options[sel.selectedIndex];
+  document.getElementById('create_fare_type_name_hidden').value = opt.text;
+}
 
-// ——— Initialize everything on page load ———
-document.addEventListener('DOMContentLoaded', () => {
-  fetchFareTypes();
-  populateStaticDropdowns();
-  showSkeletons(3);
-  setTimeout(initBusUI, 2000);
-});
-
-
+// Modal and Form Logic
 function attachBusCardListeners() {
   document.querySelectorAll('.bus-card').forEach(card => {
     card.addEventListener('click', async () => {
       const busId = card.dataset.busId;
       try {
-        const res = await authFetch(
-          `${baseUrl}/bus-owners/get-bus/?bus_id=${busId}`
-        );
+        const res = await authFetch(`${baseUrl}/bus-owners/get-bus/?bus_id=${busId}`);
         if (!res.ok) throw new Error('Failed to load bus details');
         const bus = await res.json();
 
-        // 3) if already approved → show a bottom notification
         if (bus.is_approved) {
-          showNotification('Bus is already approved');
+          showNotification('Approved buses cannot be edited.');
           return;
         }
-
-        // 4) otherwise → open the modal & populate inputs
         openModal(bus);
-
       } catch (err) {
         console.error(err);
         showNotification('Error loading details');
@@ -261,201 +193,104 @@ function attachBusCardListeners() {
   });
 }
 
-// ── 3) simple bottom notification banner ──
 function showNotification(message) {
   let n = document.getElementById('notification');
   if (!n) {
     n = document.createElement('div');
     n.id = 'notification';
-    n.style = `
-      position: fixed;
-      bottom: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--blue);
-      color: #fff;
-      padding: 0.75rem 1.5rem;
-      border-radius: 4px;
-      box-shadow: 0 4px 12px var(--shadow);
-      z-index: 1100;
-      opacity: 0;
-      transition: opacity 0.3s;
-    `;
+    n.style = `position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--bg-card); color: var(--text-primary); padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 4px 12px var(--shadow); z-index: 1100; transition: bottom 0.3s ease-out;`;
     document.body.appendChild(n);
   }
   n.textContent = message;
-  n.style.opacity = '1';
-  setTimeout(() => n.style.opacity = '0', 3000);
+  setTimeout(() => { n.style.bottom = '2rem'; }, 10);
+  setTimeout(() => { n.style.bottom = '-100px'; }, 3000);
 }
 
-// ── 4) open modal & populate form fields ──
 function openModal(bus) {
   const overlay = document.getElementById('modalOverlay');
+  if (!overlay) return;
   overlay.classList.remove('hidden');
 
-  // populate each input
   document.getElementById('bus_id').value = bus._id;
   document.getElementById('bus_name').value = bus.bus_name;
   document.getElementById('bus_number').value = bus.bus_number;
   document.getElementById('bus_type').value = bus.bus_type;
   document.getElementById('seat_type').value = bus.seat_type;
   document.getElementById('route_permit_number').value = bus.route_permit_number;
-  const img = document.getElementById('route_permit_image_preview');
-  img.src = bus.route_permit_image;
-  img.style.display = bus.route_permit_image ? 'block' : 'none';
 
-  const fileInput = document.getElementById('route_permit_image');
-  fileInput.value = '';
-
-  // set hidden ID + select for fare type
   document.getElementById('fare_type_id').value = bus.fare_type_id;
   document.getElementById('fare_type_name_select').value = bus.fare_type_name;
+  document.getElementById('fare_type_name_hidden').value = bus.fare_type_name;
+
+  document.getElementById('file_name_display').textContent = bus.route_permit_image ? 'A permit is already uploaded.' : '';
+  document.getElementById('route_permit_image').value = '';
 }
 
-// ── 5) close modal when “×” clicked ──
-document.getElementById('modalClose').addEventListener('click', () => {
+document.getElementById('modalClose')?.addEventListener('click', () => {
   document.getElementById('modalOverlay').classList.add('hidden');
 });
 
-document.getElementById('saveButton').addEventListener('click', async () => {
+document.getElementById('saveButton')?.addEventListener('click', async () => {
   const form = document.getElementById('busForm');
   const fd = new FormData(form);
-  const fare_type_id = document.getElementById('fare_type_id').value
-  const fare_type_name = document.getElementById('fare_type_name_hidden').value
-  fd.set('fare_type_name', fare_type_name);
-  fd.set('fare_type_id', fare_type_id);
+
+  // Ensure fare type name and ID are correctly set from the select
+  const fareSelect = document.getElementById('fare_type_name_select');
+  const selectedFareName = fareSelect.value;
+  const fareId = document.getElementById('fare_type_id').value; // This should be updated by the change listener
+  fd.set('fare_type_name', selectedFareName);
+  fd.set('fare_type_id', fareId);
 
   try {
-    const res = await authFetch(
-      `${baseUrl}/bus-owners/update-bus/`,
-      { method: 'PATCH', body: fd }
-    );
-
-    // parse the JSON body into a variable
-    const body = await res.json();
-
-    // print the entire response body
-    console.log('Full response:', body);
-
+    const res = await authFetch(`${baseUrl}/bus-owners/update-bus/`, { method: 'PATCH', body: fd });
     if (!res.ok) {
-      // if you want to see error details, you already have them in `body`
-      console.error('Update failed:', body);
-      throw new Error(`Update failed: ${res.status}`);
+      const errorBody = await res.json();
+      throw new Error(errorBody.detail || `Update failed: ${res.status}`);
     }
-
-    // now destructure what you actually need
-    const updatedBus = body.results;
-    console.log('Updated bus object:', updatedBus);
-
     showNotification('Bus updated successfully!');
     document.getElementById('modalOverlay').classList.add('hidden');
     initBusUI();
-
   } catch (err) {
-    console.error('Network or parsing error:', err);
-    showNotification('Error updating bus');
+    console.error('Update error:', err);
+    showNotification(`Error: ${err.message}`);
   }
 });
 
-// —————— 1) Open/close modal ——————
-document.getElementById('addBusBtn').addEventListener('click', () => {
+// Create Modal Logic
+document.getElementById('addBusBtn')?.addEventListener('click', () => {
   document.getElementById('createModal').classList.remove('hidden');
 });
-document.getElementById('createClose').addEventListener('click', () => {
+document.getElementById('createClose')?.addEventListener('click', () => {
   document.getElementById('createModal').classList.add('hidden');
 });
 
-// —————— 2) Populate dropdowns on load ——————
-
-function populateCreateDropdowns() {
-  document.getElementById('create_bus_type').innerHTML =
-    BUS_TYPES.map(v => `<option>${v}</option>`).join('');
-  document.getElementById('create_seat_type').innerHTML =
-    SEAT_TYPES.map(v => `<option>${v}</option>`).join('');
-}
-
-// fetch fare types into the create‐form select
-async function fetchCreateFareTypes() {
-  const res = await authFetch(`${baseUrl}/bus-owners/list-fare-types/`);
-  const fares = await res.json();
-  document.getElementById('create_fare_type_id').innerHTML =
-    fares.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
-  // set hidden name and preview initial
-  syncCreateFareFields();
-  document.getElementById('create_fare_type_id')
-    .addEventListener('change', syncCreateFareFields);
-}
-
-// sync hidden fare_type_name
-function syncCreateFareFields() {
-  const sel = document.getElementById('create_fare_type_id');
-  const opt = sel.options[sel.selectedIndex];
-  document.getElementById('create_fare_type_name_hidden').value = opt.text;
-}
-
-// —————— 3) Image preview ——————
-document.getElementById('create_route_permit_image')
-  .addEventListener('change', e => {
-    const file = e.target.files[0];
-    const img = document.getElementById('create_route_permit_image_preview');
-    if (file) {
-      img.src = URL.createObjectURL(file);
-      img.style.display = 'block';
-    } else {
-      img.style.display = 'none';
-    }
-  });
-
-// —————— 4) Create Bus handler ——————
-document.getElementById('createButton').addEventListener('click', async () => {
-  // pick up values
-  const name = document.getElementById('create_bus_name').value;
-  const num = document.getElementById('create_bus_number').value;
-  const type = document.getElementById('create_bus_type').value;
-  const seat = document.getElementById('create_seat_type').value;
-  const permit = document.getElementById('create_route_permit_number').value;
-  const imgEl = document.getElementById('create_route_permit_image_preview');
-  const imgURL = imgEl.src || '';
-  const fareId = document.getElementById('create_fare_type_id').value;
-  const fareNm = document.getElementById('create_fare_type_name_hidden').value;
-
-  // build payload
-  const payload = {
-    bus_name: name,
-    bus_number: num,
-    bus_type: type,
-    seat_type: seat,
-    route_permit_number: permit,
-    route_permit_image: imgURL,
-    fare_type_id: fareId,
-    fare_type_name: fareNm
-  };
-
-  try {
-    console.log('POST payload:', payload);
-    const res = await authFetch(
-      `${baseUrl}/bus-owners/create-bus/`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }
-    );
-    const body = await res.json();
-    console.log('Create response:', body);
-    if (!res.ok) throw new Error(body.error || res.status);
-
-    showNotification('Bus created!');
-    document.getElementById('createModal').classList.add('hidden');
-    initBusUI();
-  } catch (err) {
-    console.error('Create failed:', err);
-    showNotification('Error creating bus');
+document.getElementById('create_route_permit_image')?.addEventListener('change', e => {
+  const file = e.target.files[0];
+  const img = document.getElementById('create_route_permit_image_preview');
+  if (file && img) {
+    img.src = URL.createObjectURL(file);
+    img.style.display = 'block';
+  } else if (img) {
+    img.style.display = 'none';
   }
 });
 
-// —————— 5) Kick it all off on page load ——————
-document.addEventListener('DOMContentLoaded', () => {
-  populateCreateDropdowns();
-  fetchCreateFareTypes();
+document.getElementById('createButton')?.addEventListener('click', async () => {
+  const form = document.getElementById('createForm');
+  const fd = new FormData(form);
+
+  try {
+    const res = await authFetch(`${baseUrl}/bus-owners/create-bus/`, { method: 'POST', body: fd });
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.detail || `Create failed: ${res.status}`);
+
+    showNotification('Bus created successfully! Awaiting approval.');
+    document.getElementById('createModal').classList.add('hidden');
+    form.reset();
+    document.getElementById('create_route_permit_image_preview').style.display = 'none';
+    initBusUI();
+  } catch (err) {
+    console.error('Create failed:', err);
+    showNotification(`Error: ${err.message}`);
+  }
 });
