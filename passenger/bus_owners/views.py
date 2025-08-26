@@ -998,7 +998,7 @@ def ticket_graph_view(request, trip_id):
     }
     # Renders the 'ticket_visualization.html' template.
     # Make sure you have a template with this name in your templates directory.
-    return render(request, 'ticketsDetails.html', context)
+    return render(request, 'website/ticketsDetails.html', context)
 
 
 @api_view(['GET'])
