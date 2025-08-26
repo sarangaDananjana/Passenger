@@ -6,24 +6,20 @@
   <meta charset="UTF-8">
   <title>My Buses</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- Link to the main dashboard stylesheet for consistent UI -->
-  <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" />
+  <!-- The new, unified stylesheet -->
+  <link href="{% static 'css/manageBuses.css' %}" rel="stylesheet" />
 </head>
 
 <body>
   <div class="dashboard">
-    <!-- Sidebar is included here, it will now be styled correctly -->
-    <aside class="sidebar" id="sidebar">
+    <!-- Sidebar is included here for consistency -->
+    <aside class="sidebar">
       {% include 'website/sidebar.html' %}
     </aside>
 
     <!-- Main content area -->
-    <main class="main-content" id="mainContent">
+    <main class="main-content">
       <header class="main-header">
-        <!-- The sidebar toggle button is now included for mobile consistency -->
-        <button class="sidebar-toggle" id="sidebarToggle">
-          <i class="ph-bold ph-list"></i>
-        </button>
         <h1 class="main-title">My Buses</h1>
       </header>
 
@@ -108,8 +104,6 @@
     </div>
   </div>
 
-  <!-- Phosphor Icons for the hamburger menu icon -->
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script type="module" src="{% static 'js/manageBusses.js' %}"></script>
   <script>
     const form = document.getElementById("createForm");

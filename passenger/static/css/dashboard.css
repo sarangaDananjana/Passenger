@@ -5,7 +5,7 @@
   --primary-color: #00D0FF;
   --primary-hover: #38afff;
   --offline-color: #2ac769;
-  --green: #2ac769;
+  /* Distinct green for offline revenue */
   --red: #e74c3c;
   --orange: #f3b137;
 
@@ -39,7 +39,39 @@ body {
   position: relative;
 }
 
-/* -------------------- Sidebar (Shared) -------------------- */
+/* -------------------- Card & General Component Styles -------------------- */
+.card {
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px var(--shadow);
+  color: var(--text-secondary);
+}
+
+.card-header {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.section-title,
+.trips-header h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+/* -------------------- Sidebar -------------------- */
 .sidebar {
   width: var(--sidebar-width);
   background-color: var(--bg-main);
@@ -94,6 +126,7 @@ body {
   font-weight: 500;
   border-radius: 12px;
   transition: background-color 0.2s ease, color 0.2s ease;
+  position: relative;
 }
 
 .nav-links li a:hover {
@@ -113,6 +146,7 @@ body {
 
 .nav-links li a i {
   font-size: 1.2rem;
+  transition: color 0.2s ease;
 }
 
 .sidebar-footer {
@@ -136,7 +170,7 @@ body {
   background-color: rgba(231, 76, 60, 0.1);
 }
 
-/* -------------------- Main Content Area (Shared) -------------------- */
+/* -------------------- Main Content Area -------------------- */
 .main-content {
   flex-grow: 1;
   padding: 2rem;
@@ -153,14 +187,17 @@ body {
   align-items: center;
   gap: 1.5rem;
   margin-bottom: 2rem;
+  /* CHANGE: Added relative positioning */
   position: relative;
   height: 48px;
+  /* Match button height */
 }
 
 .main-title {
   font-size: 2rem;
   font-weight: 700;
   color: var(--text-primary);
+  /* CHANGE: Added margin to shift title */
   margin-left: 64px;
 }
 
@@ -177,6 +214,7 @@ body {
   cursor: pointer;
   font-size: 1.75rem;
   transition: all 0.3s ease-in-out;
+  /* CHANGE: Positioning is now absolute within the relative header */
   position: absolute;
   top: 0;
   left: 0;
@@ -184,12 +222,11 @@ body {
 }
 
 .main-content.sidebar-collapsed .sidebar-toggle {
+  /* This rule is now less critical but kept for transition smoothness */
   left: 0;
 }
 
-
-/* ==================== DASHBOARD SPECIFIC STYLES ==================== */
-
+/* -------------------- Bus & Trip Selection -------------------- */
 #busSelection {
   display: flex;
   gap: 1rem;
@@ -217,6 +254,7 @@ body {
 .bus-button .label,
 .bus-button .code {
   color: var(--text-primary);
+  transition: color 0.2s ease;
 }
 
 .bus-button.selected .label,
@@ -264,6 +302,7 @@ body {
   margin-bottom: 1.5rem;
   overflow-x: auto;
   padding-bottom: 10px;
+  scrollbar-width: thin;
 }
 
 .trip-selection-container .date-button {
@@ -291,6 +330,7 @@ body {
   font-weight: 600;
 }
 
+/* -------------------- Details & Revenue Panels -------------------- */
 .details-panel {
   margin: 1.5rem 0;
 }
@@ -323,7 +363,7 @@ body {
 }
 
 .value#detailRevenueStatus.completed {
-  color: var(--green);
+  color: var(--offline-color);
 }
 
 .value#detailRevenueStatus.pending {
@@ -356,12 +396,18 @@ body {
   flex-direction: column;
 }
 
+/* CHANGE: Added distinct border color for offline card */
 .offline-revenue {
   border-top: 4px solid var(--offline-color);
 }
 
 .online-revenue {
   border-top: 4px solid var(--primary-color);
+}
+
+.online-revenue .card-body,
+.offline-revenue .card-body {
+  flex-grow: 1;
 }
 
 .action-buttons {
@@ -389,6 +435,7 @@ body {
   transition: all 0.2s ease;
 }
 
+/* CHANGE: Distinct button color for offline actions */
 .offline-revenue .action-btn {
   background-color: var(--offline-color);
 }
@@ -398,6 +445,13 @@ body {
   filter: brightness(1.1);
 }
 
+.action-btn.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  background-color: var(--border-color);
+}
+
+/* -------------------- Chart -------------------- */
 .graph-card {
   padding: 1rem;
   height: 400px;
@@ -407,6 +461,7 @@ canvas#revenueChart {
   max-height: 100%;
 }
 
+/* -------------------- Toggle Switch -------------------- */
 .toggle-container {
   display: flex;
   align-items: center;
@@ -465,106 +520,7 @@ input:checked+.slider:before {
   transform: translateX(22px);
 }
 
-
-/* ==================== MANAGE BUSES SPECIFIC STYLES ==================== */
-
-.bus-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-}
-
-.bus-card {
-  background-color: var(--bg-card);
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 12px var(--shadow);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
-}
-
-.bus-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.bus-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.bus-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.bus-number {
-  font-size: 1rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.bus-body {
-  padding: 1.5rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-}
-
-.bus-field dt {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.25rem;
-  font-weight: 400;
-}
-
-.bus-field dd {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.bus-field.status-approved dd {
-  color: var(--green);
-}
-
-.bus-field.status-pending dd {
-  color: var(--orange);
-}
-
-.fab {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: var(--primary-color);
-  color: var(--bg-main);
-  border: none;
-  font-size: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 16px rgba(0, 208, 255, 0.3);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 999;
-}
-
-.fab:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 208, 255, 0.4);
-}
-
-
-/* ==================== MODALS & OVERLAYS (SHARED) ==================== */
-
+/* -------------------- Modals -------------------- */
 .modal {
   display: none;
   position: fixed;
@@ -580,18 +536,18 @@ input:checked+.slider:before {
   justify-content: center;
 }
 
-.modal:not(.hidden) {
+.modal.show {
   display: flex;
 }
 
 .modal-content {
   position: relative;
-  background: var(--bg-card);
+  background: var(--bg-content);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 2rem;
   width: 90%;
-  max-width: 500px;
+  max-width: 600px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
   animation: slideDown 0.3s ease-out;
 }
@@ -622,83 +578,80 @@ input:checked+.slider:before {
   color: var(--red);
 }
 
-.modal-title {
-  margin: 0 0 1.5rem;
+.modal h3 {
+  margin: 0 0 1rem;
   font-size: 1.5rem;
   color: var(--text-primary);
-  text-align: center;
 }
 
-.modal form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.modal label {
-  font-weight: 500;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.modal input[type="text"],
-.modal input[type="file"],
-.modal select {
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-content);
-  color: var(--text-primary);
+.modal p {
+  margin: 0;
   font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s;
-  margin-top: 0.25rem;
-}
-
-.modal input:focus,
-.modal select:focus {
-  border-color: var(--primary-color);
-}
-
-.file-name-display {
-  font-size: 0.85rem;
   color: var(--text-secondary);
-  margin-top: 0.5rem;
-  display: block;
 }
 
-.image-preview {
-  max-width: 100%;
-  max-height: 150px;
-  margin-top: 0.5rem;
-  border-radius: 8px;
-  display: none;
-}
-
-.submit-btn {
-  background-color: var(--primary-color);
-  color: var(--bg-main);
-  font-weight: 600;
-  border: none;
-  border-radius: 10px;
-  padding: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 1rem;
+/* Seat Layout Modal */
+#seatLayout {
+  display: grid;
+  gap: 10px;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--bg-main);
+  border-radius: 12px;
   margin-top: 1rem;
 }
 
-.submit-btn:hover {
-  background-color: var(--primary-hover);
+.seat {
+  background: #4a4a4a;
+  color: #fff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  width: 40px;
+  height: 40px;
 }
 
-.submit-btn:disabled {
-  background-color: var(--border-color);
+#seatLayout .seat.booked {
+  background: var(--red);
+}
+
+.seat-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--text-secondary);
-  cursor: not-allowed;
 }
 
+.legend-swatch {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 3px;
+}
+
+.legend-swatch.booked {
+  background: var(--red);
+}
+
+.legend-swatch.available {
+  background: #4a4a4a;
+}
+
+.legend-swatch.jumper {
+  background: var(--orange);
+}
+
+/* CHANGE: Offline Ticket Modal - Larger and centered */
 #offlineModal .modal-content {
   max-width: 90%;
   width: 1200px;
@@ -706,6 +659,7 @@ input:checked+.slider:before {
 
 #offlineTicketList {
   display: grid;
+  /* Responsive grid for tickets */
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
@@ -753,7 +707,82 @@ input:checked+.slider:before {
   color: var(--offline-color);
 }
 
-/* ==================== SKELETONS & LOADERS (SHARED) ==================== */
+/* Add Trip Modal */
+.modal-content.trip-modal {
+  background: var(--bg-card);
+  max-width: 500px;
+}
+
+.modal-title {
+  text-align: center;
+}
+
+#addTripForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#addTripForm label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+#addTripForm input {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-content);
+  color: var(--text-primary);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#addTripForm input:focus {
+  border-color: var(--primary-color);
+}
+
+.submit-btn {
+  background-color: var(--primary-color);
+  color: var(--bg-main);
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.submit-btn:hover {
+  background-color: var(--primary-hover);
+}
+
+.suggestions-list {
+  border: 1px solid var(--border-color);
+  background: var(--bg-content);
+  border-radius: 8px;
+  overflow-y: auto;
+  max-height: 150px;
+}
+
+.suggestions-list div {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.suggestions-list div:last-child {
+  border-bottom: none;
+}
+
+.suggestions-list div:hover {
+  background-color: var(--border-color);
+}
+
+/* -------------------- Loading & Placeholders -------------------- */
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -826,44 +855,4 @@ input:checked+.slider:before {
 
 .placeholder-text {
   margin-bottom: 1.5rem;
-}
-
-.skeleton {
-  position: relative;
-  overflow: hidden;
-  background-color: var(--border-color);
-  border-radius: 8px;
-}
-
-.skeleton::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.skel-title {
-  height: 24px;
-  width: 60%;
-  margin-bottom: 8px;
-}
-
-.skel-subtitle {
-  height: 16px;
-  width: 40%;
-}
-
-.skel-field {
-  height: 16px;
-  width: 100%;
 }

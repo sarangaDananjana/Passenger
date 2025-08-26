@@ -1,27 +1,12 @@
 import { authFetch, baseUrl } from './auth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Add this function call to make the sidebar toggle work
-  setupSidebar();
   populateStaticDropdowns();
   showSkeletons(3);
+  // Using a shorter timeout for a faster perceived load
   setTimeout(initBusUI, 1000);
   fetchFareTypes();
 });
-
-// This function is now needed here for the toggle button
-function setupSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const mainContent = document.getElementById('mainContent');
-  const sidebarToggle = document.getElementById('sidebarToggle');
-
-  if (sidebar && mainContent && sidebarToggle) {
-    sidebarToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-      mainContent.classList.toggle('sidebar-collapsed');
-    });
-  }
-}
 
 function showSkeletons(count = 3) {
   const container = document.querySelector('.bus-list');
@@ -67,7 +52,7 @@ async function loadBusDetails() {
     return await postRes.json();
   } catch (err) {
     console.error('Error loading bus details:', err);
-    return [];
+    return []; // Return an empty array on error to prevent crashes
   }
 }
 
@@ -131,6 +116,7 @@ function renderBusCards(buses) {
   attachBusCardListeners();
 }
 
+// Static lists for dropdowns
 const BUS_TYPES = ["Luxury", "Semi-Luxury", "Normal"];
 const SEAT_TYPES = ["22 - Seater", "32 - Seater", "49 - Seater", "54 - Seater"];
 
@@ -146,8 +132,9 @@ async function fetchFareTypes() {
     const optionsHtml = fares.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
 
     if (createSelect) createSelect.innerHTML = optionsHtml;
-    if (editSelect) editSelect.innerHTML = fares.map(f => `<option value="${f.name}">${f.name}</option>`).join('');
+    if (editSelect) editSelect.innerHTML = fares.map(f => `<option value="${f.name}">${f.name}</option>`).join(''); // Edit modal uses name
 
+    // Add change listeners
     if (createSelect) createSelect.addEventListener('change', syncCreateFareFields);
     if (editSelect) editSelect.addEventListener('change', () => {
       const selectedOption = editSelect.options[editSelect.selectedIndex];
@@ -158,7 +145,7 @@ async function fetchFareTypes() {
       }
     });
 
-    syncCreateFareFields();
+    syncCreateFareFields(); // Initial sync
   } catch (err) {
     console.error(err);
   }
@@ -183,6 +170,7 @@ function syncCreateFareFields() {
   document.getElementById('create_fare_type_name_hidden').value = opt.text;
 }
 
+// Modal and Form Logic
 function attachBusCardListeners() {
   document.querySelectorAll('.bus-card').forEach(card => {
     card.addEventListener('click', async () => {
@@ -246,9 +234,10 @@ document.getElementById('saveButton')?.addEventListener('click', async () => {
   const form = document.getElementById('busForm');
   const fd = new FormData(form);
 
+  // Ensure fare type name and ID are correctly set from the select
   const fareSelect = document.getElementById('fare_type_name_select');
   const selectedFareName = fareSelect.value;
-  const fareId = document.getElementById('fare_type_id').value;
+  const fareId = document.getElementById('fare_type_id').value; // This should be updated by the change listener
   fd.set('fare_type_name', selectedFareName);
   fd.set('fare_type_id', fareId);
 
@@ -267,6 +256,7 @@ document.getElementById('saveButton')?.addEventListener('click', async () => {
   }
 });
 
+// Create Modal Logic
 document.getElementById('addBusBtn')?.addEventListener('click', () => {
   document.getElementById('createModal').classList.remove('hidden');
 });

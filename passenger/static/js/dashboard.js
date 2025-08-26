@@ -569,8 +569,10 @@ function renderRevenueChart(trips) {
 
   const ctx = document.getElementById('revenueChart').getContext('2d');
 
+  // Get colors from CSS variables for consistency
   const style = getComputedStyle(document.documentElement);
   const primaryColor = style.getPropertyValue('--primary-color').trim();
+  // CHANGE: Use the new --offline-color variable
   const offlineColor = style.getPropertyValue('--offline-color').trim();
   const textColor = style.getPropertyValue('--text-secondary').trim();
   const gridColor = style.getPropertyValue('--border-color').trim();
@@ -593,6 +595,7 @@ function renderRevenueChart(trips) {
         {
           label: 'Offline Revenue',
           data: ticketsData,
+          // CHANGE: Apply the new offline color
           backgroundColor: offlineColor,
           borderRadius: 4,
         }
@@ -604,7 +607,13 @@ function renderRevenueChart(trips) {
       plugins: {
         legend: {
           position: 'top',
-          labels: { color: textColor, font: { family: "'Poppins', sans-serif", size: 14 } }
+          labels: {
+            color: textColor,
+            font: {
+              family: "'Poppins', sans-serif",
+              size: 14
+            }
+          }
         },
         tooltip: {
           backgroundColor: '#2C2F38',
@@ -613,7 +622,9 @@ function renderRevenueChart(trips) {
           callbacks: {
             label: function (context) {
               let label = context.dataset.label || '';
-              if (label) { label += ': '; }
+              if (label) {
+                label += ': ';
+              }
               if (context.parsed.y !== null) {
                 label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'LKR' }).format(context.parsed.y);
               }
@@ -623,8 +634,17 @@ function renderRevenueChart(trips) {
         }
       },
       scales: {
-        x: { stacked: true, ticks: { color: textColor, font: { family: "'Poppins', sans-serif" } }, grid: { color: 'transparent' } },
-        y: { stacked: true, beginAtZero: true, ticks: { color: textColor, font: { family: "'Poppins', sans-serif" } }, grid: { color: gridColor, borderDash: [2, 4] } }
+        x: {
+          stacked: true,
+          ticks: { color: textColor, font: { family: "'Poppins', sans-serif" } },
+          grid: { color: 'transparent' }
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          ticks: { color: textColor, font: { family: "'Poppins', sans-serif" } },
+          grid: { color: gridColor, borderDash: [2, 4] }
+        }
       }
     }
   });
@@ -633,29 +653,19 @@ function renderRevenueChart(trips) {
 // Add Bus Trips Functionality
 let selectedRoute = null;
 
-// FIX: Combined the logic for both "Add Trip" buttons into a single function
-function handleAddTripClick() {
-  const bus = window.currentBusData;
-  const approvalModal = document.getElementById('approvalModal');
-  const addTripModal = document.getElementById('addTripModal');
-
-  if (bus && bus.is_approved === false) {
-    if (approvalModal) approvalModal.classList.add('show');
-  } else {
-    if (addTripModal) addTripModal.classList.add('show');
-  }
-}
-
 const addTripBtn = document.getElementById('addTripButton');
 if (addTripBtn) {
-  addTripBtn.addEventListener('click', handleAddTripClick);
+  addTripBtn.addEventListener('click', () => {
+    const bus = window.currentBusData;
+    if (bus && bus.is_approved === false) {
+      const approvalModal = document.getElementById('approvalModal');
+      if (approvalModal) approvalModal.classList.add('show');
+    } else {
+      const modal = document.getElementById('addTripModal');
+      if (modal) modal.classList.add('show');
+    }
+  });
 }
-
-const placeholderAddTripBtn = document.getElementById('placeholderAddTripButton');
-if (placeholderAddTripBtn) {
-  placeholderAddTripBtn.addEventListener('click', handleAddTripClick);
-}
-
 
 const closeBtn = document.getElementById('closeAddTripModal');
 if (closeBtn) {
@@ -679,10 +689,11 @@ if (routeInput) {
     const suggestionsBox = document.getElementById('routeSuggestions');
     if (!suggestionsBox) return;
 
+    // This line is crucial to prevent duplicates.
     suggestionsBox.innerHTML = '';
 
     if (query.length < 2) {
-      selectedRoute = null;
+      selectedRoute = null; // Clear selection if query is too short
       return;
     }
 
@@ -692,6 +703,7 @@ if (routeInput) {
       );
       const routes = await res.json();
 
+      // This ensures that even if the API returns duplicates, we only show unique route names.
       const uniqueRoutes = [...new Map(routes.map(route => [route.route_name, route])).values()];
 
       uniqueRoutes.forEach(route => {
@@ -772,6 +784,20 @@ if (addTripForm) {
     } catch (err) {
       console.error('Failed to add trip:', err);
       alert('A network or server error occurred while adding the trip.');
+    }
+  });
+}
+
+const placeholderAddTripBtn = document.getElementById('placeholderAddTripButton');
+if (placeholderAddTripBtn) {
+  placeholderAddTripBtn.addEventListener('click', () => {
+    const bus = window.currentBusData;
+    if (bus && bus.is_approved === false) {
+      const approvalModal = document.getElementById('approvalModal');
+      if (approvalModal) approvalModal.classList.add('show');
+    } else {
+      const modal = document.getElementById('addTripModal');
+      if (modal) modal.classList.add('show');
     }
   });
 }
