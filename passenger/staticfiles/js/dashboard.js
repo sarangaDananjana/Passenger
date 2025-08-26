@@ -12,7 +12,7 @@ let currentTripId = null;
 
 
 
-// Darabase Functions *********************************************************************************************************************************************************
+// Database Functions *********************************************************************************************************************************************************
 
 function saveTripsToDB(trips, cb) {
   const req = indexedDB.open('busApp', 1);
@@ -86,16 +86,13 @@ async function loadOwnerDetails() {
 
   try {
     const res = await authFetch(`${baseUrl}/bus-owners/owner-details/`);
-    // Add this check: If authFetch redirected, 'res' will be undefined. Stop execution.
     if (!res) return;
 
     const data = await res.json();
 
-    // Sidebar
     const el = document.getElementById('companyName');
     if (el) el.textContent = data.company_name;
 
-    // **NEW**: Check if there are any buses. If not, show placeholder and stop.
     if (!data.buses || data.buses.length === 0) {
       console.log('No buses found for this owner.');
       if (busContentWrapper) busContentWrapper.classList.add('hidden');
@@ -103,11 +100,9 @@ async function loadOwnerDetails() {
       return;
     }
 
-    // If buses exist, ensure the main content is visible
     if (busContentWrapper) busContentWrapper.classList.remove('hidden');
     if (noBusesPlaceholder) noBusesPlaceholder.classList.add('hidden');
 
-    // Bus buttons
     const busContainer = document.getElementById('busSelection');
     if (busContainer) {
       busContainer.innerHTML = '';
@@ -122,16 +117,12 @@ async function loadOwnerDetails() {
        `;
         btn.dataset.busId = bus.bus_id;
 
-        // make the first one “selected” by default
         if (idx === 0) btn.classList.add('selected');
 
         btn.addEventListener('click', async () => {
-          // toggle the selected class
           document.querySelectorAll('.bus-button')
             .forEach(b => b.classList.remove('selected'));
           btn.classList.add('selected');
-
-          // now fetch the new bus’s trips
           await switchBus(bus.bus_id);
         });
 
@@ -141,14 +132,11 @@ async function loadOwnerDetails() {
       console.warn('`#busSelection` not found — skipping bus button render');
     }
 
-
-    // Auto-load first bus if present
     if (data.buses[0]) {
       await switchBus(data.buses[0].bus_id);
     }
   } catch (err) {
     console.error('Error loading owner details', err);
-    // Optionally show an error message to the user
     if (busContentWrapper) busContentWrapper.classList.add('hidden');
     if (noBusesPlaceholder) {
       noBusesPlaceholder.classList.remove('hidden');
@@ -162,27 +150,22 @@ async function loadOwnerDetails() {
 async function switchBus(busId) {
   currentBusId = busId;
 
-  // 1) grab UI elements
   const overlay = document.getElementById('loadingOverlay');
   const loadingText = document.getElementById('loadingText');
   const progressBar = document.getElementById('progressBar');
   const detailsSection = document.getElementById('tripDetailsSection');
   const noTripsPlaceholder = document.getElementById('noTripsPlaceholder');
 
-  // 2) reset visibility: show overlay & details, hide placeholder
   overlay.classList.remove('hidden');
   detailsSection.classList.remove('hidden');
   noTripsPlaceholder.classList.add('hidden');
 
-  // reset spinner bar & text
   progressBar.style.width = '0%';
   loadingText.textContent = 'Fetching Your Data';
 
-  // 3) clear old content & IndexedDB
   detailsSection.querySelector('#tripSelection').innerHTML = '';
   clearIndexedDB();
 
-  // 4) fetch + timer in parallel
   const totalDuration = 2000;
   const timerPromise = new Promise(r => setTimeout(r, totalDuration));
   panel.classList.remove('open');
@@ -190,13 +173,10 @@ async function switchBus(busId) {
   const fetchPromise = authFetch(
     `${baseUrl}/bus-owners/bus-trip-details/?bus_id=${busId}`
   ).then(res => {
-    // Add this check: If authFetch redirected, stop the promise chain.
     if (!res) return;
-
     return res.json();
   });
 
-  // 5) animate spinner text & bar
   const messages = [
     'Fetching Your Data',
     'Collecting all the bus trips',
@@ -219,7 +199,6 @@ async function switchBus(busId) {
   }
   requestAnimationFrame(animate);
 
-  // 6) wait for both to finish
   let bus, trips;
   try {
     ({ bus, trips } = await Promise.all([timerPromise, fetchPromise])
@@ -231,36 +210,29 @@ async function switchBus(busId) {
   }
   window.currentBusData = bus;
 
-  // 7) hide overlay
   overlay.classList.add('hidden');
 
-  // 8) if no trips: show placeholder, hide details
   if (!Array.isArray(trips) || trips.length === 0) {
     detailsSection.classList.add('hidden');
     noTripsPlaceholder.classList.remove('hidden');
     return;
   }
 
-  // 9) normal flow: save to DB and render into detailsSection
   saveTripsToDB(trips, () => {
     const toggle = document.getElementById('machineToggle');
     toggle.checked = !!bus.machine;
     toggle.onchange = () => toggleMachine(busId, toggle.checked);
 
     renderTripButtons(trips);
-    if (trips[0]) selectTrip(trips[0]);
-    getBookingsInfo(trips[0])
+    if (trips[0]) {
+      selectTrip(trips[0]);
+      getBookingsInfo(trips[0]);
+    }
 
     renderRevenueChart(trips);
   });
   return { bus, trips };
 }
-
-
-
-
-
-
 
 // Render trip buttons
 function renderTripButtons(trips) {
@@ -274,12 +246,10 @@ function renderTripButtons(trips) {
     );
     const options = { timeZone: 'Asia/Colombo' };
 
-    // Get individual parts using the correct timezone
     const day = parseInt(d.toLocaleDateString('en-US', { ...options, day: 'numeric' }));
     const weekday = d.toLocaleDateString('en-US', { ...options, weekday: 'long' });
     const time = d.toLocaleTimeString('en-US', { ...options, hour: '2-digit', minute: '2-digit', hour12: false });
 
-    // Improved logic for date suffix (st, nd, rd, th)
     let suffix = 'th';
     if (day % 10 === 1 && day !== 11) suffix = 'st';
     if (day % 10 === 2 && day !== 12) suffix = 'nd';
@@ -291,24 +261,12 @@ function renderTripButtons(trips) {
     btn.className = 'date-button';
     btn.textContent = label;
     btn.dataset.tripId = trip._id;
-    panel.classList.remove('closed');
-    panel.classList.add('open');
 
     btn.addEventListener('click', () => {
-      // remove active from all
       container.querySelectorAll('.date-button').forEach(b => b.classList.remove('active'));
-
-      // mark this one
       btn.classList.add('active');
-      // call your existing handler
-      panel.classList.remove('open');
-
-      // 3) After the CSS transition (300ms), update and slide back in
-      setTimeout(() => {
-        selectTrip(trip);
-        getBookingsInfo(trip)     // refill the panel’s content
-        panel.classList.add('open');
-      }, 300);
+      selectTrip(trip);
+      getBookingsInfo(trip);
     });
 
     container.appendChild(btn);
@@ -316,7 +274,8 @@ function renderTripButtons(trips) {
 }
 
 function getTicketsInfo(trip) {
-  const offlineBtn = document.getElementById('offlineSection');
+  // **MODIFIED**: Changed ID to match new button
+  const offlineBtn = document.getElementById('offlineSectionBtn');
   const offlineModal = document.getElementById('offlineModal');
   const offlineCloseBtn = document.getElementById('offlineClose');
   const listContainer = document.getElementById('offlineTicketList');
@@ -329,7 +288,9 @@ function getTicketsInfo(trip) {
   const currentTripId = trip._id;
   const dbReady = openBusAppDB();
 
-  offlineBtn.addEventListener('click', async () => {
+  // **NOTE**: This function now sets up the button for the currently selected trip.
+  // We create a new click handler each time to capture the correct `currentTripId`.
+  offlineBtn.onclick = async () => {
     if (!currentTripId) return;
 
     try {
@@ -337,30 +298,24 @@ function getTicketsInfo(trip) {
       const tx = db.transaction('trips', 'readonly');
       const store = tx.objectStore('trips');
 
-      // fetch the trip record
       const tripRecord = await new Promise((res, rej) => {
         const getReq = store.get(currentTripId);
         getReq.onsuccess = () => res(getReq.result);
         getReq.onerror = () => rej(getReq.error);
       });
 
-      // handle missing record
       if (!tripRecord) {
-        console.warn('No offline record found for trip', currentTripId);
         listContainer.innerHTML = `<div>No offline data for this trip.</div>`;
         offlineModal.style.display = 'block';
         return;
       }
 
-      // handle missing or empty tickets array
       if (!Array.isArray(tripRecord.tickets) || tripRecord.tickets.length === 0) {
-        console.warn('No offline tickets saved for trip', currentTripId);
         listContainer.innerHTML = `<div>No tickets have been saved offline for this trip.</div>`;
         offlineModal.style.display = 'block';
         return;
       }
 
-      // build the list HTML
       const listHtml = tripRecord.tickets.map((t, i) => {
         const when = new Date(
           new Date(t.ticket_date_time).getTime()
@@ -388,7 +343,7 @@ function getTicketsInfo(trip) {
       listContainer.innerHTML = `<div>Error loading offline tickets.</div>`;
       offlineModal.style.display = 'block';
     }
-  });
+  };
 
   offlineCloseBtn.addEventListener('click', () => {
     offlineModal.style.display = 'none';
@@ -404,10 +359,9 @@ function getTicketsInfo(trip) {
 
 // Select a trip: update UI + details panel
 async function selectTrip(trip) {
-  // 1) Track the currentTripId (or null)
   currentTripId = trip && trip._id ? trip._id : null;
   window.currentTrip = trip;
-  // After: currentTripId = trip && trip._id ? trip._id : null;
+
   const graphLink = document.getElementById('ticketGraphBtn');
   if (graphLink) {
     const tpl = graphLink.dataset.urlTemplate || '/web/ticket-graph/__ID__/';
@@ -420,55 +374,35 @@ async function selectTrip(trip) {
     }
   }
 
-
-
-  // 2) Remove any “active” class from date‐buttons
   document.querySelectorAll('#tripSelection .date-button')
     .forEach(b => b.classList.remove('active'));
 
-  // 3) Helper to clear textContent/innerHTML
   const clearText = id => {
     const el = document.getElementById(id);
     if (el) el.textContent = '';
   };
-  const clearHTML = id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = '';
-  };
 
-  // 4) If no trip selected, clear everything and bail out
   if (!currentTripId) {
     [
       'ownerName', 'detailBusName', 'detailRoute', 'detailStartTime',
       'detailBookingPrice', 'detailOnline', 'detailOffline',
       'bookedCount', 'onlineCount', 'onlineEarning', 'onlineFee',
-      'onlineRevenue', 'offlineCount', 'offlineEarning', 'offlineFee',
-      'offlineRevenue', 'finalRevenue'
+      'onlineRevenue', 'offlineCount', 'offlineEarning'
     ].forEach(clearText);
-
-    const graphLink = document.getElementById('ticketGraphBtn');
-    if (graphLink) {
-      graphLink.setAttribute('href', '#');
-      graphLink.classList.add('disabled');
-    }
-
 
     const statusEl = document.getElementById('detailRevenueStatus');
     if (statusEl) {
       statusEl.textContent = '';
       statusEl.classList.remove('completed', 'pending');
     }
-
     return;
   }
 
-  // 5) Highlight the correct date-button
   const btn = document.querySelector(
     `#tripSelection .date-button[data-trip-id="${trip._id}"]`
   );
   btn?.classList.add('active');
 
-  // 6) Load the full trip record from IndexedDB
   let r;
   try {
     const db = await openBusAppDB();
@@ -482,13 +416,11 @@ async function selectTrip(trip) {
   } catch (err) {
     console.error('IndexedDB error', err);
   }
-  if (!r) r = {};  // missing record → use empty object
+  if (!r) r = {};
 
-  // 7) Safely pull every field, falling back to empty string
   const asText = v => (v != null ? String(v) : '');
   const asMoney = v => (v != null ? `LKR ${Number(v).toLocaleString()}` : '');
 
-  // Date label
   let dateLabel = '';
   if (r.trip_start_time) {
     const d = new Date(
@@ -496,11 +428,9 @@ async function selectTrip(trip) {
       + 5.5 * 60 * 60 * 1000
     );
     const options = { timeZone: 'Asia/Colombo' };
-
     const day = parseInt(d.toLocaleDateString('en-US', { ...options, day: 'numeric' }));
     const weekday = d.toLocaleDateString('en-US', { ...options, weekday: 'long' });
     const time = d.toLocaleTimeString('en-US', { ...options, hour: '2-digit', minute: '2-digit', hour12: false });
-
     let suffix = 'th';
     if (day % 10 === 1 && day !== 11) suffix = 'st';
     if (day % 10 === 2 && day !== 12) suffix = 'nd';
@@ -508,7 +438,6 @@ async function selectTrip(trip) {
     dateLabel = `${day}${suffix} ${weekday} ${time}`;
   }
 
-  // Populate DOM
   document.getElementById('ownerName').textContent = dateLabel;
   document.getElementById('detailBusName').textContent = asText(r.bus_name);
   document.getElementById('detailRoute').textContent = asText(r.route_name);
@@ -526,7 +455,6 @@ async function selectTrip(trip) {
   document.getElementById('detailOffline').textContent = asText(r.number_of_tickets);
   document.getElementById('bookedCount').textContent = asText(r.booked_seats);
 
-  // Revenue status
   const statusEl = document.getElementById('detailRevenueStatus');
   if (statusEl) {
     statusEl.classList.remove('completed', 'pending');
@@ -541,43 +469,21 @@ async function selectTrip(trip) {
     }
   }
 
-  // Online sale calculations
   const onlineEarn = r.booked_revenue;
   const onlineFee = onlineEarn != null ? Math.round(onlineEarn * 0.04) : null;
   const onlineNet = (onlineEarn != null && onlineFee != null) ? onlineEarn - onlineFee : null;
-  const pctLabel = (onlineEarn > 0 && onlineFee != null)
-    ? `<small>(-${Math.round((onlineFee / onlineEarn) * 100)}%)</small>`
-    : '';
 
   document.getElementById('onlineCount').textContent = asText(r.booked_seats);
   document.getElementById('onlineEarning').textContent = asMoney(onlineEarn);
-  document.getElementById('onlineFee').innerHTML = onlineFee != null
-    ? `LKR ${onlineFee.toLocaleString()} ${pctLabel}`
-    : '';
+  document.getElementById('onlineFee').textContent = asMoney(onlineFee);
   document.getElementById('onlineRevenue').textContent = asMoney(onlineNet);
 
-  // Offline sale calculations
+  // **MODIFIED**: Removed population of offlineFee and offlineRevenue as they are no longer in the HTML
   const offlineEarn = r.tickets_revenue;
-  const offlineFee = r.number_of_tickets != null ? r.number_of_tickets * 2 : null;
-  const offlineNet = (offlineEarn != null && offlineFee != null) ? offlineEarn - offlineFee : null;
-  const offLabel = r.number_of_tickets != null
-    ? `<small>(-${r.number_of_tickets}×2)</small>`
-    : '';
-
   document.getElementById('offlineCount').textContent = asText(r.number_of_tickets);
   document.getElementById('offlineEarning').textContent = asMoney(offlineEarn);
-  document.getElementById('offlineFee').innerHTML = offlineFee != null
-    ? `LKR ${offlineFee.toLocaleString()} ${offLabel}`
-    : '';
-  document.getElementById('offlineRevenue').textContent = asMoney(offlineNet);
 
-  // Final revenue
-  const totalRev = (onlineNet != null && offlineNet != null)
-    ? onlineNet + offlineNet
-    : null;
-  //document.getElementById('finalRevenue').textContent = asMoney(totalRev);
-
-  // 8) Finally show offline tickets for the loaded record
+  // **MODIFIED**: Setup the offline tickets button for the current trip
   getTicketsInfo(r);
 }
 
@@ -588,13 +494,10 @@ async function getBookingsInfo(trip) {
   let db;
 
   try {
-    // openBusAppDB() should return a Promise<IDBDatabase>
     db = await openBusAppDB();
   } catch (err) {
     console.error('Error opening DB', err);
-    const result = { seatType, bookings: [] };
-    console.log('Returning (DB open error):', result);
-    return result;
+    return { seatType, bookings: [] };
   }
 
   const tx = db.transaction('trips', 'readonly');
@@ -609,18 +512,13 @@ async function getBookingsInfo(trip) {
     });
   } catch (err) {
     console.error(`Error fetching trip ${currentTripId}`, err);
-    const result = { seatType, bookings: [] };
-    console.log('Returning (fetch error):', result);
-    return result;
+    return { seatType, bookings: [] };
   }
 
   if (!tripRecord || !Array.isArray(tripRecord.bookings) || tripRecord.bookings.length === 0) {
-    const result = { seatType, bookings: [] };
-    console.log('Returning (no bookings):', result);
-    return result;
+    return { seatType, bookings: [] };
   }
 
-  // Map bookings to an array of detail objects
   const bookings = tripRecord.bookings.map(({ seat_number, start_point, end_point, booked }) => ({
     seat_number,
     start_point,
@@ -628,14 +526,9 @@ async function getBookingsInfo(trip) {
     booked
   }));
 
-  const result = { seatType, bookings };
-  console.log('Returning:', result);
-  return result;
+  return { seatType, bookings };
 }
 
-
-
-// POST to toggle-machine-button
 async function toggleMachine(busId, isOn) {
   try {
     const res = await authFetch(`${baseUrl}/bus-owners/toggle-machine-button/`, {
@@ -646,17 +539,13 @@ async function toggleMachine(busId, isOn) {
         status: isOn ? 'on' : 'off'
       })
     });
-    // Add this check to ensure the function exits if a redirect occurred.
     if (!res) return;
-
   } catch (err) {
     console.error('Failed to toggle machine', err);
   }
 }
 
-
 function renderRevenueChart(trips) {
-  // 1. Build the X-axis labels (HH:MM) and the two data arrays
   const labels = trips.map(t => {
     const d = new Date(
       new Date(t.trip_start_time).getTime()
@@ -678,32 +567,25 @@ function renderRevenueChart(trips) {
   const bookedData = trips.map(t => t.booked_revenue);
   const ticketsData = trips.map(t => t.tickets_revenue);
 
-  // 2. Grab the canvas context
   const ctx = document.getElementById('revenueChart').getContext('2d');
 
-  // 3. If there’s an existing chart instance, destroy it to avoid overlaps
   if (window.revenueChart?.destroy) {
     window.revenueChart.destroy();
   }
 
-  // 4. Create a new Chart.js bar chart
   window.revenueChart = new Chart(ctx, {
     type: 'bar',
-    backgroundColor: 'white',
     data: {
       labels,
       datasets: [
         {
           label: 'Booked Revenue',
           data: bookedData,
-
-          labelColor: 'white',
           backgroundColor: getComputedStyle(document.documentElement)
             .getPropertyValue('--blue').trim()
         },
         {
           label: 'Tickets Revenue',
-
           data: ticketsData,
           backgroundColor: getComputedStyle(document.documentElement)
             .getPropertyValue('--dark-blue').trim()
@@ -719,22 +601,17 @@ function renderRevenueChart(trips) {
   });
 }
 
-// ******************************************************* Add Bus Trips Function ***********************************************************************************************
-
+// Add Bus Trips Functionality
 let selectedRoute = null;
 
-// Find and replace this event listener
 const addTripBtn = document.getElementById('addTripButton');
 if (addTripBtn) {
   addTripBtn.addEventListener('click', () => {
     const bus = window.currentBusData;
-    // --- NEW LOGIC ---
     if (bus && bus.is_approved === false) {
-      // If the bus is explicitly NOT approved, show the approval modal
       const approvalModal = document.getElementById('approvalModal');
       if (approvalModal) approvalModal.style.display = 'block';
     } else {
-      // Otherwise, proceed as normal
       const modal = document.getElementById('addTripModal');
       if (modal) modal.style.display = 'block';
     }
@@ -777,8 +654,6 @@ if (routeInput) {
         `${baseUrl}/core/routes/?route_name=${encodeURIComponent(query)}`
       );
       const routes = await res.json();
-
-      // **FIX**: Prevent duplicate route suggestions
       const uniqueRoutes = [...new Map(routes.map(route => [route.route_name, route])).values()];
 
       uniqueRoutes.forEach(route => {
@@ -802,33 +677,24 @@ if (addTripForm) {
   addTripForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // **IMPROVEMENT**: Read from new date and time inputs
     const tripDate = document.getElementById('tripDateInput').value;
     const tripTime = document.getElementById('tripTimeInput').value;
     const booking_price = parseInt(document.getElementById('bookingPriceInput').value);
 
-    // Validate date and time are not empty
     if (!tripDate || !tripTime) {
       alert('Please select both a date and a time for the trip.');
       return;
     }
 
-    // **IMPROVEMENT**: Convert local Sri Lanka time to UTC
-    // 1. Combine date and time into a single string.
     const localDateTimeString = `${tripDate}T${tripTime}:00`;
-
-    // 2. Create a Date object assuming SL time (+05:30) and convert to ISO string (UTC)
-    // The 'Z' at the end of the toISOString() output indicates UTC.
     const trip_start_time_utc = new Date(localDateTimeString + '+05:30').toISOString();
 
     try {
       const bus = window.currentBusData;
-
       if (!bus) {
         alert("Bus data not loaded. Please select a bus first.");
         return;
       }
-
       if (!selectedRoute) {
         alert('Please select a route from the suggestions.');
         return;
@@ -837,7 +703,7 @@ if (addTripForm) {
       const postData = {
         route_id: selectedRoute.route_id,
         route_name: selectedRoute.route_name,
-        trip_start_time: trip_start_time_utc, // Send UTC time to backend
+        trip_start_time: trip_start_time_utc,
         booking_price,
         bus_id: bus._id,
         bus_number: bus.bus_number,
@@ -854,13 +720,12 @@ if (addTripForm) {
         body: JSON.stringify(postData)
       });
 
-      // Add this check before trying to access the .ok property.
       if (!res) return;
 
       if (res.ok) {
         alert('Trip added successfully!');
         document.getElementById('addTripModal').style.display = 'none';
-        addTripForm.reset(); // Reset form fields
+        addTripForm.reset();
         await switchBus(currentBusId);
       } else {
         const errorText = await res.text();
@@ -873,14 +738,10 @@ if (addTripForm) {
   });
 }
 
-
-
-// Find and replace this event listener
 const placeholderAddTripBtn = document.getElementById('placeholderAddTripButton');
 if (placeholderAddTripBtn) {
   placeholderAddTripBtn.addEventListener('click', () => {
     const bus = window.currentBusData;
-    // --- NEW LOGIC (Identical to the other button) ---
     if (bus && bus.is_approved === false) {
       const approvalModal = document.getElementById('approvalModal');
       if (approvalModal) approvalModal.style.display = 'block';
@@ -891,7 +752,6 @@ if (placeholderAddTripBtn) {
   });
 }
 
-// Add this new block of code for the approval modal
 const closeApprovalBtn = document.getElementById('closeApprovalModal');
 if (closeApprovalBtn) {
   closeApprovalBtn.addEventListener('click', () => {
