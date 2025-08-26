@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Google Fonts for a clean look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -91,11 +91,19 @@
          * Processes data to create a dataset for each ticket, allowing individual coloring.
          */
         function processChartData(tickets, routeInfo) {
-            // 1. Define the color spectrum from a very light pink to a deep red.
+            // 1. Define the new, more distinguishable color spectrum.
+            // This spectrum goes from Red -> Orange -> Yellow -> Green -> Blue
             const colorSpectrum = [
-                '#FFEBEE', '#FFCDD2', '#EF9A9A', '#E57373',
-                '#EF5350', '#F44336', '#D32F2F', '#B71C1C'
+                '#d73027', // Strong Red
+                '#fc8d59', // Orange
+                '#fee090', // Light Yellow
+                '#e0f3f8', // Very Light Blue/Green
+                '#91bfdb', // Light Blue
+                '#4575b4', // Blue
+                '#313695', // Dark Blue
+                '#542788'  // Purple for the highest tier
             ];
+
 
             // 2. Get booking_price and calculate the size of each price group.
             const bookingPrice = tickets[0]?.booking_price || 0;
