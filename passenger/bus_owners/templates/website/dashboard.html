@@ -6,32 +6,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet" />
-    <!-- Phosphor Icons for the hamburger menu -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" />
 </head>
 
 <body>
     <div class="dashboard">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
-            <!-- The original sidebar content is included here -->
             {% include 'website/sidebar.html' %}
         </aside>
 
-        <!-- Main content -->
-        <section class="main-content" id="mainContent">
-            <!-- Sidebar Toggle Button -->
-            <button class="sidebar-toggle" id="sidebarToggle">
-                <i class="ph-bold ph-list"></i>
-            </button>
+        <main class="main-content" id="mainContent">
+            <header class="main-header">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="ph-bold ph-list"></i>
+                </button>
+                <h1 class="main-title">Dashboard</h1>
+            </header>
 
             <div id="busSelection">
-                <!-- Bus buttons will be dynamically inserted here -->
             </div>
 
-            <div class="content-wrapper" style="position:relative;">
+            <div class="content-wrapper">
                 <div id="loadingOverlay" class="loading-overlay hidden">
                     <div id="loadingContent" class="loading-content">
                         <div id="loadingText">Fetching Your Data</div>
@@ -57,10 +53,11 @@
                         <span class="toggle-label">Ticket Machine</span>
                     </div>
 
-                    <!-- Bus Details-->
-                    <div class="details-panel">
-                        <div class="bus-card">
-                            <div class="detail-title" id="ownerName">-</div>
+                    <div class="details-panel card">
+                        <div class="card-header">
+                            <h3 class="detail-title" id="ownerName">-</h3>
+                        </div>
+                        <div class="card-body">
                             <div class="row">
                                 <div class="detail-item">
                                     <span class="label">Bus Name</span>
@@ -81,11 +78,11 @@
                                     <span class="value" id="detailBookingPrice">-</span>
                                 </div>
                                 <div class="detail-item">
-                                    <span class="label">Online</span>
+                                    <span class="label">Online Bookings</span>
                                     <span class="value" id="detailOnline">-</span>
                                 </div>
                                 <div class="detail-item">
-                                    <span class="label">Offline</span>
+                                    <span class="label">Offline Tickets</span>
                                     <span class="value" id="detailOffline">-</span>
                                 </div>
                                 <div class="detail-item">
@@ -96,58 +93,59 @@
                         </div>
                     </div>
 
-                    <!-- Chart.js CDN -->
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
                     <div class="revenue-details-wrapper">
-                        <h1 class="revenue-title">Revenue Summary</h1>
-                        <div class="graph-placeholder">
+                        <h2 class="section-title">Revenue Summary</h2>
+                        <div class="card graph-card">
                             <canvas id="revenueChart"></canvas>
                         </div>
 
                         <div class="revenue-content">
-                            <!-- Online Section -->
-                            <div class="online-revenue">
-                                <h1 class="online-title">Online</h1>
-                                <div class="row">
-                                    <div class="revenue-item">
-                                        <span class="label">Bookings</span>
-                                        <span class="value" id="onlineCount">-</span>
+                            <div class="card online-revenue">
+                                <h3 class="card-title">Online</h3>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="revenue-item">
+                                            <span class="label">Bookings</span>
+                                            <span class="value" id="onlineCount">-</span>
+                                        </div>
+                                        <div class="revenue-item">
+                                            <span class="label">Earning</span>
+                                            <span class="value" id="onlineEarning">-</span>
+                                        </div>
                                     </div>
-                                    <div class="revenue-item">
-                                        <span class="label">Earning</span>
-                                        <span class="value" id="onlineEarning">-</span>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="revenue-item">
-                                        <span class="label">Developer Cut</span>
-                                        <span class="value" id="onlineFee">-</span>
-                                    </div>
-                                    <div class="revenue-item">
-                                        <span class="label">Clean Revenue</span>
-                                        <span class="value" id="onlineRevenue">-</span>
+                                    <div class="row">
+                                        <div class="revenue-item">
+                                            <span class="label">Platform Fee (4%)</span>
+                                            <span class="value" id="onlineFee">-</span>
+                                        </div>
+                                        <div class="revenue-item">
+                                            <span class="label">Net Revenue</span>
+                                            <span class="value" id="onlineRevenue">-</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="action-buttons">
                                     <button id="viewSeatLayoutBtn" class="action-btn">View Seat Layout</button>
                                 </div>
                             </div>
-                            <!-- Offline Section -->
-                            <div class="offline-revenue">
-                                <h1 class="offline-title">Offline</h1>
-                                <div class="row">
-                                    <div class="revenue-item">
-                                        <span class="label">Tickets</span>
-                                        <span class="value" id="offlineCount">-</span>
-                                    </div>
-                                    <div class="revenue-item">
-                                        <span class="label">Earning</span>
-                                        <span class="value" id="offlineEarning">-</span>
+                            <div class="card offline-revenue">
+                                <h3 class="card-title">Offline</h3>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="revenue-item">
+                                            <span class="label">Tickets</span>
+                                            <span class="value" id="offlineCount">-</span>
+                                        </div>
+                                        <div class="revenue-item">
+                                            <span class="label">Earning</span>
+                                            <span class="value" id="offlineEarning">-</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="action-buttons">
-                                    <button id="offlineSectionBtn" class="action-btn">Offline Tickets</button>
+                                    <button id="offlineSectionBtn" class="action-btn">View Offline Tickets</button>
                                     <a id="ticketGraphBtn" class="action-btn" href="#"
                                         data-url-template="{% url 'ticket_graph' trip_id='__ID__' %}">
                                         View Tickets Graph
@@ -158,17 +156,15 @@
                     </div>
                 </div>
 
-                <!-- Placeholder shown only when no trips -->
-                <div id="noTripsPlaceholder" class="hidden">
-                    <img src={% static "images/7967793_3819552.jpg" %} class="oops-img" alt="No trips">
-                    <br>
-                    <h1>Oops! No trips</h1>
-                    <button id="placeholderAddTripButton" class="add-trip">Add a Trip</button>
+                <div id="noTripsPlaceholder" class="placeholder-container hidden">
+                    <img src="{% static 'images/7967793_3819552.jpg' %}" class="placeholder-img" alt="No trips">
+                    <h2 class="placeholder-title">Oops! No Trips Found</h2>
+                    <p class="placeholder-text">There are no scheduled trips for this bus yet.</p>
+                    <button id="placeholderAddTripButton" class="add-trip">Add Your First Trip</button>
                 </div>
             </div>
-        </section>
+        </main>
 
-        <!-- Modals -->
         <div id="seatModal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
@@ -176,17 +172,17 @@
                 <p>Booked seats: <span id="bookedCount">0</span></p>
                 <div id="seatLayout">Seat layout placeholder</div>
                 <div class="seat-legend">
-                    <div class="col">
+                    <div class="legend-item">
                         <span class="legend-swatch booked"></span>
-                        <p>Booked</p>
+                        <span>Booked</span>
                     </div>
-                    <div class="col">
+                    <div class="legend-item">
                         <span class="legend-swatch available"></span>
-                        <p>Available</p>
+                        <span>Available</span>
                     </div>
-                    <div class="col">
+                    <div class="legend-item">
                         <span class="legend-swatch jumper"></span>
-                        <p>Jumper Seat</p>
+                        <span>Jumper Seat</span>
                     </div>
                 </div>
             </div>
@@ -206,16 +202,16 @@
                 <h3 class="modal-title">Add New Trip</h3>
                 <form id="addTripForm">
                     <label for="routeSearchInput">Search Route:</label>
-                    <input type="text" id="routeSearchInput" placeholder="Type route name..." autocomplete="off"
-                        required>
+                    <input type="text" id="routeSearchInput" placeholder="Type to search for a route..."
+                        autocomplete="off" required>
                     <div id="routeSuggestions" class="suggestions-list"></div>
                     <label for="tripDateInput">Trip Date:</label>
                     <input type="date" id="tripDateInput" required>
                     <label for="tripTimeInput">Trip Time:</label>
                     <input type="time" id="tripTimeInput" required>
-                    <label for="bookingPriceInput">Booking Price:</label>
-                    <input type="number" id="bookingPriceInput" required>
-                    <button type="submit" class="submit-btn">Submit</button>
+                    <label for="bookingPriceInput">Booking Price (LKR):</label>
+                    <input type="number" id="bookingPriceInput" placeholder="e.g., 1500" required>
+                    <button type="submit" class="submit-btn">Create Trip</button>
                 </form>
             </div>
         </div>
@@ -233,7 +229,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script type="module" src="{% static 'js/dashboard.js' %}"></script>
     <script type="module">
         import { seatLayouts } from "{% static 'js/seatLayout.js' %}";

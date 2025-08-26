@@ -5,70 +5,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="{% static 'css/sidebar.css' %}" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <title>Sidebar</title>
 </head>
 
 <body>
   <aside class="sidebar">
-    <div class="sidebar-container">
-      <!-- Logo -->
-      <div class="logo" id="companyName">
-        <h2 id="bus_name">-</h2>
-      </div>
+    <div class="logo">
+      <h2 id="companyName">-</h2>
+    </div>
 
-      <!-- Select Bus -->
-      <div class="sidebar-content">
+    <div class="sidebar-content">
+      <nav class="nav-links">
+        <ul>
+          <li><a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt fa-fw"></i><span>Dashboard</span></a></li>
+          <li><a href="{% url 'ownerDetails' %}"><i class="fas fa-user fa-fw"></i><span>Manage User</span></a></li>
+          <li><a href="{% url 'manageBusses' %}"><i class="fas fa-bus fa-fw"></i><span>Manage Bus</span></a></li>
+        </ul>
+      </nav>
 
-
-        <!-- Main Navigation Links -->
-        <nav class="nav-links">
-          <ul>
-            <li><a href="{% url 'dashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-            <li><a href="{% url 'ownerDetails' %}"><i class="fas fa-user"></i> Manage User</a></li>
-            <li><a href="{% url 'manageBusses' %}"><i class="fas fa-cogs"></i> Manage Bus</a></li>
-
-          </ul>
-        </nav>
-
-        <!-- Logout Button at Bottom -->
-        <div class="logout">
-
-          <a href="#" class="logout-btn"><i class="fas fa-power-off "></i> Logout</a>
-        </div>
+      <div class="sidebar-footer">
+        <a href="#" class="logout-btn"><i class="fas fa-power-off fa-fw"></i><span>Logout</span></a>
       </div>
     </div>
   </aside>
 
-
   <script type="module" src="{% static 'js/dashboard.js' %}"></script>
   <script>
-    // Wait for the DOM to be ready
     document.addEventListener('DOMContentLoaded', () => {
-      // strip trailing slash & lowercase
       const currentPath = window.location.pathname.replace(/\/$/, '').toLowerCase();
 
-      document
-        .querySelectorAll('aside.sidebar nav ul li a')
-        .forEach(link => {
-          const linkPath = new URL(link.href)
-            .pathname
-            .replace(/\/$/, '')
-            .toLowerCase();
+      document.querySelectorAll('aside.sidebar nav ul li a').forEach(link => {
+        const linkPath = new URL(link.href).pathname.replace(/\/$/, '').toLowerCase();
 
-          // exact match OR currentPath is a sub-path of linkPath
-          if (
-            currentPath === linkPath ||
-            currentPath.startsWith(linkPath + '/')
-          ) {
-            link.classList.add('active');
-          }
-        });
+        if (currentPath === linkPath || (linkPath !== '/web' && currentPath.startsWith(linkPath))) {
+          link.classList.add('active');
+        }
+      });
     });
-
-
   </script>
 </body>
 

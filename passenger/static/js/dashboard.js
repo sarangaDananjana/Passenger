@@ -172,18 +172,21 @@ async function switchBus(busId) {
   const noTripsPlaceholder = document.getElementById('noTripsPlaceholder');
 
   overlay.classList.remove('hidden');
-  detailsSection.classList.remove('hidden');
+  detailsSection.classList.add('hidden'); // Hide details until loaded
   noTripsPlaceholder.classList.add('hidden');
 
   progressBar.style.width = '0%';
   loadingText.textContent = 'Fetching Your Data';
 
-  detailsSection.querySelector('#tripSelection').innerHTML = '';
+  if (detailsSection) {
+    const tripSelection = detailsSection.querySelector('#tripSelection');
+    if (tripSelection) tripSelection.innerHTML = '';
+  }
+
   clearIndexedDB();
 
   const totalDuration = 2000;
   const timerPromise = new Promise(r => setTimeout(r, totalDuration));
-  panel.classList.remove('open');
 
   const fetchPromise = authFetch(
     `${baseUrl}/bus-owners/bus-trip-details/?bus_id=${busId}`
@@ -233,6 +236,8 @@ async function switchBus(busId) {
     return;
   }
 
+  detailsSection.classList.remove('hidden');
+
   saveTripsToDB(trips, () => {
     const toggle = document.getElementById('machineToggle');
     toggle.checked = !!bus.machine;
@@ -262,7 +267,7 @@ function renderTripButtons(trips) {
     const options = { timeZone: 'Asia/Colombo' };
 
     const day = parseInt(d.toLocaleDateString('en-US', { ...options, day: 'numeric' }));
-    const weekday = d.toLocaleDateString('en-US', { ...options, weekday: 'long' });
+    const weekday = d.toLocaleDateString('en-US', { ...options, weekday: 'short' });
     const time = d.toLocaleTimeString('en-US', { ...options, hour: '2-digit', minute: '2-digit', hour12: false });
 
     let suffix = 'th';
@@ -317,13 +322,13 @@ function getTicketsInfo(trip) {
       });
 
       if (!tripRecord) {
-        listContainer.innerHTML = `<div>No offline data for this trip.</div>`;
+        listContainer.innerHTML = `<p>No offline data for this trip.</p>`;
         offlineModal.classList.add('show');
         return;
       }
 
       if (!Array.isArray(tripRecord.tickets) || tripRecord.tickets.length === 0) {
-        listContainer.innerHTML = `<div>No tickets have been saved offline for this trip.</div>`;
+        listContainer.innerHTML = `<p>No tickets have been saved offline for this trip.</p>`;
         offlineModal.classList.add('show');
         return;
       }
@@ -391,7 +396,7 @@ async function selectTrip(trip) {
 
   const clearText = id => {
     const el = document.getElementById(id);
-    if (el) el.textContent = '';
+    if (el) el.textContent = '-';
   };
 
   if (!currentTripId) {
@@ -404,7 +409,7 @@ async function selectTrip(trip) {
 
     const statusEl = document.getElementById('detailRevenueStatus');
     if (statusEl) {
-      statusEl.textContent = '';
+      statusEl.textContent = '-';
       statusEl.classList.remove('completed', 'pending');
     }
     return;
@@ -430,10 +435,10 @@ async function selectTrip(trip) {
   }
   if (!r) r = {};
 
-  const asText = v => (v != null ? String(v) : '');
-  const asMoney = v => (v != null ? `LKR ${Number(v).toLocaleString()}` : '');
+  const asText = (v, fallback = '-') => (v != null && v !== '' ? String(v) : fallback);
+  const asMoney = (v, fallback = '-') => (v != null ? `LKR ${Number(v).toLocaleString()}` : fallback);
 
-  let dateLabel = '';
+  let dateLabel = '-';
   if (r.trip_start_time) {
     const d = new Date(
       new Date(r.trip_start_time).getTime()
@@ -447,7 +452,7 @@ async function selectTrip(trip) {
     if (day % 10 === 1 && day !== 11) suffix = 'st';
     if (day % 10 === 2 && day !== 12) suffix = 'nd';
     if (day % 10 === 3 && day !== 13) suffix = 'rd';
-    dateLabel = `${day}${suffix} ${weekday} ${time}`;
+    dateLabel = `Trip Details for ${day}${suffix} ${weekday}, ${time}`;
   }
 
   document.getElementById('ownerName').textContent = dateLabel;
@@ -458,10 +463,8 @@ async function selectTrip(trip) {
       new Date(r.trip_start_time).getTime()
       + 5.5 * 60 * 60 * 1000
     ).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo' })
-    : '';
-  document.getElementById('detailBookingPrice').textContent = r.booking_price != null
-    ? `Rs. ${r.booking_price}`
-    : '';
+    : '-';
+  document.getElementById('detailBookingPrice').textContent = asMoney(r.booking_price);
 
   document.getElementById('detailOnline').textContent = asText(r.booked_seats);
   document.getElementById('detailOffline').textContent = asText(r.number_of_tickets);
@@ -477,7 +480,7 @@ async function selectTrip(trip) {
       statusEl.textContent = 'Pending';
       statusEl.classList.add('pending');
     } else {
-      statusEl.textContent = '';
+      statusEl.textContent = '-';
     }
   }
 
@@ -557,27 +560,21 @@ async function toggleMachine(busId, isOn) {
 
 function renderRevenueChart(trips) {
   const labels = trips.map(t => {
-    const d = new Date(
-      new Date(t.trip_start_time).getTime()
-      + 5.5 * 60 * 60 * 1000
-    );
-    const datePart = d.toLocaleDateString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      timeZone: 'Asia/Colombo'
-    });
-    const timePart = d.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      timeZone: 'Asia/Colombo'
-    });
-    return `${datePart} ${timePart}`;
+    const d = new Date(new Date(t.trip_start_time).getTime() + 5.5 * 60 * 60 * 1000);
+    const datePart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'Asia/Colombo' });
+    return datePart;
   });
-  const bookedData = trips.map(t => t.booked_revenue);
-  const ticketsData = trips.map(t => t.tickets_revenue);
+  const bookedData = trips.map(t => t.booked_revenue || 0);
+  const ticketsData = trips.map(t => t.tickets_revenue || 0);
 
   const ctx = document.getElementById('revenueChart').getContext('2d');
+
+  // UI improvement: Get colors from CSS variables for consistency
+  const style = getComputedStyle(document.documentElement);
+  const primaryColor = style.getPropertyValue('--primary-color').trim();
+  const secondaryColor = '#2ac769'; // Green for offline tickets
+  const textColor = style.getPropertyValue('--text-secondary').trim();
+  const gridColor = style.getPropertyValue('--border-color').trim();
 
   if (window.revenueChart?.destroy) {
     window.revenueChart.destroy();
@@ -589,23 +586,63 @@ function renderRevenueChart(trips) {
       labels,
       datasets: [
         {
-          label: 'Booked Revenue',
+          label: 'Online Revenue',
           data: bookedData,
-          backgroundColor: getComputedStyle(document.documentElement)
-            .getPropertyValue('--blue').trim()
+          backgroundColor: primaryColor,
+          borderRadius: 4,
         },
         {
-          label: 'Tickets Revenue',
+          label: 'Offline Revenue',
           data: ticketsData,
-          backgroundColor: getComputedStyle(document.documentElement)
-            .getPropertyValue('--dark-blue').trim()
+          backgroundColor: secondaryColor,
+          borderRadius: 4,
         }
       ]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: textColor,
+            font: {
+              family: "'Poppins', sans-serif",
+              size: 14
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: '#2C2F38',
+          titleFont: { size: 14, family: "'Poppins', sans-serif" },
+          bodyFont: { size: 12, family: "'Poppins', sans-serif" },
+          callbacks: {
+            label: function (context) {
+              let label = context.dataset.label || '';
+              if (label) {
+                label += ': ';
+              }
+              if (context.parsed.y !== null) {
+                label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'LKR' }).format(context.parsed.y);
+              }
+              return label;
+            }
+          }
+        }
+      },
       scales: {
-        x: { stacked: true },
-        y: { stacked: true, beginAtZero: true }
+        x: {
+          stacked: true,
+          ticks: { color: textColor, font: { family: "'Poppins', sans-serif" } },
+          grid: { color: 'transparent' }
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          ticks: { color: textColor, font: { family: "'Poppins', sans-serif" } },
+          grid: { color: gridColor, borderDash: [2, 4] }
+        }
       }
     }
   });
