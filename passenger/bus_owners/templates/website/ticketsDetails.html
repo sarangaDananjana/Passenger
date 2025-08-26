@@ -122,7 +122,10 @@
             );
             const pointIndexMap = new Map(orderedBoardingPoints.map((point, i) => [point, i]));
 
-            const datasets = tickets.map(ticket => {
+            // Sort tickets by price in descending order to stack expensive tickets at the bottom.
+            const sortedTickets = tickets.sort((a, b) => b.ticket_price - a.ticket_price);
+
+            const datasets = sortedTickets.map(ticket => {
                 let groupIndex = Math.floor((ticket.ticket_price - 1) / priceGroupSize);
                 groupIndex = Math.max(0, Math.min(7, groupIndex));
                 const ticketColor = colorSpectrum[groupIndex];
