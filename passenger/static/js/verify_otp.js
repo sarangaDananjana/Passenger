@@ -1,87 +1,87 @@
-import { baseUrl } from './auth.js';
-// Allow only numbers
-function isNumberKey(evt) {
-    const charCode = evt.which ? evt.which : evt.keyCode;
-    return charCode >= 48 && charCode <= 57;
-}
+import { setCookie, baseUrl } from './auth.js';
 
-// Move to next input on entry
-function moveToNext(current, nextFieldId) {
-    if (current.value.length === 1) {
-        document.getElementById(nextFieldId).focus();
+document.addEventListener('DOMContentLoaded', () => {
+    const otpForm = document.getElementById('otpForm');
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const submitBtn = document.querySelector('.submit-btn');
+
+    if (otpForm) {
+        otpForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.textContent = 'Verifying...';
+            submitBtn.disabled = true;
+
+            // Combine the OTP digits from the input fields
+            let otp = '';
+            otpInputs.forEach(input => {
+                otp += input.value;
+            });
+
+            // Retrieve the phone number from session storage (saved from the previous page)
+            const phoneNumber = sessionStorage.getItem('phoneNumber');
+            if (!phoneNumber) {
+                alert('Phone number not found. Please go back and try again.');
+                submitBtn.textContent = 'Verify';
+                submitBtn.disabled = false;
+                return;
+            }
+
+            try {
+                // Send the OTP and phone number to your verification endpoint
+                const res = await fetch(`${baseUrl}/bus-owners/verify-otp/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        phone_number: phoneNumber,
+                        otp: otp
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+
+                    // Assuming the server responds with access and refresh tokens
+                    if (data.access_token && data.refresh_token) {
+                        // Use the setCookie function from auth.js to store the tokens
+                        setCookie('access_token', data.access_token, 7);
+                        setCookie('refresh_token', data.refresh_token, 30);
+
+                        // Redirect to the dashboard upon successful login
+                        window.location.href = '/bus-owners/web/dashboard/';
+                    } else {
+                        throw new Error('Tokens not found in response.');
+                    }
+                } else {
+                    const errorData = await res.json();
+                    alert(`Verification failed: ${errorData.detail || 'Invalid OTP'}`);
+                }
+            } catch (error) {
+                console.error('An error occurred during OTP verification:', error);
+                alert('An error occurred. Please try again.');
+            } finally {
+                submitBtn.textContent = 'Verify';
+                submitBtn.disabled = false;
+            }
+        });
     }
-}
 
-// Handle OTP verification
-document.querySelector("button").addEventListener("click", async () => {
-    const phoneNumber = localStorage.getItem("phone_number");
-    if (!phoneNumber) {
-        alert("Phone number not found. Please go back and login again.");
-        return;
-    }
-    // You can get this from localStorage or previous page
-
-    // Read OTP digits and form full code
-    const otp = Array.from({ length: 6 }, (_, i) =>
-        document.getElementById(`otp${i + 1}`).value
-    ).join("");
-
-    if (!/^\d{6}$/.test(otp)) {
-        alert("Please enter a valid 6-digit OTP.");
-        return;
-    }
-
-    // Optional: Parse and log individual token values
-    function getCookieValue(name) {
-        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-        return match ? match[2] : null;
-    }
-
-    try {
-        const response = await fetch(`${baseUrl}/bus-owners/verify-otp/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                phone_number: phoneNumber,
-                otp_code: otp
-            })
+    // Auto-focus logic for OTP inputs
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', () => {
+            // Ensure only numbers are entered and move to the next input
+            input.value = input.value.replace(/[^0-9]/g, '');
+            if (input.value.length === 1 && index < otpInputs.length - 1) {
+                otpInputs[index + 1].focus();
+            }
         });
 
-        if (!response.ok) {
-            const err = await response.json();
-            alert("OTP verification failed: " + (err.detail || "Unknown error"));
-            return;
-        }
-
-        const data = await response.json();
-
-        // ✅ Store tokens in cookies (expires in 1 day)
-        document.cookie = `access_token=${encodeURIComponent(data.access)}; path=/; max-age=86400`;
-        document.cookie = `refresh_token=${encodeURIComponent(data.refresh)}; path=/; max-age=86400`;
-
-        const savedAccess = getCookieValue("access_token");
-        const savedRefresh = getCookieValue("refresh_token");
-
-        /* if (savedAccess && savedRefresh) {
-           alert("Access and Refresh tokens saved successfully in cookies! 🎉");
-         } else {
-           alert("❌ Failed to save tokens in cookies.");
-         }*/
-        console.log("All cookies:", document.cookie);
-        console.log("Access Token:", getCookieValue("access_token"));
-        console.log("Refresh Token:", getCookieValue("refresh_token"));
-
-        setTimeout(() => {
-            console.log("Cookie Check:", document.cookie);
-        }, 500);
-
-
-        // ✅ Redirect to dashboard or success page
-        window.location.href = "/bus-owners/web/dashboard/";
-
-    } catch (err) {
-        alert("Network error: " + err.message);
-    }
+        input.addEventListener('keydown', (e) => {
+            // Move to the previous input on backspace if the current input is empty
+            if (e.key === 'Backspace' && !input.value && index > 0) {
+                otpInputs[index - 1].focus();
+            }
+        });
+    });
 });
