@@ -1,45 +1,30 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <link rel="stylesheet" href="assets/css/btn.css">
-  <link rel="stylesheet" href="assets/css/main.css">
-  <title>Verify OTP</title>
-</head>
-
-<body class="bg-black h-screen flex items-center justify-center">
-  <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-sm">
-    <h2 class="text-xl font-semibold text-center mb-4 text-white">Enter OTP</h2>
-    <form class="flex justify-between space-x-2">
-      <input type="text" maxlength="1" oninput="moveToNext(this, 'otp2')" onkeypress="return isNumberKey(event)"
-        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-        id="otp1" autofocus>
-      <input type="text" maxlength="1" oninput="moveToNext(this, 'otp3')" onkeypress="return isNumberKey(event)"
-        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-        id="otp2">
-      <input type="text" maxlength="1" oninput="moveToNext(this, 'otp4')" onkeypress="return isNumberKey(event)"
-        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-        id="otp3">
-      <input type="text" maxlength="1" oninput="moveToNext(this, 'otp5')" onkeypress="return isNumberKey(event)"
-        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-        id="otp4">
-      <input type="text" maxlength="1" oninput="moveToNext(this, 'otp6')" onkeypress="return isNumberKey(event)"
-        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-        id="otp5">
-      <input type="text" maxlength="1" onkeypress="return isNumberKey(event)"
-        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-        id="otp6">
-    </form>
-    <button class="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">Verify</button>
-  </div>
+type="text"
+maxlength="1"
+oninput="moveToNext(this, 'otp2')"
+onkeypress="return isNumberKey(event)"
+class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+id="otp1"
+autofocus
+/>
+<input type="text" maxlength="1" oninput="moveToNext(this, 'otp3')" onkeypress="return isNumberKey(event)"
+  class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" id="otp2" />
+<input type="text" maxlength="1" oninput="moveToNext(this, 'otp4')" onkeypress="return isNumberKey(event)"
+  class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" id="otp3" />
+<input type="text" maxlength="1" oninput="moveToNext(this, 'otp5')" onkeypress="return isNumberKey(event)"
+  class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" id="otp4" />
+<input type="text" maxlength="1" oninput="moveToNext(this, 'otp6')" onkeypress="return isNumberKey(event)"
+  class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" id="otp5" />
+<input type="text" maxlength="1" onkeypress="return isNumberKey(event)"
+  class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500" id="otp6" />
+</form>
+<button id="verifyBtn" type="button"
+  class="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
+  Verify
+</button>
+</div>
 </body>
+
 
 <script type="module" src="{% static 'js/verify_otp.js' %}"></script>
 
