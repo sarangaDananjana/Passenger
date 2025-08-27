@@ -5,157 +5,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/btn.css">
+  <link rel="stylesheet" href="assets/css/main.css">
   <title>Verify OTP</title>
-
-  <!-- Using Poppins font from dashboard -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    /* Using color variables from dashboard.css */
-    :root {
-      --primary-color: #00D0FF;
-      --primary-hover: #38afff;
-      --red: #e74c3c;
-      --bg-main: #22252D;
-      --bg-content: #2C2F38;
-      --bg-card: #363942;
-      --text-primary: #F5F7FA;
-      --text-secondary: #A5A5A5;
-      --border-color: #4C4F59;
-    }
-
-    /* Page reset and background */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--bg-content);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      color: var(--text-primary);
-    }
-
-    /* Main container for the form */
-    .auth-container {
-      background-color: var(--bg-card);
-      padding: 2.5rem;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 480px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--border-color);
-      text-align: center;
-    }
-
-    h2 {
-      font-size: 1.75rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 0.5rem;
-    }
-
-    p {
-      color: var(--text-secondary);
-      margin-bottom: 2rem;
-    }
-
-    .otp-form {
-      display: flex;
-      justify-content: center;
-      gap: 0.75rem;
-      margin-bottom: 2rem;
-    }
-
-    /* Styling for OTP input boxes */
-    .otp-input {
-      width: 50px;
-      height: 50px;
-      text-align: center;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      background-color: var(--bg-content);
-      color: var(--text-primary);
-      font-size: 1.5rem;
-      font-weight: 600;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .otp-input:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(0, 208, 255, 0.2);
-    }
-
-    /* Hide spinner from number input */
-    .otp-input::-webkit-inner-spin-button,
-    .otp-input::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    .otp-input {
-      -moz-appearance: textfield;
-    }
-
-    /* Submit button styling */
-    .submit-btn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      background-color: var(--primary-color);
-      color: var(--bg-main);
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s, transform 0.2s;
-    }
-
-    .submit-btn:hover {
-      background-color: var(--primary-hover);
-      transform: translateY(-2px);
-    }
-  </style>
 </head>
 
-<body>
-
-  <div class="auth-container">
-    <h2>Enter Verification Code</h2>
-    <p>We have sent an OTP to your mobile number.</p>
-    <form id="otpForm" class="otp-form">
-      <input type="number" class="otp-input" id="otp1" maxlength="1" required autofocus>
-      <input type="number" class="otp-input" id="otp2" maxlength="1" required>
-      <input type="number" class="otp-input" id="otp3" maxlength="1" required>
-      <input type="number" class="otp-input" id="otp4" maxlength="1" required>
-      <input type="number" class="otp-input" id="otp5" maxlength="1" required>
-      <input type="number" class="otp-input" id="otp6" maxlength="1" required>
+<body class="bg-black h-screen flex items-center justify-center">
+  <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-sm">
+    <h2 class="text-xl font-semibold text-center mb-4 text-white">Enter OTP</h2>
+    <form class="flex justify-between space-x-2">
+      <input type="text" maxlength="1" oninput="moveToNext(this, 'otp2')" onkeypress="return isNumberKey(event)"
+        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+        id="otp1" autofocus>
+      <input type="text" maxlength="1" oninput="moveToNext(this, 'otp3')" onkeypress="return isNumberKey(event)"
+        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+        id="otp2">
+      <input type="text" maxlength="1" oninput="moveToNext(this, 'otp4')" onkeypress="return isNumberKey(event)"
+        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+        id="otp3">
+      <input type="text" maxlength="1" oninput="moveToNext(this, 'otp5')" onkeypress="return isNumberKey(event)"
+        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+        id="otp4">
+      <input type="text" maxlength="1" oninput="moveToNext(this, 'otp6')" onkeypress="return isNumberKey(event)"
+        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+        id="otp5">
+      <input type="text" maxlength="1" onkeypress="return isNumberKey(event)"
+        class="w-12 h-12 text-center border rounded text-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+        id="otp6">
     </form>
-    <button type="submit" form="otpForm" class="submit-btn">Verify</button>
+    <button class="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">Verify</button>
   </div>
-
-  <script type="module" src="{% static 'js/verify_otp.js' %}"></script>
-  <script>
-    // JavaScript to handle auto-focusing to the next OTP input
-    const otpInputs = document.querySelectorAll('.otp-input');
-    otpInputs.forEach((input, index) => {
-      input.addEventListener('input', () => {
-        if (input.value.length === 1 && index < otpInputs.length - 1) {
-          otpInputs[index + 1].focus();
-        }
-      });
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && !input.value && index > 0) {
-          otpInputs[index - 1].focus();
-        }
-      });
-    });
-  </script>
 </body>
+
+<script type="module" src="{% static 'js/verify_otp.js' %}"></script>
 
 </html>
