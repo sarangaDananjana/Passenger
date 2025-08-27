@@ -1,87 +1,72 @@
 import { setCookie, baseUrl } from './auth.js';
 
+// This file is now much cleaner as the OTP input logic is handled directly in the HTML.
+// The main purpose of this script is to handle the form submission for OTP verification.
+
 document.addEventListener('DOMContentLoaded', () => {
-    const otpForm = document.getElementById('otpForm');
-    const otpInputs = document.querySelectorAll('.otp-input');
-    const submitBtn = document.querySelector('.submit-btn');
+    // Find the main button on the page to attach the click event listener.
+    // Note: It's better to use an ID for the button for more reliable selection.
+    const verifyButton = document.querySelector("button[type='submit']");
 
-    if (otpForm) {
-        otpForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            submitBtn.textContent = 'Verifying...';
-            submitBtn.disabled = true;
+    if (verifyButton) {
+        verifyButton.addEventListener("click", async (e) => {
+            e.preventDefault(); // Prevent default form submission behavior
 
-            // Combine the OTP digits from the input fields
-            let otp = '';
-            otpInputs.forEach(input => {
-                otp += input.value;
-            });
-
-            // Retrieve the phone number from session storage (saved from the previous page)
-            const phoneNumber = sessionStorage.getItem('phoneNumber');
+            // Retrieve the phone number from localStorage (or sessionStorage).
+            // Make sure this is being set correctly on the login page.
+            const phoneNumber = localStorage.getItem("phone_number");
             if (!phoneNumber) {
-                alert('Phone number not found. Please go back and try again.');
-                submitBtn.textContent = 'Verify';
-                submitBtn.disabled = false;
+                alert("Phone number not found. Please go back and login again.");
+                return;
+            }
+
+            // Read all OTP digits from the input fields and combine them.
+            const otp = Array.from({ length: 6 }, (_, i) =>
+                document.getElementById(`otp${i + 1}`).value
+            ).join("");
+
+            // Basic validation to ensure a 6-digit OTP was entered.
+            if (!/^\d{6}$/.test(otp)) {
+                alert("Please enter a valid 6-digit OTP.");
                 return;
             }
 
             try {
-                // Send the OTP and phone number to your verification endpoint
-                const res = await fetch(`${baseUrl}/bus-owners/verify-otp/`, {
-                    method: 'POST',
+                // Send the verification request to the server.
+                const response = await fetch(`${baseUrl}/bus-owners/verify-otp/`, {
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/json'
+                        "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
                         phone_number: phoneNumber,
-                        otp: otp
+                        otp_code: otp // Ensure your backend expects 'otp_code'
                     })
                 });
 
-                if (res.ok) {
-                    const data = await res.json();
-
-                    // Assuming the server responds with access and refresh tokens
-                    if (data.access_token && data.refresh_token) {
-                        // Use the setCookie function from auth.js to store the tokens
-                        setCookie('access_token', data.access_token, 7);
-                        setCookie('refresh_token', data.refresh_token, 30);
-
-                        // Redirect to the dashboard upon successful login
-                        window.location.href = '/bus-owners/web/dashboard/';
-                    } else {
-                        throw new Error('Tokens not found in response.');
-                    }
-                } else {
-                    const errorData = await res.json();
-                    alert(`Verification failed: ${errorData.detail || 'Invalid OTP'}`);
+                // Handle cases where the server returns an error.
+                if (!response.ok) {
+                    const err = await response.json();
+                    alert("OTP verification failed: " + (err.detail || "Unknown error"));
+                    return;
                 }
-            } catch (error) {
-                console.error('An error occurred during OTP verification:', error);
-                alert('An error occurred. Please try again.');
-            } finally {
-                submitBtn.textContent = 'Verify';
-                submitBtn.disabled = false;
+
+                // On success, parse the JSON response.
+                const data = await response.json();
+
+                // ✅ Use the imported setCookie function to store tokens.
+                // This is cleaner and more consistent with auth.js.
+                setCookie('access_token', data.access, 7); // Set access token for 7 days
+                setCookie('refresh_token', data.refresh, 30); // Set refresh token for 30 days
+
+
+                // ✅ Redirect to the dashboard page after successful verification.
+                window.location.href = "/bus-owners/web/dashboard/";
+
+            } catch (err) {
+                // Handle network or other unexpected errors.
+                alert("A network error occurred: " + err.message);
             }
         });
     }
-
-    // Auto-focus logic for OTP inputs
-    otpInputs.forEach((input, index) => {
-        input.addEventListener('input', () => {
-            // Ensure only numbers are entered and move to the next input
-            input.value = input.value.replace(/[^0-9]/g, '');
-            if (input.value.length === 1 && index < otpInputs.length - 1) {
-                otpInputs[index + 1].focus();
-            }
-        });
-
-        input.addEventListener('keydown', (e) => {
-            // Move to the previous input on backspace if the current input is empty
-            if (e.key === 'Backspace' && !input.value && index > 0) {
-                otpInputs[index - 1].focus();
-            }
-        });
-    });
 });
