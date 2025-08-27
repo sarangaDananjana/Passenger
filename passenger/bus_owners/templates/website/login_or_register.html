@@ -7,22 +7,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Signup/Login</title>
 
-  <!-- Dashboard font & colors -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <!-- Using Poppins font from dashboard -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
+    /* Using color variables from dashboard.css */
     :root {
-      --blue: #2fa8f8;
-      --dark-blue: #007bff;
-      --light-grey: #f5f5f5;
-      --bg-white: #ffffff;
-      --bg-dark: #22252D;
-      --page-bg: #343841;
-      --text-light: #A6A6A6;
-      --text-dark: #333333;
+      --primary-color: #00D0FF;
+      --primary-hover: #38afff;
       --red: #e74c3c;
+      --bg-main: #22252D;
+      --bg-content: #2C2F38;
+      --bg-card: #363942;
+      --text-primary: #F5F7FA;
+      --text-secondary: #A5A5A5;
+      --border-color: #4C4F59;
     }
 
-    /* reset & page bg */
+    /* Page reset and background */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -30,96 +31,123 @@
     }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--page-bg);
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-content);
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      color: var(--text-light);
+      min-height: 100vh;
+      color: var(--text-primary);
     }
 
-    /* login card */
-    .login-container {
-      background: var(--bg-dark);
-      padding: 4rem 2rem;
-      border-radius: 12px;
-      width: 500px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    }
-
-    .login-container h2 {
+    /* Main container for the form */
+    .auth-container {
+      background-color: var(--bg-card);
+      padding: 2.5rem;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
       text-align: center;
-      font-size: 2.5rem;
-      color: var(--blue);
-      margin-bottom: 1.5rem;
-      font-weight: 600;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      font-style: italic;
+    }
+
+    .tagline {
+      color: var(--text-secondary);
+      margin-bottom: 2.5rem;
+      font-size: 1rem;
     }
 
     .form-group {
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+      text-align: left;
     }
 
     label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 500;
-      color: var(--text-light);
+      color: var(--text-secondary);
+      font-size: 0.9rem;
     }
 
+    /* Styling for the phone number input */
     input[type="number"] {
       width: 100%;
-      padding: 0.75rem 1rem;
-      border-radius: 6px;
-      border: 1px solid #555;
-      background: #2b2b2b;
-      color: #fff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-content);
+      color: var(--text-primary);
       font-size: 1rem;
-      transition: border-color 0.2s;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
     input[type="number"]:focus {
-      outline: none;
-      border-color: var(--blue);
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 208, 255, 0.2);
+    }
+
+    /* Hide spinner from number input */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
     }
 
     .error {
-      margin-top: 0.25rem;
+      margin-top: 0.5rem;
       font-size: 0.875rem;
       color: var(--red);
-      min-height: 1rem;
+      min-height: 1.25rem;
     }
 
+    /* Submit button styling */
     button[type="submit"] {
       width: 100%;
-      padding: 0.75rem;
+      padding: 14px;
       border: none;
-      border-radius: 6px;
-      background: var(--blue);
-      color: #fff;
+      border-radius: 12px;
+      background-color: var(--primary-color);
+      color: var(--bg-main);
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background-color 0.2s, transform 0.2s;
     }
 
     button[type="submit"]:hover {
-      background: var(--dark-blue);
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
     }
   </style>
 </head>
 
 <body>
 
-  <div class="login-container">
-    <h2>Login</h2>
+  <div class="auth-container">
+    <h1 class="logo">passenger.lk</h1>
+    <p class="tagline">Welcome Back, Bus Owner</p>
     <form id="loginForm">
       <div class="form-group">
         <label for="phone_number">Phone Number</label>
-        <input type="number" id="phone_number" name="phone_number" required />
+        <input type="number" id="phone_number" name="phone_number" placeholder="Enter your phone number" required />
         <div class="error" id="phone_numberError"></div>
       </div>
-      <button type="submit">Login</button>
+      <button type="submit">Send OTP</button>
     </form>
   </div>
   <script type="module" src="{% static 'js/login_or_register.js' %}"></script>
