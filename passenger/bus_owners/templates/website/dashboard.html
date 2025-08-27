@@ -10,66 +10,6 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- Single, unified stylesheet -->
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet" />
-
-    <!-- Overrides to fix sidebar layout issue -->
-    <style>
-        /*
-         * LAYOUT FIX:
-         * The original dashboard.css uses a `position: fixed` sidebar and pushes the main content
-         * over with a margin. This is fragile and can cause content to overflow off-screen.
-         *
-         * The styles below override this for a more robust Flexbox-based layout where the sidebar
-         * and main content are true siblings that share the available space. This prevents overflow
-         * and ensures the content resizes correctly.
-        */
-        .dashboard {
-            /* This is already display: flex; which is good. */
-            overflow-x: hidden;
-            /* Prevents scrollbars during the sidebar transition. */
-        }
-
-        .sidebar {
-            position: static;
-            /* Override the 'position: fixed' from the stylesheet. */
-            flex-shrink: 0;
-            /* Prevents the sidebar from shrinking when the window is narrow. */
-            transition: margin-left 0.3s ease-in-out;
-            /* Animate the margin to hide/show. */
-        }
-
-        .sidebar.collapsed {
-            transform: none;
-            /* Disable the old transform-based animation. */
-            margin-left: calc(-1 * var(--sidebar-width));
-            /* Hide by sliding left. */
-        }
-
-        .main-content {
-            margin-left: 0;
-            /* Remove the old margin-based positioning. */
-            flex-grow: 1;
-            /* Allows the main content to fill all available space. */
-            min-width: 0;
-            /* A critical fix for flex items to prevent them from overflowing. */
-            transition: none;
-            /* Disable the old margin animation. */
-        }
-
-        .main-content.sidebar-collapsed {
-            margin-left: 0;
-            /* This rule is now redundant but kept for safety. */
-        }
-
-        .sidebar-toggle {
-            position: static;
-            /* Puts the button back in the normal document flow. */
-        }
-
-        .main-title {
-            margin-left: 0;
-            /* Removes the old spacing, as flexbox now handles it. */
-        }
-    </style>
 </head>
 
 <body>
@@ -221,6 +161,10 @@
                                         data-url-template="{% url 'ticket_graph' trip_id='__ID__' %}">
                                         View Tickets Graph
                                     </a>
+                                    <!-- NEW BUTTON ADDED HERE -->
+                                    <a href="https://www.passenger.lk/bus-owners/web/trip-times/"
+                                        class="action-btn upcoming-btn" target="_blank"
+                                        title="This feature is coming soon!">Trip Times</a>
                                 </div>
                             </div>
                         </div>

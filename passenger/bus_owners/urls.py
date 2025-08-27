@@ -43,6 +43,7 @@ urlpatterns = [
     path('web/bookedSeat/', views.seatBook_page_form, name='bookedSeat'),
     path('web/manageBusTrip/', views.manage_bus_trip_form, name='manageBusTrip'),
     path('web/manageBusses/', views.manage_bus_form, name='manageBusses'),
-    path('web/sidebar/', views.sidebar_form, name='sidebar')
+    path('web/sidebar/', views.sidebar_form, name='sidebar'),
+    path('web/trip-times/', views.trip_times_page, name='trip_times_page')
 
 ]

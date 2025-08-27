@@ -165,6 +165,11 @@ def privacy_policy_page(request):
     # simply render the HTML template
     return render(request, 'website/privacy_policy.html')
 
+
+def trip_times_page(request):
+    # simply render the HTML template
+    return render(request, 'website/trip_times.html')
+
 ##################################### Website Urls API #################################################################################################################
 
 

@@ -856,3 +856,31 @@ input:checked+.slider:before {
 .placeholder-text {
   margin-bottom: 1.5rem;
 }
+
+/* NEW STYLES FOR UPCOMING BUTTON */
+.action-btn.upcoming-btn {
+  background-color: var(--orange);
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  /* Make text color white for better contrast */
+}
+
+.action-btn.upcoming-btn::after {
+  content: 'SOON';
+  position: absolute;
+  top: -10px;
+  right: -25px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  padding: 15px 25px 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  transform: rotate(45deg);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn.upcoming-btn:hover {
+  filter: brightness(1.05);
+  /* Slight brightness change on hover */
+}

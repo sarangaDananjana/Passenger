@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Route Roadmap: Colombo to Kandy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: #cbd5e1;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 3px;
+        }
+
+        .timeline-container {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+        }
+
+        .timeline-container.left {
+            left: 0;
+        }
+
+        .timeline-container.right {
+            left: 50%;
+        }
+
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            right: -14px;
+            background-color: white;
+            border: 4px solid #4f46e5;
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timeline-container.right::after {
+            left: -12px;
+        }
+
+        .content {
+            padding: 20px 30px;
+            background-color: white;
+            position: relative;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease;
+        }
+
+        .content:hover {
+            transform: translateY(-5px);
+        }
+
+        @media screen and (max-width: 768px) {
+            .timeline::after {
+                left: 31px;
+            }
+
+            .timeline-container {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+
+            .timeline-container.left,
+            .timeline-container.right {
+                left: 0%;
+            }
+
+            .timeline-container::after {
+                left: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-12">
+            <h1 id="route-name" class="text-4xl md:text-5xl font-bold text-gray-800"></h1>
+            <p id="route-number" class="text-lg text-gray-600 mt-2"></p>
+        </header>
+
+        <div id="roadmap" class="timeline">
+            <!-- Boarding points will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const routeData = {
+            "_id": "685f043a919155a94fa1bd29",
+            "route_name": "Colombo - Kandy",
+            "route_number": "Route 001",
+            "number_of_sections": 61,
+            "sections": [
+                { "section_name": "section 01", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8c62", "point_name": "Colombo", "city": "Colombo District", "province": "Western Province", "latitude": 6.933778, "longitude": 79.855969 }] },
+                { "section_name": "section 02", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8cc3", "point_name": "Maligawaththa", "city": "Colombo District", "province": "Western Province", "latitude": 1, "longitude": 1 }] },
+                { "section_name": "section 03", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8cc4", "point_name": "Kalanithissa", "city": "Colombo District", "province": "Western Province", "latitude": 1, "longitude": 1 }] },
+                { "section_name": "section 04", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8cc5", "point_name": "4th Miles Post", "city": "Colombo District", "province": "Western Province", "latitude": 1, "longitude": 1 }] },
+                { "section_name": "section 05", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8cc6", "point_name": "Thorana Junction", "city": "Colombo District", "province": "Western Province", "latitude": 1, "longitude": 1 }] },
+                { "section_name": "section 07", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8c68", "point_name": "Kiribathgoda", "city": "Gampaha District", "province": "Western Province", "latitude": 6.976287, "longitude": 79.925336 }] },
+                { "section_name": "section 09", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8cc9", "point_name": "Kadawatha", "city": "Gampaha District", "province": "Western Province", "latitude": 1, "longitude": 1 }] },
+                { "section_name": "section 16", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8c69", "point_name": "Yakkala", "city": "Gampaha District", "province": "Western Province", "latitude": 7.08716, "longitude": 80.034598 }] },
+                { "section_name": "section 21", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8c65", "point_name": "Nittambuwa", "city": "Gampaha District", "province": "Western Province", "latitude": 7.141228, "longitude": 80.094103 }] },
+                { "section_name": "section 29", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8c67", "point_name": "Warakapola", "city": "Kegalle District", "province": "Sabaragamuwa Province", "latitude": 7.224596, "longitude": 80.195496 }] },
+                { "section_name": "section 41", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8c55", "point_name": "Kegalla", "city": "Kegalle District", "province": "Sabaragamuwa Province", "latitude": 1, "longitude": 1 }] },
+                { "section_name": "section 48", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8c63", "point_name": "Mawanalla", "city": "Kegalle District", "province": "Sabaragamuwa Province", "latitude": 7.253298, "longitude": 80.448365 }] },
+                { "section_name": "section 58", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8cbf", "point_name": "Peradeniya", "city": "Kandy District", "province": "Central Province", "latitude": 7.264106, "longitude": 80.592937 }] },
+                { "section_name": "section 61", "boarding_points": [{ "boarding_id": "682976dbc9866445485a8c64", "point_name": "Kandy", "city": "Kandy District", "province": "Central Province", "latitude": 7.291609, "longitude": 80.634713 }] }
+            ]
+        };
+
+        document.getElementById('route-name').textContent = routeData.route_name;
+        document.getElementById('route-number').textContent = routeData.route_number;
+
+        const roadmapContainer = document.getElementById('roadmap');
+        let currentTime = new Date();
+        currentTime.setHours(6, 0, 0, 0); // Start the journey at 6:00 AM
+
+        routeData.sections.forEach((section, index) => {
+            if (section.boarding_points.length > 0) {
+                const point = section.boarding_points[0];
+
+                // --- MOCK DATA GENERATION ---
+                const scheduledTime = new Date(currentTime);
+                const randomMinutes = Math.floor(Math.random() * 11) - 5; // -5 to +5 minutes variance
+                const actualTime = new Date(currentTime);
+                actualTime.setMinutes(currentTime.getMinutes() + randomMinutes);
+                const timeDifference = (actualTime - scheduledTime) / (1000 * 60); // Difference in minutes
+                // --- END MOCK DATA ---
+
+                let statusClass = '';
+                let statusText = '';
+                let icon = '';
+
+                if (timeDifference <= 0) {
+                    statusClass = 'text-green-600 bg-green-100';
+                    statusText = timeDifference === 0 ? 'On Time' : `${Math.abs(timeDifference)} min early`;
+                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>`;
+                } else if (timeDifference > 0 && timeDifference <= 5) {
+                    statusClass = 'text-yellow-600 bg-yellow-100';
+                    statusText = `${timeDifference} min late`;
+                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.21 3.03-1.742 3.03H4.42c-1.532 0-2.492-1.696-1.742-3.03l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-4a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>`;
+                } else {
+                    statusClass = 'text-red-600 bg-red-100';
+                    statusText = `${timeDifference} min late`;
+                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>`;
+                }
+
+                const side = index % 2 === 0 ? 'left' : 'right';
+
+                const pointElement = `
+                    <div class="timeline-container ${side}">
+                        <div class="content">
+                            <h2 class="text-xl font-bold text-indigo-600">${point.point_name}</h2>
+                            <p class="text-sm text-gray-500">${point.city}</p>
+                            <div class="mt-4 space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="font-semibold text-gray-700">Scheduled:</span>
+                                    <span>${scheduledTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-semibold text-gray-700">Actual:</span>
+                                    <span>${actualTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-2 rounded-md font-semibold ${statusClass} flex items-center justify-center">
+                                ${icon}
+                                ${statusText}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                roadmapContainer.innerHTML += pointElement;
+
+                // Increment time for the next stop
+                currentTime.setMinutes(currentTime.getMinutes() + 15 + Math.floor(Math.random() * 10)); // Travel time to next stop
+            }
+        });
+    </script>
+</body>
+
+</html>
