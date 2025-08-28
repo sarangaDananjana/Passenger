@@ -5,11 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trip Ticket Visualization</title>
-    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js for data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts for a clean look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -30,29 +27,24 @@
         </header>
 
         <main>
-            <!-- New flex container to hold the chart and the legend side-by-side -->
             <div class="flex flex-col lg:flex-row gap-6">
-                <!-- Chart container, set to grow and fill available space -->
                 <div id="chart-container"
-                    class="flex-grow bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 h-[75vh]">
+                    class="flex-grow bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 h-[85vh]">
                     <canvas id="ticketChart"></canvas>
                 </div>
 
-                <!-- Custom Legend Container -->
-                <div id="custom-legend-container" class="lg:w-64 flex-shrink-0">
+                <div id="custom-legend-container" class="lg:w-48 flex-shrink-0">
                     <div
                         class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">Price Tiers
                         </h3>
                         <div id="custom-legend" class="space-y-2">
-                            <!-- Legend items will be dynamically inserted here -->
                         </div>
                     </div>
                 </div>
             </div>
 
 
-            <!-- Loading indicator -->
             <div id="loader" class="text-center py-16">
                 <div role="status">
                     <svg aria-hidden="true"
@@ -69,7 +61,6 @@
                 </div>
                 <p class="mt-4 text-lg font-medium">Fetching and analyzing trip data...</p>
             </div>
-            <!-- Error message container -->
             <div id="error-message"
                 class="hidden text-center py-16 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg">
                 <h3 class="text-xl font-semibold">Oops! Something went wrong.</h3>
