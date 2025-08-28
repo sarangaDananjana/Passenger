@@ -131,6 +131,16 @@ def home_page_form(request):
     return render(request, 'website/index.html')
 
 
+def contact_us(request):
+    # simply render the HTML template
+    return render(request, 'website/contactUs.html')
+
+
+def about_us(request):
+    # simply render the HTML template
+    return render(request, 'website/aboutUs.html')
+
+
 def dashboard_page_form(request):
     # simply render the HTML template
     return render(request, 'website/dashboard.html')

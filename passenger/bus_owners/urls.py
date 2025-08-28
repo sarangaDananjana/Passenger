@@ -37,6 +37,8 @@ urlpatterns = [
     path('web/privacy-policy/', views.privacy_policy_page,
          name='privacy_policy_page'),
     path('web/dashboard/', views.dashboard_page_form, name='dashboard'),
+    path('web/contact-us/', views.contact_us, name='contactUs'),
+    path('web/about-us/', views.about_us, name='aboutUs'),
     path('web/ticket-graph/<str:trip_id>/',
          views.ticket_graph_view, name='ticket_graph'),
     path('web/owner-details/', views.owner_details_page_form, name='ownerDetails'),

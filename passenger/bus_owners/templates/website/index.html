@@ -18,22 +18,23 @@
 <body>
   <header class="header padding-global" id="header">
     <nav class="navbar container" id="navbar">
-      <a class="logo" href="#"><img src="{% static 'images/icons/passenger.png' %}" alt="passenger.png"></a>
+      <a class="logo" href="{% url 'index' %}"><img src="{% static 'images/icons/passenger.png' %}"
+          alt="passenger.png"></a>
       <div class="menu-container" id="menu-container">
 
         <div class="right-navbar-content" id="right-navbar-content">
           <ul class="list">
             <li class="right-list-item">
-              <a href="index.html" class="list-link current menu-item-hover">Home</a>
+              <a href="{% url 'index' %}" class="list-link current menu-item-hover">Home</a>
             </li>
             <li class="right-list-item">
-              <a href="about.html" class="list-link menu-item-hover">About</a>
+              <a href="{% url 'aboutUs' %}" class="list-link menu-item-hover">About</a>
             </li>
             <li class="right-list-item">
-              <a href="update.html" class="list-link menu-item-hover">News</a>
+              <a href="{% url 'news' %}" class="list-link menu-item-hover">News</a>
             </li>
             <li class="right-list-item">
-              <a href="contact.html" class="list-link menu-item-hover">Contact</a>
+              <a href="{% url 'contactUs' %}" class="list-link menu-item-hover">Contact</a>
             </li>
             <li class="right-list-item  ">
               <div class="right-content-btn">
@@ -55,7 +56,6 @@
         </button>
       </div>
     </nav>
-
   </header>
 
   <section class="hero">

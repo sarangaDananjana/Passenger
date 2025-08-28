@@ -1,0 +1,156 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/btn.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <title>About Us</title>
+</head>
+
+<body class="bg-gray-50">
+    <header class="header padding-global" id="header">
+        <nav class="navbar container" id="navbar">
+            <a class="logo" href="#"><img src="{% static 'images/icons/passenger.png' %}" alt="passenger.png"></a>
+            <div class="menu-container" id="menu-container">
+
+                <div class="right-navbar-content" id="right-navbar-content">
+                    <ul class="list">
+                        <li class="right-list-item">
+                            <a href="index.html" class="list-link menu-item-hover">Home</a>
+                        </li>
+                        <li class="right-list-item">
+                            <a href="about.html" class="list-link current menu-item-hover">About</a>
+                        </li>
+                        <li class="right-list-item">
+                            <a href="update.html" class="list-link menu-item-hover">News</a>
+                        </li>
+                        <li class="right-list-item">
+                            <a href="contact.html" class="list-link menu-item-hover">Contact</a>
+                        </li>
+                        <li class="right-list-item  ">
+                            <div class="right-content-btn">
+                                <div class="btn-container">
+                                    <button class="get-started-btn btn-animation"><a
+                                            href="{% url 'login_or_register_form' %}"> Go To
+                                            Dashboard</a></button>
+
+                                </div>
+                            </div>
+
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="list-right-list lg:hidden">
+                <button class="menu-toggle-icon place-item-center lg:hidden menu-toggle-icon" id="menu-toggle-icon">
+                    <i class="ri-menu-3-line open-menu-icon"></i>
+                    <i class="ri-close-line close-menu-icon"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- About Us Hero Section -->
+    <section class="relative py-20 lg:py-32 bg-white">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl lg:text-6xl font-bold mb-4"
+                style="background: linear-gradient(to right, #0099ff, #0099ff,#0099ff); -webkit-background-clip: text; color: transparent;">
+                About Passenger</h1>
+            <p class="text-lg lg:text-2xl text-gray-600 max-w-3xl mx-auto">Simplifying your travel, one bus ticket at a
+                time. Discover our story, our mission, and the team dedicated to making your journey seamless.</p>
+        </div>
+    </section>
+
+    <!-- Our Mission & Vision Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-gray-800">Our Mission</h2>
+                    <p class="text-gray-600 text-lg mb-6">To revolutionize the bus travel industry by providing a
+                        user-friendly, reliable, and efficient platform for booking bus tickets. We aim to connect
+                        passengers with a vast network of bus operators, ensuring a hassle-free travel experience from
+                        start to finish.</p>
+                    <h2 class="text-3xl lg:text-4xl font-bold mb-4 text-gray-800">Our Vision</h2>
+                    <p class="text-gray-600 text-lg">To be the most trusted and preferred bus ticket booking platform in
+                        the country, known for our commitment to customer satisfaction, technological innovation, and
+                        seamless service. We envision a future where booking a bus ticket is as easy as a few taps on a
+                        screen.</p>
+                </div>
+                <div class="relative w-full h-80 lg:h-96 rounded-2xl overflow-hidden shadow-2xl">
+                    <img src="{% static 'images/mission-vision.jpg' %}" alt="Bus on a scenic route"
+                        class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black text-white py-20">
+        <div class="container mx-auto px-6">
+            <div class="logo flex items-center py-10">
+                <a href=""><img class="w-20 h-20 bg-cover" src={% static "images/icons/passenger.png" %} alt=""></a>
+                <h1 class="text-4xl font-bold text-left text-white px-10">
+                    Passenger
+                </h1>
+            </div>
+            <div class="flex justify-between">
+                <!-- Left Column - Navigation Links -->
+                <div class="w-1/2">
+                    <ul class="flex flex-col space-y-5 text-xl">
+                        <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">Home</li>
+                        <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">About Us</li>
+                        <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">News</li>
+                        <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">Contact Us</li>
+                        <li class="nav-link px-5 hover:text-blue-400 cursor-pointer"><a
+                                href="https://www.passenger.lk/bus-owners/web/privacy-policy" target="_blank"
+                                rel="noopener noreferrer">Privacy Policy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Right Column - Newsletter Signup -->
+                <div class="w-1/2">
+                    <h3 class="text-3xl text-blue-400 font-bold mb-5">Subscribe to Our Newsletter</h3>
+                    <form action="#" method="POST" class="flex flex-col space-y-3">
+                        <input type="email" placeholder="Enter your email"
+                            class="px-4 text-2xl py-3 rounded-md text-white" required />
+                        <button type="submit"
+                            class="bg-blue-400 text-white px-5 py-3 rounded-md hover:bg-white hover:text-black duration-500 ease-in-out">
+                            Subscribe
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer Bottom (Copyright) -->
+            <div class="mt-10 text-center text-lg text-gray-400">
+                <p>&copy; 2025 Fission Software Solution. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Grab elements
+            const menuToggleIcon = document.getElementById("menu-toggle-icon");
+            const mobileMenu = document.getElementById('menu-container');
+
+            const toggleMenu = () => {
+                mobileMenu.classList.toggle('activated');
+                menuToggleIcon.classList.toggle('activated');
+            };
+
+            menuToggleIcon.addEventListener('click', toggleMenu);
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,194 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/btn.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <title>Contact Us</title>
+</head>
+
+<body class="bg-gray-50">
+    <header class="header padding-global" id="header">
+        <nav class="navbar container" id="navbar">
+            <a class="logo" href="#"><img src="{% static 'images/icons/passenger.png' %}" alt="passenger.png"></a>
+            <div class="menu-container" id="menu-container">
+
+                <div class="right-navbar-content" id="right-navbar-content">
+                    <ul class="list">
+                        <li class="right-list-item">
+                            <a href="index.html" class="list-link menu-item-hover">Home</a>
+                        </li>
+                        <li class="right-list-item">
+                            <a href="about.html" class="list-link menu-item-hover">About</a>
+                        </li>
+                        <li class="right-list-item">
+                            <a href="update.html" class="list-link menu-item-hover">News</a>
+                        </li>
+                        <li class="right-list-item">
+                            <a href="contact.html" class="list-link current menu-item-hover">Contact</a>
+                        </li>
+                        <li class="right-list-item  ">
+                            <div class="right-content-btn">
+                                <div class="btn-container">
+                                    <button class="get-started-btn btn-animation"><a
+                                            href="{% url 'login_or_register_form' %}"> Go To
+                                            Dashboard</a></button>
+
+                                </div>
+                            </div>
+
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="list-right-list lg:hidden">
+                <button class="menu-toggle-icon place-item-center lg:hidden menu-toggle-icon" id="menu-toggle-icon">
+                    <i class="ri-menu-3-line open-menu-icon"></i>
+                    <i class="ri-close-line close-menu-icon"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Contact Us Hero Section -->
+    <section class="relative py-20 lg:py-32 bg-white">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl lg:text-6xl font-bold mb-4"
+                style="background: linear-gradient(to right, #0099ff, #0099ff,#0099ff); -webkit-background-clip: text; color: transparent;">
+                Get In Touch</h1>
+            <p class="text-lg lg:text-2xl text-gray-600 max-w-3xl mx-auto">We're here to help and answer any question
+                you might have. We look forward to hearing from you!</p>
+        </div>
+    </section>
+
+    <!-- Contact Form and Details Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-start">
+                <!-- Contact Form -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-800">Send us a Message</h2>
+                    <form action="#" method="POST">
+                        <div class="mb-5">
+                            <label for="name" class="block mb-2 text-lg font-medium text-gray-700">Full Name</label>
+                            <input type="text" id="name" name="name"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="John Doe" required>
+                        </div>
+                        <div class="mb-5">
+                            <label for="email" class="block mb-2 text-lg font-medium text-gray-700">Email
+                                Address</label>
+                            <input type="email" id="email" name="email"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="john.doe@example.com" required>
+                        </div>
+                        <div class="mb-5">
+                            <label for="message" class="block mb-2 text-lg font-medium text-gray-700">Your
+                                Message</label>
+                            <textarea id="message" name="message" rows="5"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Briefly describe your needs..." required></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-blue-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors duration-300">
+                            Submit
+                        </button>
+                    </form>
+                </div>
+                <!-- Contact Details -->
+                <div class="space-y-8">
+                    <div class="bg-white p-8 rounded-2xl shadow-lg flex items-center">
+                        <i class="fas fa-map-marker-alt text-4xl text-blue-500 mr-6"></i>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">Our Office</h3>
+                            <p class="text-gray-600 text-lg mt-1">123 Main Street, Colombo, Sri Lanka</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl shadow-lg flex items-center">
+                        <i class="fas fa-envelope text-4xl text-blue-500 mr-6"></i>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">Email Us</h3>
+                            <p class="text-gray-600 text-lg mt-1">support@passenger.lk</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl shadow-lg flex items-center">
+                        <i class="fas fa-phone-alt text-4xl text-blue-500 mr-6"></i>
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">Call Us</h3>
+                            <p class="text-gray-600 text-lg mt-1">+94 11 234 5678</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black text-white py-20">
+        <div class="container mx-auto px-6">
+            <div class="logo flex items-center py-10">
+                <a href=""><img class="w-20 h-20 bg-cover" src={% static "images/icons/passenger.png" %} alt=""></a>
+                <h1 class="text-4xl font-bold text-left text-white px-10">
+                    Passenger
+                </h1>
+            </div>
+            <div class="flex justify-between">
+                <!-- Left Column - Navigation Links -->
+                <div class="w-1/2">
+                    <ul class="flex flex-col space-y-5 text-xl">
+                        <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">Home</li>
+                        <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">About Us</li>
+                        <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">News</li>
+                        <li class="nav-link px-5 hover:text-blue-400 cursor-pointer">Contact Us</li>
+                        <li class="nav-link px-5 hover:text-blue-400 cursor-pointer"><a
+                                href="https://www.passenger.lk/bus-owners/web/privacy-policy" target="_blank"
+                                rel="noopener noreferrer">Privacy Policy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Right Column - Newsletter Signup -->
+                <div class="w-1/2">
+                    <h3 class="text-3xl text-blue-400 font-bold mb-5">Subscribe to Our Newsletter</h3>
+                    <form action="#" method="POST" class="flex flex-col space-y-3">
+                        <input type="email" placeholder="Enter your email"
+                            class="px-4 text-2xl py-3 rounded-md text-white" required />
+                        <button type="submit"
+                            class="bg-blue-400 text-white px-5 py-3 rounded-md hover:bg-white hover:text-black duration-500 ease-in-out">
+                            Subscribe
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer Bottom (Copyright) -->
+            <div class="mt-10 text-center text-lg text-gray-400">
+                <p>&copy; 2025 Fission Software Solution. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Grab elements
+            const menuToggleIcon = document.getElementById("menu-toggle-icon");
+            const mobileMenu = document.getElementById('menu-container');
+
+            const toggleMenu = () => {
+                mobileMenu.classList.toggle('activated');
+                menuToggleIcon.classList.toggle('activated');
+            };
+
+            menuToggleIcon.addEventListener('click', toggleMenu);
+        });
+    </script>
+
+</body>
+
+</html>
