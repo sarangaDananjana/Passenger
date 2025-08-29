@@ -131,9 +131,9 @@ def home_page_form(request):
     return render(request, 'website/index.html')
 
 
-def contact_us(request):
+def for_company(request):
     # simply render the HTML template
-    return render(request, 'website/contactUs.html')
+    return render(request, 'website/busCompany.html')
 
 
 def about_us(request):

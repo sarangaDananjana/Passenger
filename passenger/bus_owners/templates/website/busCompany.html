@@ -1,0 +1,453 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passenger LK - Smart Ticketing Solution for Companies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0A;
+            color: #E2E8F0;
+        }
+
+        .body-no-scroll {
+            overflow: hidden;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #38BDF8, #3B82F6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-scrolled {
+            background-color: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card {
+            background: #1E293B;
+            border: 1px solid #334155;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        #mobile-menu {
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #mobile-menu.open .mobile-menu-item {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mobile-menu-item {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <!-- Header -->
+    <header id="header" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="{% url 'index' %}" class="flex items-center space-x-3">
+                <img src="{% static 'images/icons/passenger.png' %}" alt="Passenger LK Logo" class="w-8 h-8">
+                <span class="text-2xl font-bold text-slate-100">Passenger LK</span>
+            </a>
+
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="#"
+                    class="flex items-center space-x-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-5 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg shadow-sky-500/30">
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                    </svg>
+                    <span>Passengers</span>
+                </a>
+                <a href="{% url 'login_or_register_form' %}"
+                    class="flex items-center space-x-2 bg-slate-700/50 backdrop-blur-sm border border-slate-600 hover:bg-slate-700 text-slate-200 font-semibold py-2 px-5 rounded-full transition-all duration-300 transform hover:scale-105">
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                    </svg>
+                    <span>Company</span>
+                </a>
+            </div>
+            <!-- Hamburger Button -->
+            <button id="mobile-menu-button" class="md:hidden hamburger-button relative z-[60]">
+                <span class="sr-only">Open main menu</span>
+                <svg class="w-6 h-6 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-50 p-6 opacity-0">
+        <div class="flex justify-end mb-8">
+            <button id="mobile-menu-close-button" class="p-2">
+                <span class="sr-only">Close menu</span>
+                <svg class="w-8 h-8 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="flex flex-col items-center justify-center h-full -mt-16 space-y-6">
+            <a href="#"
+                class="mobile-menu-item flex items-center justify-center space-x-3 bg-sky-500 text-white w-full max-w-sm text-center font-semibold py-4 px-6 rounded-full text-lg"
+                style="transition-delay: 0.1s;">
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                </svg>
+                <span>Passenger App</span>
+            </a>
+            <a href="company_features.html"
+                class="mobile-menu-item flex items-center justify-center space-x-3 bg-slate-700 text-slate-200 w-full max-w-sm text-center font-semibold py-4 px-6 rounded-full text-lg"
+                style="transition-delay: 0.2s;">
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                </svg>
+                <span>Company Login</span>
+            </a>
+        </div>
+    </div>
+
+
+    <main>
+        <!-- Hero Section -->
+        <section class="relative pt-32 pb-20 md:pt-48 md:pb-32 flex items-center justify-center overflow-hidden">
+            <div
+                class="absolute inset-0 bg-grid-slate-700/20 [mask-image:linear-gradient(to_bottom,white_5%,transparent_80%)]">
+            </div>
+            <div class="container mx-auto px-6 z-10">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="text-center md:text-left reveal">
+                        <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-100 leading-tight mb-6">
+                            The <span class="gradient-text">Smart Core</span> of Your Operation.
+                        </h1>
+                        <p class="text-lg md:text-xl text-slate-400 max-w-xl mx-auto md:mx-0 mb-10">
+                            Eliminate fraud, speed up boarding, and unlock powerful insights with the Passenger LK Smart
+                            Ticket Machine—the most advanced handheld device in Sri Lanka.
+                        </p>
+                        <a href="#features"
+                            class="inline-block bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg shadow-sky-500/20">
+                            Explore Features
+                        </a>
+                    </div>
+                    <div class="flex justify-center items-center reveal" style="transition-delay: 0.2s;">
+                        <!-- Image of the Smart Ticket Machine -->
+                        <div
+                            class="w-64 md:w-80 p-2 bg-slate-800/50 rounded-2xl border border-slate-700 shadow-2xl shadow-sky-500/10">
+                            <img src="{% static 'images/pos.png' %}" alt="Passenger LK Smart Ticket Machine"
+                                class="w-full h-full object-cover rounded-xl aspect-[3/4]">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20 md:py-32 bg-slate-900/50">
+            <div class="container mx-auto px-6">
+                <div class="text-center max-w-3xl mx-auto mb-16 reveal">
+                    <h2 class="text-3xl md:text-5xl font-bold mb-4">Engineered for <span
+                            class="gradient-text">Efficiency and Intelligence.</span></h2>
+                    <p class="text-slate-400 text-lg">Every feature is designed to empower your conductors and
+                        streamline your operations.</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="reveal p-8 rounded-2xl feature-card">
+                        <div class="p-4 inline-block bg-slate-900 rounded-full mb-6 border border-slate-700">
+                            <svg class="w-8 h-8 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 4.875c0-1.036.84-1.875 1.875-1.875h4.5c1.036 0 1.875.84 1.875 1.875v4.5c0 1.036-.84 1.875-1.875 1.875h-4.5A1.875 1.875 0 013.75 9.375v-4.5zM3.75 14.625c0-1.036.84-1.875 1.875-1.875h4.5c1.036 0 1.875.84 1.875 1.875v4.5c0 1.036-.84 1.875-1.875 1.875h-4.5A1.875 1.875 0 013.75 19.125v-4.5zM13.5 4.875c0-1.036.84-1.875 1.875-1.875h4.5c1.036 0 1.875.84 1.875 1.875v4.5c0 1.036-.84 1.875-1.875 1.875h-4.5A1.875 1.875 0 0113.5 9.375v-4.5zM13.5 14.625c0-1.036.84-1.875 1.875-1.875h4.5c1.036 0 1.875.84 1.875 1.875v4.5c0 1.036-.84 1.875-1.875 1.875h-4.5A1.875 1.875 0 0113.5 19.125v-4.5z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-100 mb-3">One-Tap Verification</h3>
+                        <p class="text-slate-400">Scan passenger QR codes instantly with our high-speed optical scanner.
+                            No delays, no manual checks, just seamless boarding.</p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="reveal p-8 rounded-2xl feature-card" style="transition-delay: 0.1s;">
+                        <div class="p-4 inline-block bg-slate-900 rounded-full mb-6 border border-slate-700">
+                            <svg class="w-8 h-8 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 013-3h.008c1.538 0 2.94.832 3.722 2.144A4.505 4.505 0 0118 7.5v4.5a3 3 0 01-3 3h-.008Z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-100 mb-3">AI Central System</h3>
+                        <p class="text-slate-400">Each transaction is synced in real-time to our AI-powered cloud
+                            platform, providing live revenue tracking and fraud detection.</p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="reveal p-8 rounded-2xl feature-card" style="transition-delay: 0.2s;">
+                        <div class="p-4 inline-block bg-slate-900 rounded-full mb-6 border border-slate-700">
+                            <svg class="w-8 h-8 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-1.5h5.25m-5.25 0h3m-3 0h-3m2.25 0H5.625M18 15V4.5a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 4.5v15A2.25 2.25 0 005.25 21.75h12.75c1.243 0 2.25-1.007 2.25-2.25V15Z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-100 mb-3">Quick Ticket Issuing</h3>
+                        <p class="text-slate-400">Effortlessly issue new tickets for on-the-spot passengers. The
+                            intuitive interface and thermal printer make it a lightning-fast process.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW: All-in-One Dashboard Section -->
+        <section id="dashboard-features" class="py-20 md:py-32">
+            <div class="container mx-auto px-6">
+                <div class="text-center max-w-4xl mx-auto mb-16 reveal">
+                    <h2 class="text-3xl md:text-5xl font-bold mb-4">Your <span class="gradient-text">All-in-One Command
+                            Center.</span></h2>
+                    <p class="text-slate-400 text-lg">Go beyond ticketing. Manage your entire operation from a single,
+                        intuitive, and powerful dashboard that gives you unparalleled control and insight.</p>
+                </div>
+                <div class="relative max-w-6xl mx-auto">
+                    <!-- Central Image -->
+                    <div class="flex justify-center items-center mb-12 reveal">
+                        <!-- Image of a futuristic dashboard interface for transportation management -->
+                        <div class="w-full max-w-4xl p-2 bg-slate-800/50 rounded-2xl border border-slate-700">
+                            <img src="{% static 'images/dashboard.png' %}" alt="Passenger LK Fleet Management Dashboard"
+                                class="w-full h-full object-cover rounded-xl shadow-2xl shadow-sky-500/10">
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- Feature: Fleet Management -->
+                        <div class="reveal p-6 rounded-2xl feature-card flex items-start space-x-4">
+                            <div class="flex-shrink-0 p-3 bg-slate-900 rounded-full border border-slate-700">
+                                <svg class="w-6 h-6 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 6.75V15m0 0v-8.25m0 8.25h3.75l-3.75 0Zm0 0h-3.75l3.75 0Zm0 0v-3.75m0 3.75h3.75m0-3.75h-3.75m0 0V15m0-8.25v-3.75a3.375 3.375 0 0 1 3.375-3.375h1.5a3.375 3.375 0 0 1 3.375 3.375v3.75m-7.5 0v-3.75a3.375 3.375 0 0 0-3.375-3.375h-1.5A3.375 3.375 0 0 0 3 6.75v3.75m15-3.75v3.75a3.375 3.375 0 0 1-3.375 3.375h-1.5a3.375 3.375 0 0 1-3.375-3.375v-3.75m7.5 0h-7.5" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-100 mb-2">Advanced Fleet Management</h3>
+                                <p class="text-slate-400">Oversee your entire fleet with live GPS tracking, monitor
+                                    vehicle health with real-time diagnostics, and optimize routes for maximum
+                                    efficiency.</p>
+                            </div>
+                        </div>
+                        <!-- Feature: Staff Management -->
+                        <div class="reveal p-6 rounded-2xl feature-card flex items-start space-x-4"
+                            style="transition-delay: 0.1s;">
+                            <div class="flex-shrink-0 p-3 bg-slate-900 rounded-full border border-slate-700">
+                                <svg class="w-6 h-6 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-4.663M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-100 mb-2">Comprehensive Staff Management</h3>
+                                <p class="text-slate-400">Manage schedules, track conductor performance, and communicate
+                                    directly with your team. Assign routes and monitor shifts with ease.</p>
+                            </div>
+                        </div>
+                        <!-- Feature: Revenue Analytics -->
+                        <div class="reveal p-6 rounded-2xl feature-card flex items-start space-x-4"
+                            style="transition-delay: 0.2s;">
+                            <div class="flex-shrink-0 p-3 bg-slate-900 rounded-full border border-slate-700">
+                                <svg class="w-6 h-6 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h12A2.25 2.25 0 0 0 20.25 14.25V3m-15.75 0h15.75M3.75 0v3.75m15.75-3.75v3.75m-7.5 0v3.75M3 16.5h18M3 16.5v3.75a2.25 2.25 0 0 0 2.25 2.25h13.5A2.25 2.25 0 0 0 21 20.25V16.5" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-100 mb-2">In-Depth Revenue Analytics</h3>
+                                <p class="text-slate-400">Dive deep into your financial data. Analyze revenue by route,
+                                    bus, or conductor, identify your most profitable times, and generate detailed
+                                    reports.</p>
+                            </div>
+                        </div>
+                        <!-- Feature: AI Forecasting -->
+                        <div class="reveal p-6 rounded-2xl feature-card flex items-start space-x-4"
+                            style="transition-delay: 0.3s;">
+                            <div class="flex-shrink-0 p-3 bg-slate-900 rounded-full border border-slate-700">
+                                <svg class="w-6 h-6 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-100 mb-2">AI-Powered Revenue Forecast</h3>
+                                <p class="text-slate-400">Leverage machine learning trained on your historical data to
+                                    predict future revenue streams, helping you make smarter, data-driven business
+                                    decisions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA Section -->
+        <section class="py-20 md:py-32">
+            <div class="container mx-auto px-6 text-center reveal">
+                <h2 class="text-3xl md:text-5xl font-bold mb-4">Ready to Upgrade Your Fleet?</h2>
+                <p class="text-slate-400 text-lg max-w-2xl mx-auto mb-10">Empower your conductors, delight your
+                    passengers, and drive your business forward. Let's talk about integrating Passenger LK's smart
+                    solution.</p>
+                <div class="flex justify-center items-center gap-4 flex-wrap">
+                    <a href="#"
+                        class="bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg shadow-sky-500/20">
+                        Request a Demo
+                    </a>
+                    <a href="#"
+                        class="bg-slate-700/50 backdrop-blur-sm border border-slate-600 hover:bg-slate-700 text-slate-200 font-semibold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105">
+                        Contact Sales
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <svg width="24" height="24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <use href="#logoGradient" />
+                            <path
+                                d="M50 2.5 A 47.5 47.5 0 0 1 97.5 50 A 47.5 47.5 0 0 1 50 97.5 A 47.5 47.5 0 0 1 2.5 50 A 47.5 47.5 0 0 1 50 2.5 Z"
+                                fill="none" stroke="url(#logoGradient)" stroke-width="5" />
+                            <path d="M30 60 Q 50 20 70 60" stroke="url(#logoGradient)" stroke-width="5" fill="none"
+                                stroke-linecap="round" />
+                            <circle cx="50" cy="65" r="8" fill="url(#logoGradient)" />
+                        </svg>
+                        <span class="text-xl font-bold text-slate-100">Passenger LK</span>
+                    </div>
+                    <p class="text-slate-400">Revolutionizing transport across Sri Lanka.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-slate-200 mb-4">Navigate</h4>
+                    <ul class="space-y-2">
+                        <li><a href="home.html" class="text-slate-400 hover:text-sky-400">Home</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-slate-200 mb-4">Contact</h4>
+                    <ul class="space-y-2 text-slate-400">
+                        <li>Colombo, Sri Lanka</li>
+                        <li>partners@passenger.lk</li>
+                        <li>+94 11 234 5678</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-12 border-t border-slate-800 pt-8 text-center text-slate-500">
+                <p>&copy; 2024 Passenger LK. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Header scroll effect
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('header-scrolled');
+                } else {
+                    header.classList.remove('header-scrolled');
+                }
+            });
+
+            // Mobile menu toggle logic
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenuCloseButton = document.getElementById('mobile-menu-close-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const body = document.body;
+
+            function openMobileMenu() {
+                mobileMenu.classList.remove('hidden');
+                body.classList.add('body-no-scroll');
+                setTimeout(() => {
+                    mobileMenu.classList.remove('opacity-0');
+                    mobileMenu.classList.add('open');
+                }, 10);
+            }
+
+            function closeMobileMenu() {
+                body.classList.remove('body-no-scroll');
+                mobileMenu.classList.add('opacity-0');
+                mobileMenu.classList.remove('open');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 300);
+            }
+
+            mobileMenuButton.addEventListener('click', openMobileMenu);
+            mobileMenuCloseButton.addEventListener('click', closeMobileMenu);
+
+            // Intersection Observer for reveal animations
+            const revealElements = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            revealElements.forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+
+</body>
+
+</html>
