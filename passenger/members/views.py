@@ -145,12 +145,14 @@ def register_or_login_user(request):
 
         }
 
+        role = "USER"
         user_collection.insert_one(user_data)
+        access_token = create_access_token(phone_number, role)
 
-        if send_otp_sms(phone_number, otp_code):
-            return Response({"message": "OTP sent successfully! Please verify."}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"error": "Failed to send OTP via SMS."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({
+            "message": "New User Created",
+            "token": access_token
+        }, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
