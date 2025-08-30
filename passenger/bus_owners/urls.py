@@ -24,6 +24,7 @@ urlpatterns = [
     path('list-fare-types/', views.list_fare_types, name='list_fare_types'),
     path('verify-booking/', views.verify_booking, name='verify_booking'),
     path('complete-trip/', views.complete_bookings, name='complete-bookings'),
+    path('live-location/', views.record_trip_locations),
     path('off-machine/', views.turn_machine_off, name='turn_machine_off'),
 
 

@@ -37,6 +37,7 @@ routes_collection = db['Routes']
 bus_fare_collection = db["BusFare"]
 bookings_collection = db['Bookings']
 fare_types_collection = db['BusFare']
+trip_location_collection = db['TripLocation']
 
 
 @api_view(['POST'])
@@ -1309,3 +1310,100 @@ def turn_machine_off(request):
         return Response({"message": "Bus machine turned off successfully"})
     else:
         return Response({"error": "Failed to update bus machine status"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+def record_trip_locations(request):
+    """
+    Create or append location updates for a trip.
+
+    Expects:
+    {
+      "trip_id": "your_current_trip_id_here",
+      "locations": [
+        {"latitude": 6.927079, "longitude": 79.861244, "timestamp": "2025-08-27T10:00:00.123Z"},
+        {"latitude": 6.927180, "longitude": 79.861350, "timestamp": "2025-08-27T10:05:00.456Z"}
+      ]
+    }
+
+    Behavior:
+    - Verifies the trip exists in BusTrips.
+    - If TripLocation doc for this trip doesn't exist, creates it and inserts locations.
+    - If it exists, appends locations to the bottom and updates timestamps.
+    """
+    data = request.data
+    trip_id = data.get('trip_id')
+    locations = data.get('locations')
+
+    # Basic validation
+    if not trip_id:
+        return Response({"error": "trip_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+    if not isinstance(locations, list) or len(locations) == 0:
+        return Response({"error": "locations must be a non-empty list"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Validate trip existence (BusTrips)
+    try:
+        trip_obj_id = ObjectId(trip_id)
+    except Exception:
+        return Response({"error": "Invalid trip_id format"}, status=status.HTTP_400_BAD_REQUEST)
+
+    trip = bus_trip_collection.find_one({"_id": trip_obj_id}, {"_id": 1})
+    if not trip:
+        return Response({"error": "Trip not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Normalize/validate locations
+    cleaned, invalid = [], []
+    for idx, item in enumerate(locations):
+        try:
+            lat = float(item.get('latitude'))
+            lon = float(item.get('longitude'))
+            ts_raw = item.get('timestamp')
+            if ts_raw is None:
+                raise ValueError("timestamp missing")
+
+            # Handle ISO 8601 with or without Z
+            ts_str = str(ts_raw)
+            if ts_str.endswith('Z'):
+                ts_str = ts_str.replace('Z', '+00:00')
+            dt = datetime.datetime.fromisoformat(ts_str)
+            if dt.tzinfo is None:
+                # assume UTC if no tzinfo provided
+                dt = dt.replace(tzinfo=utc_timezone)
+            dt = dt.astimezone(utc_timezone)
+
+            cleaned.append({
+                "latitude": lat,
+                "longitude": lon,
+                "timestamp": dt
+            })
+        except Exception as e:
+            invalid.append({"index": idx, "error": str(e)})
+
+    if not cleaned:
+        return Response({"error": "No valid location entries to record", "invalid_items": invalid},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    now = datetime.datetime.now(tz).astimezone(utc_timezone)
+
+    # Upsert TripLocation doc and append to the bottom
+    result = trip_location_collection.update_one(
+        # we store trip_id as a string to match your other references-by-string pattern
+        {"trip_id": trip_id},
+        {
+            "$setOnInsert": {"trip_id": trip_id, "created_at": now},
+            "$set": {"updated_at": now},
+            "$push": {"locations": {"$each": cleaned}}
+        },
+        upsert=True
+    )
+
+    created = result.upserted_id is not None
+    doc = trip_location_collection.find_one({"trip_id": trip_id}, {"_id": 1})
+
+    return Response({
+        "message": "created TripLocation document" if created else "appended locations to existing TripLocation",
+        "trip_location_id": str(doc["_id"]) if doc else None,
+        "trip_id": trip_id,
+        "added_count": len(cleaned),
+        "invalid_items": invalid
+    }, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
